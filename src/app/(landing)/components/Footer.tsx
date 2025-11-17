@@ -3,8 +3,8 @@ export default function Footer() {
     <footer className="border-t mt-12">
       <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="font-bold text-lg">Trading<span className="text-indigo-600">Journal</span></div>
-          <div className="text-sm text-slate-500 mt-1">© {new Date().getFullYear()} Trading Journal. All rights reserved.</div>
+          <span className="font-bold text-lg text-indigo-600 md:text-2xl">V<span className="text-black">aidehi</span></span>
+          <div className="text-sm text-slate-500 mt-1">© {new Date().getFullYear()} Vaidehi. All rights reserved.</div>
         </div>
 
         <div className="flex gap-6">

@@ -14,7 +14,7 @@ export default function Hero() {
     <section id="hero" className="relative overflow-hidden">
       <AnimatedBackground />
 
-      <div className="max-w-7xl mx-auto px-6 py-24 md:py-32 relative">
+      <div className="max-w-7xl mx-auto px-6 py-24 md:py-9 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           {/* Left column - Text content */}
           <div>
@@ -22,13 +22,22 @@ export default function Hero() {
               Finally you got here
             </h1>
 
-            <p className="mt-4 text-lg text-slate-700 max-w-xl">
+            <p className="mt-5 text-4xl text-slate-700 max-w-xl">
               It's time to optimize your{" "}
               <span className="font-semibold text-indigo-600">
                 <TypeRotator words={words} interval={1200} />
               </span>
               <span className="sr-only"> — Routine, Trades, Strategies, Backtests</span>
             </p>
+
+            {/* Quote */}
+            <blockquote className="border-l-2 border-cyan-400/50 pl-6 py-4 italic text-slate-500 text-sm md:text-base max-w-lg">
+              "All I wanted was my art and the chance to be the creator of my own world, my own reality.
+              I wanted the open road and new beginnings every day."
+              <footer className="mt-2 not-italic text-slate-500">
+                - Charlotte Eriksson
+              </footer>
+            </blockquote>
 
             <div className="mt-8 flex gap-4">
               <a

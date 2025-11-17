@@ -25,7 +25,7 @@ export default function Header() {
             <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/">
-                        <span className="font-bold text-lg">Trading<span className="text-indigo-600">Journal</span></span>
+                        <span className="font-bold text-lg text-indigo-600 md:text-2xl">V<span className="text-black">aidehi</span></span>
                     </Link>
                     <ul className="hidden md:flex items-center gap-6 ml-8">
                         {NAV.map((n) => (
