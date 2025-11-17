@@ -1,69 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-interface TypeRotatorProps {
+export default function TypeRotator({
+  words = [],
+  interval = 2500,
+  typingSpeed = 100,
+  deletingSpeed = 50,
+}: {
   words: string[];
   interval?: number;
   typingSpeed?: number;
-}
-
-export default function TypeRotator({
-  words,
-  interval = 2000,
-  typingSpeed = 100
-}: TypeRotatorProps) {
+  deletingSpeed?: number;
+}) {
   const [index, setIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    if (!words || words.length === 0) return;
+
     const currentWord = words[index];
 
     const timeout = setTimeout(() => {
-      if (isPaused) {
-        // Pause after completing a word
-        setIsPaused(false);
-        setIsDeleting(true);
-        return;
-      }
-
       if (!isDeleting) {
         // Typing forward
         if (displayText.length < currentWord.length) {
           setDisplayText(currentWord.slice(0, displayText.length + 1));
         } else {
-          // Word complete, pause before deleting
-          setIsPaused(true);
+          // Word complete, wait then start deleting
+          setTimeout(() => setIsDeleting(true), interval);
         }
       } else {
         // Deleting backward
         if (displayText.length > 0) {
-          setDisplayText(currentWord.slice(0, displayText.length - 1));
+          setDisplayText(displayText.slice(0, -1));
         } else {
           // Deleted completely, move to next word
           setIsDeleting(false);
           setIndex((i) => (i + 1) % words.length);
         }
       }
-    }, isPaused ? interval : isDeleting ? typingSpeed / 2 : typingSpeed);
+    }, isDeleting ? deletingSpeed : typingSpeed);
 
     return () => clearTimeout(timeout);
-  }, [displayText, isDeleting, isPaused, index, words, interval, typingSpeed]);
+  }, [displayText, isDeleting, index, words, interval, typingSpeed, deletingSpeed]);
 
   return (
-    <span className="inline-block align-middle relative">
-      <span className="inline-block transition-opacity duration-200">
+    <span className="inline-block relative">
+      {/* Display text with cursor inline */}
+      <span className="transition-opacity duration-200">
         {displayText}
+        {/* Blinking cursor - right after the text */}
+        <span
+          className="inline-block w-[2px] h-[1em] bg-indigo-600 ml-0.5 align-middle"
+          style={{
+            animation: "blink 1.3s step-end infinite",
+          }}
+        />
       </span>
-      {/* Blinking cursor */}
-      <span
-        className="inline-block w-0.5 h-5 bg-indigo-600 ml-0.5 animate-pulse"
-        style={{
-          animation: "blink 1s step-end infinite",
-        }}
-      />
       <style jsx>{`
         @keyframes blink {
           0%, 50% { opacity: 1; }
