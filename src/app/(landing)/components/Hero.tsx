@@ -11,10 +11,10 @@ export default function Hero() {
   const words = ["Routine", "Trades", "Strategies", "Backtests"];
 
   return (
-    <section id="hero" className="relative overflow-hidden">
+    <section id="hero" className="relative">
       <AnimatedBackground />
 
-      <div className="max-w-7xl mx-auto px-6 py-24 md:py-9 relative">
+      <div className="max-w-7xl mx-auto px-7 py-24 md:py-7 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           {/* Left column - Text content */}
           <div>
@@ -58,9 +58,26 @@ export default function Hero() {
             <div className="mt-12 flex items-center gap-6 text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white" />
+                  <img
+                    src="/images/testimony/person1.jpg"
+                    alt="Trader testimonial"
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  />
+                  <img
+                    src="/images/testimony/person2.jpg"
+                    alt="Trader testimonial"
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  />
+                  <img
+                    src="/images/testimony/person3.jpg"
+                    alt="Trader testimonial"
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  />
+                  <img
+                    src="/images/testimony/person4.jpg"
+                    alt="Trader testimonial"
+                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                  />
                 </div>
                 <span className="font-medium">1,200+ traders</span>
               </div>
