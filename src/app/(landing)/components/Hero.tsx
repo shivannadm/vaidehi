@@ -22,7 +22,7 @@ export default function Hero() {
               Finally you got here
             </h1>
 
-            <p className="mt-5 text-4xl text-slate-700 max-w-xl">
+            <p className="mt-5 text-3xl font-semibold text-slate-700 max-w-xl">
               It's time to optimize your{" "}
               <span className="font-semibold text-indigo-600">
                 <TypeRotator words={words} interval={1200} />
@@ -31,7 +31,7 @@ export default function Hero() {
             </p>
 
             {/* Quote */}
-            <blockquote className="border-l-2 border-cyan-400/50 pl-6 py-4 italic text-slate-500 text-sm md:text-base max-w-lg">
+            <blockquote className="border-l-2 border-cyan-400/50 pl-6 py-6 italic text-slate-500 text-sm md:text-base max-w-lg">
               "All I wanted was my art and the chance to be the creator of my own world, my own reality.
               I wanted the open road and new beginnings every day."
               <footer className="mt-2 not-italic text-slate-500">
