@@ -1,6 +1,6 @@
 "use client";
 
-import TypeRotator from "./TypeRotator";
+const TypeRotator = dynamic(() => import("./TypeRotator"), { ssr: false });
 import HeroMockup from "./HeroMockup";
 import dynamic from "next/dynamic";
 
@@ -23,7 +23,7 @@ export default function Hero() {
             </h1>
 
             <p className="mt-4 text-lg text-slate-700 max-w-xl">
-              Let's optimise our{" "}
+              It's time to optimize your{" "}
               <span className="font-semibold text-indigo-600">
                 <TypeRotator words={words} interval={1200} />
               </span>
@@ -31,14 +31,14 @@ export default function Hero() {
             </p>
 
             <div className="mt-8 flex gap-4">
-              <a 
-                href="/signup" 
+              <a
+                href="/signup"
                 className="inline-flex items-center px-5 py-3 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 transition-all hover:scale-105"
               >
                 Get started
               </a>
-              <a 
-                href="#features" 
+              <a
+                href="#features"
                 className="inline-flex items-center px-4 py-3 border rounded-md text-sm hover:bg-slate-50 transition-all"
               >
                 Learn more
