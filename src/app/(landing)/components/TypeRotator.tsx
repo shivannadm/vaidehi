@@ -24,19 +24,15 @@ export default function TypeRotator({
 
     const timeout = setTimeout(() => {
       if (!isDeleting) {
-        // Typing forward
         if (displayText.length < currentWord.length) {
           setDisplayText(currentWord.slice(0, displayText.length + 1));
         } else {
-          // Word complete, wait then start deleting
           setTimeout(() => setIsDeleting(true), interval);
         }
       } else {
-        // Deleting backward
         if (displayText.length > 0) {
           setDisplayText(displayText.slice(0, -1));
         } else {
-          // Deleted completely, move to next word
           setIsDeleting(false);
           setIndex((i) => (i + 1) % words.length);
         }
@@ -48,10 +44,8 @@ export default function TypeRotator({
 
   return (
     <span className="inline-block relative">
-      {/* Display text with cursor inline */}
       <span className="transition-opacity duration-200">
         {displayText}
-        {/* Blinking cursor - right after the text */}
         <span
           className="inline-block w-[2px] h-[1em] bg-indigo-600 ml-0.5 align-middle"
           style={{
