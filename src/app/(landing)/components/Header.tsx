@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const NAV = [
-    { id: "how-it-works", title: "How It Works" },
-    { id: "pricing", title: "Pricing" },
-    { id: "about", title: "About" },
+  { id: "how-it-works", title: "How It Works" },
+  { id: "pricing", title: "Pricing" },
+  { id: "about", title: "About" },
 ];
 
 export default function Header() {
@@ -41,7 +41,9 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="hidden md:inline-block px-4 py-2 rounded-md text-sm hover:bg-slate-50 transition">Sign in</button>
+          <a href="/login" className="hidden md:inline-block px-4 py-2 rounded-md text-sm hover:bg-slate-50 transition">
+            Sign in
+          </a>
           <a href="/signup" className="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition">
             Sign up
           </a>
