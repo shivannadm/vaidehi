@@ -1,7 +1,9 @@
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import Footer from "./components/Footer";
-
+import HowItWorks from "./components/HowItWorks";
+import Pricing from "./components/Pricing";
+import FinalCTA from "./components/FinalCTA";
 
 export default function LandingPage() {
   return (
@@ -9,7 +11,9 @@ export default function LandingPage() {
       <Header />
       <main className="flex-1">
         <Hero />
-        {/* other sections (features, contact, etc.) go here */}
+        <HowItWorks />
+        <Pricing />
+        <FinalCTA />
       </main>
       <Footer />
     </div>

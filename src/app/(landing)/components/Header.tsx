@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const NAV = [
-    { id: "features", title: "Features" },
+    { id: "how-it-works", title: "How It Works" },
     { id: "pricing", title: "Pricing" },
     { id: "about", title: "About" },
-    { id: "contact", title: "Contact" },
 ];
 
 export default function Header() {
