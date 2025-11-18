@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 export default function AnimatedBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);  // Add type here
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -12,7 +12,6 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -20,94 +19,113 @@ export default function AnimatedBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Particle system
-    class Particle {
+    // Grid of dots
+    class GridDot {
       x: number;
       y: number;
-      vx: number;
-      vy: number;
-      radius: number;
-      opacity: number;
-      canvasWidth: number;   // Add these
-      canvasHeight: number;  // Add these
+      baseX: number;
+      baseY: number;
+      offsetX: number;
+      offsetY: number;
+      phase: number;
+      speed: number;
 
-      constructor(canvasWidth: number, canvasHeight: number) {
-        this.canvasWidth = canvasWidth;
-        this.canvasHeight = canvasHeight;
-        this.x = Math.random() * this.canvasWidth;
-        this.y = Math.random() * this.canvasHeight;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.radius = Math.random() * 2 + 1;
-        this.opacity = Math.random() * 0.5 + 0.2;
+      constructor(x: number, y: number) {
+        this.baseX = x;
+        this.baseY = y;
+        this.x = x;
+        this.y = y;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.phase = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 0.01 + 0.005;
       }
 
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
+      update(mouseX: number, mouseY: number) {
+        // Gentle floating animation
+        this.phase += this.speed;
+        this.offsetX = Math.sin(this.phase) * 2;
+        this.offsetY = Math.cos(this.phase * 0.8) * 2;
 
-        // Bounce off edges
-        if (this.x < 0 || this.x > this.canvasWidth) this.vx *= -1;
-        if (this.y < 0 || this.y > this.canvasHeight) this.vy *= -1;
+        // Mouse interaction - dots move away from cursor
+        const dx = this.baseX - mouseX;
+        const dy = this.baseY - mouseY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDistance = 150;
+
+        if (distance < maxDistance) {
+          const force = (1 - distance / maxDistance) * 15;
+          this.offsetX += (dx / distance) * force;
+          this.offsetY += (dy / distance) * force;
+        }
+
+        this.x = this.baseX + this.offsetX;
+        this.y = this.baseY + this.offsetY;
       }
 
       draw(context: CanvasRenderingContext2D) {
         context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        context.fillStyle = `rgba(99, 102, 241, ${this.opacity})`;
+        context.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+        context.fillStyle = "rgba(99, 102, 241, 0.3)";
         context.fill();
       }
     }
 
-    // Create particles
-    const particles: Particle[] = [];
-    const particleCount = Math.min(50, Math.floor(canvas.width / 20));
+    // Create grid of dots
+    const dots: GridDot[] = [];
+    const spacing = 40; // Distance between dots
+    const cols = Math.ceil(canvas.width / spacing) + 1;
+    const rows = Math.ceil(canvas.height / spacing) + 1;
 
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle(canvas.width, canvas.height));
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        dots.push(new GridDot(i * spacing, j * spacing));
+      }
     }
 
-    // Gradient mesh animation
-    let gradientOffset = 0;
+    // Mouse position tracking
+    let mouseX = -1000;
+    let mouseY = -1000;
 
-    // Animation loop
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    const handleMouseLeave = () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+
     const animate = () => {
+      // Clear canvas completely for transparent background
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Animated gradient background
-      gradientOffset += 0.001;
-      const gradient = ctx.createLinearGradient(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-      gradient.addColorStop(0, `rgba(99, 102, 241, ${0.04 + Math.sin(gradientOffset) * 0.02})`);
-      gradient.addColorStop(0.5, `rgba(14, 165, 233, ${0.02 + Math.cos(gradientOffset) * 0.01})`);
-      gradient.addColorStop(1, `rgba(79, 70, 229, ${0.03 + Math.sin(gradientOffset * 1.5) * 0.01})`);
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Update and draw particles
-      particles.forEach((particle) => {
-        particle.update();
-        particle.draw(ctx);
+      // Update and draw dots
+      dots.forEach((dot) => {
+        dot.update(mouseX, mouseY);
+        dot.draw(ctx);
       });
 
-      // Draw connections between nearby particles
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1).forEach((p2) => {
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
+      // Draw connections between nearby dots
+      dots.forEach((dot1, i) => {
+        dots.slice(i + 1).forEach((dot2) => {
+          const dx = dot1.x - dot2.x;
+          const dy = dot1.y - dot2.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < 150) {
+          // Only connect dots that are close enough
+          if (distance < spacing * 1.5) {
+            const opacity = (1 - distance / (spacing * 1.5)) * 0.15;
+            
             ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(99, 102, 241, ${0.15 * (1 - distance / 150)})`;
-            ctx.lineWidth = 1;
+            ctx.moveTo(dot1.x, dot1.y);
+            ctx.lineTo(dot2.x, dot2.y);
+            ctx.strokeStyle = `rgba(99, 102, 241, ${opacity})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         });
@@ -120,6 +138,8 @@ export default function AnimatedBackground() {
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
