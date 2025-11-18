@@ -14,9 +14,8 @@ export default function Hero() {
     <section id="hero" className="relative">
       <AnimatedBackground />
 
-      <div className="max-w-7xl mx-auto px-7 py-24 md:py-7 relative">
+      <div className="max-w-7xl mx-auto px-7 py-24 md:py-10 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          {/* Left column - Text content */}
           <div>
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
               Finally you got here
@@ -27,10 +26,8 @@ export default function Hero() {
               <span className="font-semibold text-indigo-600">
                 <TypeRotator words={words} interval={1200} />
               </span>
-              <span className="sr-only"> — Routine, Trades, Strategies, Backtests</span>
             </p>
 
-            {/* Quote */}
             <blockquote className="border-l-2 border-cyan-400/50 pl-6 py-6 italic text-slate-500 text-sm md:text-base max-w-lg">
               "All I wanted was my art and the chance to be the creator of my own world, my own reality.
               I wanted the open road and new beginnings every day."
@@ -47,37 +44,22 @@ export default function Hero() {
                 Get started
               </a>
               <a
-                href="#features"
+                href="#how-it-works"
                 className="inline-flex items-center px-4 py-3 border rounded-md text-sm hover:bg-slate-50 transition-all"
               >
                 Learn more
               </a>
             </div>
 
-            {/* Trust indicators */}
             <div className="mt-12 flex items-center gap-6 text-sm text-slate-600">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  <img
-                    src="/images/testimony/person1.jpg"
-                    alt="Trader testimonial"
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
-                  <img
-                    src="/images/testimony/person2.jpg"
-                    alt="Trader testimonial"
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
-                  <img
-                    src="/images/testimony/person3.jpg"
-                    alt="Trader testimonial"
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
-                  <img
-                    src="/images/testimony/person4.jpg"
-                    alt="Trader testimonial"
-                    className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                  />
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-indigo-400 to-purple-500"
+                    />
+                  ))}
                 </div>
                 <span className="font-medium">1,200+ traders</span>
               </div>
@@ -88,7 +70,6 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right column - Hero mockup */}
           <div className="hidden md:block">
             <HeroMockup />
           </div>
