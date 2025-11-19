@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import DashboardShell from "./components/DashboardShell";
 
 export const metadata: Metadata = {
     title: "Dashboard - Vaidehi",
@@ -23,9 +24,5 @@ export default async function DashboardLayout({
         redirect("/login");
     }
 
-    return (
-        <div className="min-h-screen bg-slate-50">
-            {children}
-        </div>
-    );
+    return <DashboardShell>{children}</DashboardShell>;
 }
