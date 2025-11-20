@@ -39,7 +39,8 @@ VAIDEHI/
 │   │   │   │   └── TopHeader.tsx
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
-│   │   └── layout.tsx
+│   │   └── gobals.css
+|   |   └── layout.tsx
 │   ├── components/
 │   │   └── ui/
 │   ├── constants/
