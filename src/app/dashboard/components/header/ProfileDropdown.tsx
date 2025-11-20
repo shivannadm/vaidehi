@@ -9,212 +9,209 @@ import { createClient } from "@/lib/supabase/client";
 import type { Profile, Theme } from "@/types/database";
 
 interface ProfileDropdownProps {
-  onProfileClick: () => void;
-  onSettingsClick: () => void;
-  theme: Theme;
-  onThemeChange: (theme: Theme) => void;
+    onProfileClick: () => void;
+    onSettingsClick: () => void;
+    theme: Theme;
+    onThemeChange: (theme: Theme) => void;
 }
 
-export default function ProfileDropdown({ 
-  onProfileClick, 
-  onSettingsClick,
-  theme,
-  onThemeChange 
+export default function ProfileDropdown({
+    onProfileClick,
+    onSettingsClick,
+    theme,
+    onThemeChange
 }: ProfileDropdownProps) {
-  const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
+    const [showMenu, setShowMenu] = useState(false);
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [loading, setLoading] = useState(true);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadProfile();
-    loadUserTheme();
-  }, []);
+    useEffect(() => {
+        loadProfile();
+        loadUserTheme();
+    }, []);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowMenu(false);
-      }
-    }
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowMenu(false);
+            }
+        }
 
-    if (showMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showMenu]);
+        if (showMenu) {
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [showMenu]);
 
-  const loadProfile = async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+    const loadProfile = async () => {
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
 
-      if (!user) return;
+            if (!user) return;
 
-      const { data, error } = await getProfile(user.id);
+            const { data, error } = await getProfile(user.id);
 
-      if (error) {
-        console.error("Error loading profile:", error);
-        return;
-      }
+            if (error) {
+                console.error("Error loading profile:", error);
+                return;
+            }
 
-      setProfile(data);
-    } catch (error) {
-      console.error("Error in loadProfile:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+            setProfile(data);
+        } catch (error) {
+            console.error("Error in loadProfile:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const loadUserTheme = async () => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+    const loadUserTheme = async () => {
+        try {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
 
-      if (!user) return;
+            if (!user) return;
 
-      const { data } = await getUserPreferences(user.id);
-      if (data?.theme) {
-        onThemeChange(data.theme);
-      }
-    } catch (error) {
-      console.error("Error loading theme:", error);
-    }
-  };
+            const { data } = await getUserPreferences(user.id);
+            if (data?.theme) {
+                onThemeChange(data.theme);
+            }
+        } catch (error) {
+            console.error("Error loading theme:", error);
+        }
+    };
 
-  const handleThemeChange = async (newTheme: Theme) => {
-    onThemeChange(newTheme);
-    
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      await updateUserPreferences(user.id, { theme: newTheme });
-    }
-  };
+    const handleThemeChange = async (newTheme: Theme) => {
+        onThemeChange(newTheme);
 
-  const handleLogout = async () => {
-    const { error } = await signOut();
-    if (!error) {
-      router.push('/');
-    } else {
-      console.error("Error logging out:", error);
-    }
-  };
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
 
-  const getInitials = (name: string | null) => {
-    if (!name) return 'U';
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+        if (user) {
+            await updateUserPreferences(user.id, { theme: newTheme });
+        }
+    };
 
-  const displayName = profile?.full_name || 'User';
+    const handleLogout = async () => {
+        const { error } = await signOut();
+        if (!error) {
+            router.push('/');
+        } else {
+            console.error("Error logging out:", error);
+        }
+    };
 
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center gap-2 hover:bg-slate-50 px-2 py-1.5 rounded-lg transition"
-      >
-        <span className="font-medium text-slate-700 text-sm">{displayName}</span>
-        {profile?.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt={displayName}
-            className="w-9 h-9 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-            {getInitials(displayName)}
-          </div>
-        )}
-      </button>
+    const getInitials = (name: string | null) => {
+        if (!name) return 'U';
+        return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
 
-      {/* Profile Dropdown */}
-      {showMenu && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
-          <button
-            onClick={() => {
-              setShowMenu(false);
-              onProfileClick();
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
-          >
-            <div className="flex items-center gap-3">
-              <User className="w-4 h-4" />
-              Profile
-            </div>
-          </button>
+    const displayName = profile?.full_name || 'User';
 
-          <button
-            onClick={() => {
-              setShowMenu(false);
-              onSettingsClick();
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
-          >
-            <div className="flex items-center gap-3">
-              <SettingsIcon className="w-4 h-4" />
-              Settings
-            </div>
-          </button>
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={() => setShowMenu(!showMenu)}
+                className="flex items-center gap-2 hover:bg-slate-50 px-2 py-1.5 rounded-lg transition"
+            >
+                <span className="font-medium text-slate-700 text-sm">{displayName}</span>
+                {profile?.avatar_url ? (
+                    <img
+                        src={profile.avatar_url}
+                        alt={displayName}
+                        className="w-9 h-9 rounded-full object-cover"
+                    />
+                ) : (
+                    <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        {getInitials(displayName)}
+                    </div>
+                )}
+            </button>
 
-          {/* Theme Toggle */}
-          <div className="px-4 py-2 border-t border-slate-200 mt-2">
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Theme</p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleThemeChange('light')}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${
-                  theme === 'light'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Light
-              </button>
-              <button
-                onClick={() => handleThemeChange('dark')}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${
-                  theme === 'dark'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Dark
-              </button>
-              <button
-                onClick={() => handleThemeChange('system')}
-                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${
-                  theme === 'system'
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Auto
-              </button>
-            </div>
-          </div>
+            {/* Profile Dropdown */}
+            {showMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                    <button
+                        onClick={() => {
+                            setShowMenu(false);
+                            onProfileClick();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+                    >
+                        <div className="flex items-center gap-3">
+                            <User className="w-4 h-4" />
+                            Profile
+                        </div>
+                    </button>
 
-          <hr className="my-2 border-slate-200" />
+                    <button
+                        onClick={() => {
+                            setShowMenu(false);
+                            onSettingsClick();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+                    >
+                        <div className="flex items-center gap-3">
+                            <SettingsIcon className="w-4 h-4" />
+                            Settings
+                        </div>
+                    </button>
 
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
-          >
-            <div className="flex items-center gap-3">
-              <LogOut className="w-4 h-4" />
-              Logout
-            </div>
-          </button>
+                    {/* Theme Toggle */}
+                    <div className="px-4 py-2 border-t border-slate-200 mt-2">
+                        <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Theme</p>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleThemeChange('light')}
+                                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'light'
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                Light
+                            </button>
+                            <button
+                                onClick={() => handleThemeChange('dark')}
+                                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'dark'
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                Dark
+                            </button>
+                            <button
+                                onClick={() => handleThemeChange('system')}
+                                className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'system'
+                                    ? 'bg-indigo-100 text-indigo-700'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                Auto
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr className="my-2 border-slate-200" />
+
+                    <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                    >
+                        <div className="flex items-center gap-3">
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                        </div>
+                    </button>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
