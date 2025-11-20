@@ -4,13 +4,15 @@
 import { useState, useEffect } from "react";
 import { X, Eye, EyeOff, Loader2, CheckCircle } from "lucide-react";
 import { updatePassword } from "@/lib/supabase/helpers";
+import type { Theme } from "@/types/database";
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  theme: Theme;
 }
 
-export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose, theme }: SettingsModalProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -117,26 +119,34 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   if (!isOpen) return null;
 
+  const isLight = theme === 'light';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
-        
+      <div className={`rounded-xl shadow-2xl w-full max-w-md mx-4 ${isLight ? 'bg-white' : 'bg-slate-900'
+        }`}>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h2 className="text-xl font-bold text-slate-900">Settings</h2>
+        <div className={`flex items-center justify-between p-6 border-b ${isLight ? 'border-slate-200' : 'border-slate-700'
+          }`}>
+          <h2 className={`text-xl font-bold ${isLight ? 'text-slate-900' : 'text-white'
+            }`}>Settings</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-100 rounded-lg transition"
+            className={`p-2 rounded-lg transition ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-700'
+              }`}
             disabled={loading}
           >
-            <X className="w-5 h-5 text-slate-500" />
+            <X className={`w-5 h-5 ${isLight ? 'text-slate-500' : 'text-slate-400'
+              }`} />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Change Password</h3>
-          
+          <h3 className={`text-lg font-semibold mb-4 ${isLight ? 'text-slate-900' : 'text-white'
+            }`}>Change Password</h3>
+
           {/* Success Message */}
           {success && (
             <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
@@ -149,16 +159,21 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <span className="text-sm text-red-700">{error}</span>
+            <div className={`mb-4 p-4 border rounded-lg ${isLight
+                ? 'bg-red-50 border-red-200'
+                : 'bg-red-900/20 border-red-800'
+              }`}>
+              <span className={`text-sm ${isLight ? 'text-red-700' : 'text-red-400'
+                }`}>{error}</span>
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+
             {/* Current Password */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isLight ? 'text-slate-700' : 'text-slate-300'
+                }`}>
                 Current Password
               </label>
               <div className="relative">
@@ -166,7 +181,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   type={showCurrentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10 ${isLight
+                      ? 'border-slate-300 bg-white text-slate-900'
+                      : 'border-slate-600 bg-slate-700 text-white'
+                    }`}
                   placeholder="Enter current password"
                   required
                   disabled={loading || success}
@@ -174,7 +192,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-400 hover:text-slate-600' : 'text-slate-500 hover:text-slate-300'
+                    }`}
                   disabled={loading || success}
                 >
                   {showCurrentPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -184,7 +203,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
             {/* New Password */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isLight ? 'text-slate-700' : 'text-slate-300'
+                }`}>
                 New Password
               </label>
               <div className="relative">
@@ -192,7 +212,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   type={showNewPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10 ${isLight
+                      ? 'border-slate-300 bg-white text-slate-900'
+                      : 'border-slate-600 bg-slate-700 text-white'
+                    }`}
                   placeholder="Enter new password"
                   required
                   disabled={loading || success}
@@ -200,7 +223,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-400 hover:text-slate-600' : 'text-slate-500 hover:text-slate-300'
+                    }`}
                   disabled={loading || success}
                 >
                   {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -210,7 +234,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className={`block text-sm font-medium mb-2 ${isLight ? 'text-slate-700' : 'text-slate-300'
+                }`}>
                 Confirm New Password
               </label>
               <div className="relative">
@@ -218,7 +243,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10 ${isLight
+                      ? 'border-slate-300 bg-white text-slate-900'
+                      : 'border-slate-600 bg-slate-700 text-white'
+                    }`}
                   placeholder="Confirm new password"
                   required
                   disabled={loading || success}
@@ -226,7 +254,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 ${isLight ? 'text-slate-400 hover:text-slate-600' : 'text-slate-500 hover:text-slate-300'
+                    }`}
                   disabled={loading || success}
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -235,9 +264,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
 
             {/* Password Requirements */}
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <p className="text-xs font-semibold text-slate-700 mb-2">Password Requirements:</p>
-              <ul className="text-xs text-slate-600 space-y-1">
+            <div className={`p-4 rounded-lg ${isLight ? 'bg-slate-50' : 'bg-slate-700/50'
+              }`}>
+              <p className={`text-xs font-semibold mb-2 ${isLight ? 'text-slate-700' : 'text-slate-300'
+                }`}>Password Requirements:</p>
+              <ul className={`text-xs space-y-1 ${isLight ? 'text-slate-600' : 'text-slate-400'
+                }`}>
                 <li className={newPassword.length >= 8 ? "text-green-600" : ""}>
                   • At least 8 characters
                 </li>
@@ -258,7 +290,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition font-medium"
+                className={`flex-1 px-4 py-2 border rounded-lg transition font-medium ${isLight
+                    ? 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                    : 'border-slate-600 text-slate-300 hover:bg-slate-700'
+                  }`}
                 disabled={loading || success}
               >
                 Cancel

@@ -91,6 +91,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        theme={theme}
       />
     </>
   );
