@@ -18,7 +18,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   // Apply theme to document
   useEffect(() => {
     const root = document.documentElement;
-    
+
     if (theme === 'system') {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       root.classList.toggle('dark', prefersDark);
@@ -55,7 +55,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     <>
       <div className={`flex h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'}`}>
         {/* Sidebar */}
-        <Sidebar 
+        <Sidebar
           activeItem={activeItem}
           onItemClick={handleItemClick}
           theme={theme}
@@ -64,7 +64,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top Header */}
-          <TopHeader 
+          <TopHeader
             onSettingsOpen={() => setIsSettingsOpen(true)}
             onProfileOpen={() => setIsProfileOpen(true)}
             currentSection={currentSection}
@@ -73,24 +73,24 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           />
 
           {/* Page Content */}
-          <main className={`flex-1 overflow-y-auto p-6 ${
-            isLight ? 'bg-slate-50' : 'bg-slate-900'
-          }`}>
+          <main className={`flex-1 overflow-y-auto p-6 ${isLight ? 'bg-slate-50' : 'bg-slate-900'
+            }`}>
             {children}
           </main>
         </div>
       </div>
 
       {/* Profile Modal */}
-      <ProfileModal 
-        isOpen={isProfileOpen} 
-        onClose={() => setIsProfileOpen(false)} 
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        theme={theme}
       />
 
       {/* Settings Modal */}
-      <SettingsModal 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </>
   );

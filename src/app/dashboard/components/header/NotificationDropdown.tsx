@@ -11,8 +11,13 @@ import {
 } from "@/lib/supabase/helpers";
 import { createClient } from "@/lib/supabase/client";
 import type { Notification } from "@/types/database";
+import type { Theme } from "@/types/database";
 
-export default function NotificationDropdown() {
+interface NotificationDropdownProps {
+    theme: Theme;
+}
+
+export default function NotificationDropdown({ theme }: NotificationDropdownProps) {
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
@@ -122,13 +127,17 @@ export default function NotificationDropdown() {
         return date.toLocaleDateString();
     };
 
+    const isLight = theme === 'light';
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 hover:bg-slate-100 rounded-lg transition"
+                className={`relative p-2 rounded-lg transition ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-700'
+                    }`}
             >
-                <Bell className="w-5 h-5 text-slate-600" />
+                <Bell className={`w-5 h-5 ${isLight ? 'text-slate-600' : 'text-slate-300'
+                    }`} />
                 {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                         {unreadCount > 9 ? '9+' : unreadCount}
@@ -138,9 +147,14 @@ export default function NotificationDropdown() {
 
             {/* Notifications Dropdown */}
             {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-2 max-h-96 overflow-y-auto z-50">
-                    <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200">
-                        <h3 className="font-semibold text-slate-900">Notifications</h3>
+                <div className={`absolute right-0 mt-2 w-80 rounded-lg shadow-lg border py-2 max-h-96 overflow-y-auto z-50 ${isLight
+                    ? 'bg-white border-slate-200'
+                    : 'bg-slate-800 border-slate-700'
+                    }`}>
+                    <div className={`flex items-center justify-between px-4 py-2 border-b ${isLight ? 'border-slate-200' : 'border-slate-700'
+                        }`}>
+                        <h3 className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'
+                            }`}>Notifications</h3>
                         {unreadCount > 0 && (
                             <button
                                 onClick={handleMarkAllAsRead}
@@ -152,18 +166,22 @@ export default function NotificationDropdown() {
                     </div>
 
                     {loading ? (
-                        <div className="px-4 py-8 text-center text-slate-500 text-sm">
+                        <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                            }`}>
                             Loading...
                         </div>
                     ) : notifications.length === 0 ? (
-                        <div className="px-4 py-8 text-center text-slate-500 text-sm">
+                        <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                            }`}>
                             No notifications
                         </div>
                     ) : (
                         notifications.map(notif => (
                             <div
                                 key={notif.id}
-                                className={`relative group px-4 py-3 hover:bg-slate-50 transition border-b border-slate-100 ${!notif.read ? 'bg-indigo-50' : ''
+                                className={`relative group px-4 py-3 transition border-b ${isLight
+                                    ? `hover:bg-slate-50 border-slate-100 ${!notif.read ? 'bg-indigo-50' : ''}`
+                                    : `hover:bg-slate-700 border-slate-700 ${!notif.read ? 'bg-slate-700/50' : ''}`
                                     }`}
                             >
                                 <div className="flex items-start gap-2">
@@ -171,16 +189,20 @@ export default function NotificationDropdown() {
                                         <div className="w-2 h-2 bg-indigo-600 rounded-full mt-1.5 flex-shrink-0" />
                                     )}
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-slate-700 pr-6">{notif.message}</p>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className={`text-sm pr-6 ${isLight ? 'text-slate-700' : 'text-slate-200'
+                                            }`}>{notif.message}</p>
+                                        <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                            }`}>
                                             {formatTime(notif.created_at)}
                                         </p>
                                     </div>
                                     <button
                                         onClick={() => handleDeleteNotification(notif.id)}
-                                        className="absolute top-3 right-3 p-1 opacity-0 group-hover:opacity-100 hover:bg-slate-200 rounded transition"
+                                        className={`absolute top-3 right-3 p-1 opacity-0 group-hover:opacity-100 rounded transition ${isLight ? 'hover:bg-slate-200' : 'hover:bg-slate-600'
+                                            }`}
                                     >
-                                        <X className="w-4 h-4 text-slate-500" />
+                                        <X className={`w-4 h-4 ${isLight ? 'text-slate-500' : 'text-slate-300'
+                                            }`} />
                                     </button>
                                 </div>
                                 {!notif.read && (
