@@ -1,4 +1,4 @@
-// src/lib/supabase/helpers.ts
+// Create this file: src/lib/supabase/helpers.ts
 // ============================================
 // SUPABASE HELPER FUNCTIONS
 // ============================================

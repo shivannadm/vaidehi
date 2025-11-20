@@ -1,4 +1,4 @@
-// src/types/database.ts
+// Create this file: src/types/database.ts
 // ============================================
 // DATABASE TYPES & INTERFACES
 // ============================================
@@ -43,55 +43,3 @@ export interface UserPreferences {
 }
 
 export type Theme = 'light' | 'dark' | 'system';
-
-// ============================================
-// COMPONENT PROPS TYPES
-// ============================================
-
-export interface TopHeaderProps {
-    onSettingsOpen: () => void;
-    currentSection: string;
-}
-
-export interface StreakCounterProps {
-    streak: number;
-}
-
-export interface NotificationDropdownProps {
-    notifications: Notification[];
-    onMarkAsRead: (id: string) => void;
-    onMarkAllAsRead: () => void;
-    onDeleteNotification: (id: string) => void;
-}
-
-export interface ProfileDropdownProps {
-    profile: Profile | null;
-    onProfileClick: () => void;
-    onSettingsClick: () => void;
-    onLogout: () => void;
-}
-
-export interface ProfileModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    profile: Profile | null;
-}
-
-export interface SettingsModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
-
-// ============================================
-// API RESPONSE TYPES
-// ============================================
-
-export interface ApiResponse<T> {
-    data: T | null;
-    error: Error | null;
-}
-
-export interface UploadAvatarResponse {
-    url: string | null;
-    error: Error | null;
-}
