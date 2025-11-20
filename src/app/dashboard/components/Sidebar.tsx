@@ -2,164 +2,389 @@
 
 import { useState } from "react";
 import {
-    ChevronLeft,
-    ChevronRight,
-    CheckSquare,
-    Calendar,
-    Bell,
-    Target,
-    Heart,
-    Coffee,
-    TrendingUp,
-    BookOpen,
-    PieChart,
-    FileText,
-    Zap
+  ChevronLeft,
+  ChevronRight,
+  CheckSquare,
+  Calendar,
+  Lightbulb,
+  FolderOpen,
+  StickyNote,
+  TrendingUp,
+  Coffee,
+  Moon,
+  Heart,
+  Target,
+  Activity,
+  BarChart3,
+  BookOpen,
+  TestTube,
+  Layers,
+  PieChart,
+  FileText,
+  Zap,
+  Shield,
+  LayoutDashboard
 } from "lucide-react";
 
-export default function Sidebar() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [openSections, setOpenSections] = useState({
-        todo: true,
-        routine: true,
-        trading: true
-    });
-
-    const toggleSection = (section: 'todo' | 'routine' | 'trading') => {
-        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
-    };
-
-    return (
-        <aside
-            className={`bg-slate-900 text-white h-screen sticky top-0 transition-all duration-300 flex flex-col ${isCollapsed ? "w-20" : "w-64"
-                }`}
-        >
-            {/* Logo Section */}
-            <div className="p-4 flex items-center justify-between border-b border-slate-800">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                        <TrendingUp className="w-6 h-6" />
-                    </div>
-                    {!isCollapsed && (
-                        <span className="font-bold text-lg">
-                            <span className="text-indigo-400">V</span>aidehi
-                        </span>
-                    )}
-                </div>
-
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="p-1 hover:bg-slate-800 rounded transition"
-                >
-                    {isCollapsed ? (
-                        <ChevronRight className="w-5 h-5" />
-                    ) : (
-                        <ChevronLeft className="w-5 h-5" />
-                    )}
-                </button>
-            </div>
-
-            {/* Upgrade Button */}
-            <div className="p-4 border-b border-slate-800">
-                {!isCollapsed ? (
-                    <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition">
-                        <Zap className="w-4 h-4" />
-                        Upgrade 🚀
-                    </button>
-                ) : (
-                    <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 p-2 rounded-lg transition flex items-center justify-center">
-                        <Zap className="w-5 h-5" />
-                    </button>
-                )}
-            </div>
-
-            {/* Navigation Sections */}
-            <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-
-                {/* TO DO Section */}
-                <div>
-                    <button
-                        onClick={() => toggleSection('todo')}
-                        className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg transition"
-                    >
-                        <span className={`font-semibold text-sm uppercase tracking-wider text-slate-400 ${isCollapsed ? 'hidden' : ''}`}>
-                            To Do
-                        </span>
-                        {!isCollapsed && (
-                            <ChevronRight className={`w-4 h-4 transition-transform ${openSections.todo ? 'rotate-90' : ''}`} />
-                        )}
-                    </button>
-
-                    {openSections.todo && (
-                        <div className="mt-1 space-y-1">
-                            <SidebarItem icon={<CheckSquare className="w-5 h-5" />} label="Tasks" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<Calendar className="w-5 h-5" />} label="Schedule" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<Bell className="w-5 h-5" />} label="Reminders" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<Target className="w-5 h-5" />} label="Goals" isCollapsed={isCollapsed} />
-                        </div>
-                    )}
-                </div>
-
-                {/* Routine Section */}
-                <div>
-                    <button
-                        onClick={() => toggleSection('routine')}
-                        className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg transition"
-                    >
-                        <span className={`font-semibold text-sm uppercase tracking-wider text-slate-400 ${isCollapsed ? 'hidden' : ''}`}>
-                            Routine
-                        </span>
-                        {!isCollapsed && (
-                            <ChevronRight className={`w-4 h-4 transition-transform ${openSections.routine ? 'rotate-90' : ''}`} />
-                        )}
-                    </button>
-
-                    {openSections.routine && (
-                        <div className="mt-1 space-y-1">
-                            <SidebarItem icon={<Coffee className="w-5 h-5" />} label="Morning" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<Heart className="w-5 h-5" />} label="Health" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<Target className="w-5 h-5" />} label="Habits" isCollapsed={isCollapsed} />
-                        </div>
-                    )}
-                </div>
-
-                {/* Trading Section */}
-                <div>
-                    <button
-                        onClick={() => toggleSection('trading')}
-                        className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg transition"
-                    >
-                        <span className={`font-semibold text-sm uppercase tracking-wider text-slate-400 ${isCollapsed ? 'hidden' : ''}`}>
-                            Trading
-                        </span>
-                        {!isCollapsed && (
-                            <ChevronRight className={`w-4 h-4 transition-transform ${openSections.trading ? 'rotate-90' : ''}`} />
-                        )}
-                    </button>
-
-                    {openSections.trading && (
-                        <div className="mt-1 space-y-1">
-                            <SidebarItem icon={<BookOpen className="w-5 h-5" />} label="Journal" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<PieChart className="w-5 h-5" />} label="Analytics" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<FileText className="w-5 h-5" />} label="Reports" isCollapsed={isCollapsed} />
-                            <SidebarItem icon={<TrendingUp className="w-5 h-5" />} label="Performance" isCollapsed={isCollapsed} />
-                        </div>
-                    )}
-                </div>
-            </nav>
-        </aside>
-    );
+interface SidebarProps {
+  activeItem: string;
+  onItemClick: (item: string, section: string) => void;
+  theme?: 'light' | 'dark' | 'system';
 }
 
-function SidebarItem({ icon, label, isCollapsed }: { icon: React.ReactNode; label: string; isCollapsed: boolean }) {
-    return (
-        <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition group"
-            title={isCollapsed ? label : undefined}
-        >
-            <span className="flex-shrink-0">{icon}</span>
-            {!isCollapsed && <span className="text-sm">{label}</span>}
-        </a>
-    );
+export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openSections, setOpenSections] = useState({
+    todo: true,
+    routine: true,
+    trading: true
+  });
+
+  const toggleSection = (section: 'todo' | 'routine' | 'trading') => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const handleLogoClick = () => {
+    // Refresh page and show Dashboard from Trading section
+    onItemClick('Dashboard', 'trading');
+    window.scrollTo(0, 0);
+  };
+
+  const isLight = theme === 'light';
+
+  // Scrollbar styles as inline CSS to avoid hydration issues
+  const scrollbarStyles = `
+    .scrollbar-custom::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scrollbar-custom::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+      background: ${isLight ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.2)'};
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+      background: ${isLight ? 'rgba(148, 163, 184, 0.5)' : 'rgba(148, 163, 184, 0.4)'};
+    }
+    .scrollbar-custom {
+      scrollbar-width: thin;
+      scrollbar-color: ${isLight ? 'rgba(148, 163, 184, 0.3) transparent' : 'rgba(148, 163, 184, 0.2) transparent'};
+    }
+  `;
+
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
+      <aside
+        className={`${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
+          } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-300 flex flex-col ${isCollapsed ? "w-16" : "w-56"
+          }`}
+      >
+        {/* Logo Section - Fixed Hydration Issue */}
+        <div className={`p-3 flex items-center justify-between ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
+          <div
+            onClick={handleLogoClick}
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            {!isCollapsed && (
+              <span className="font-bold text-base">
+                <span className="text-indigo-500">V</span>aidehi
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`p-1 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded transition`}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {/* Upgrade Button */}
+        <div className={`p-3 ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
+          {!isCollapsed ? (
+            <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition text-sm">
+              <Zap className="w-4 h-4" />
+              Upgrade 🚀
+            </button>
+          ) : (
+            <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 p-2 rounded-lg transition flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation Sections with Custom Scrollbar */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-custom">
+
+          {/* TO DO Section */}
+          <div>
+            <button
+              onClick={() => toggleSection('todo')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
+                To Do
+              </span>
+              {!isCollapsed && (
+                <ChevronRight className={`w-3 h-3 transition-transform ${openSections.todo ? 'rotate-90' : ''}`} />
+              )}
+            </button>
+
+            {openSections.todo && (
+              <div className="mt-1 space-y-0.5">
+                <SidebarItem
+                  icon={<CheckSquare className="w-4 h-4" />}
+                  label="Tasks"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Tasks'}
+                  onClick={() => onItemClick('Tasks', 'todo')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Calendar className="w-4 h-4" />}
+                  label="Schedule"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Schedule'}
+                  onClick={() => onItemClick('Schedule', 'todo')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Lightbulb className="w-4 h-4" />}
+                  label="Daily Highlights"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Daily Highlights'}
+                  onClick={() => onItemClick('Daily Highlights', 'todo')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<FolderOpen className="w-4 h-4" />}
+                  label="Projects"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Projects'}
+                  onClick={() => onItemClick('Projects', 'todo')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<StickyNote className="w-4 h-4" />}
+                  label="Key Notes (Todo)"
+                  displayLabel="Key Notes"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Key Notes (Todo)'}
+                  onClick={() => onItemClick('Key Notes (Todo)', 'todo')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<TrendingUp className="w-4 h-4" />}
+                  label="Trends"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Trends'}
+                  onClick={() => onItemClick('Trends', 'todo')}
+                  isLight={isLight}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ROUTINE Section */}
+          <div>
+            <button
+              onClick={() => toggleSection('routine')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
+                Routine
+              </span>
+              {!isCollapsed && (
+                <ChevronRight className={`w-3 h-3 transition-transform ${openSections.routine ? 'rotate-90' : ''}`} />
+              )}
+            </button>
+
+            {openSections.routine && (
+              <div className="mt-1 space-y-0.5">
+                <SidebarItem
+                  icon={<Coffee className="w-4 h-4" />}
+                  label="Morning"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Morning'}
+                  onClick={() => onItemClick('Morning', 'routine')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Moon className="w-4 h-4" />}
+                  label="Evening"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Evening'}
+                  onClick={() => onItemClick('Evening', 'routine')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Heart className="w-4 h-4" />}
+                  label="Health"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Health'}
+                  onClick={() => onItemClick('Health', 'routine')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Target className="w-4 h-4" />}
+                  label="Habits"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Habits'}
+                  onClick={() => onItemClick('Habits', 'routine')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<StickyNote className="w-4 h-4" />}
+                  label="Key Notes (Routine)"
+                  displayLabel="Key Notes"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Key Notes (Routine)'}
+                  onClick={() => onItemClick('Key Notes (Routine)', 'routine')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Activity className="w-4 h-4" />}
+                  label="Progress"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Progress'}
+                  onClick={() => onItemClick('Progress', 'routine')}
+                  isLight={isLight}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* TRADING Section */}
+          <div>
+            <button
+              onClick={() => toggleSection('trading')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
+                Trading
+              </span>
+              {!isCollapsed && (
+                <ChevronRight className={`w-3 h-3 transition-transform ${openSections.trading ? 'rotate-90' : ''}`} />
+              )}
+            </button>
+
+            {openSections.trading && (
+              <div className="mt-1 space-y-0.5">
+                <SidebarItem
+                  icon={<LayoutDashboard className="w-4 h-4" />}
+                  label="Dashboard"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Dashboard'}
+                  onClick={() => onItemClick('Dashboard', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Shield className="w-4 h-4" />}
+                  label="Rules"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Rules'}
+                  onClick={() => onItemClick('Rules', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<BookOpen className="w-4 h-4" />}
+                  label="Journal"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Journal'}
+                  onClick={() => onItemClick('Journal', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<TestTube className="w-4 h-4" />}
+                  label="Backtest"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Backtest'}
+                  onClick={() => onItemClick('Backtest', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<Layers className="w-4 h-4" />}
+                  label="Strategies"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Strategies'}
+                  onClick={() => onItemClick('Strategies', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<StickyNote className="w-4 h-4" />}
+                  label="Key Notes (Trading)"
+                  displayLabel="Key Notes"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Key Notes (Trading)'}
+                  onClick={() => onItemClick('Key Notes (Trading)', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<FileText className="w-4 h-4" />}
+                  label="Reports"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Reports'}
+                  onClick={() => onItemClick('Reports', 'trading')}
+                  isLight={isLight}
+                />
+                <SidebarItem
+                  icon={<PieChart className="w-4 h-4" />}
+                  label="Performance"
+                  isCollapsed={isCollapsed}
+                  isActive={activeItem === 'Performance'}
+                  onClick={() => onItemClick('Performance', 'trading')}
+                  isLight={isLight}
+                />
+              </div>
+            )}
+          </div>
+        </nav>
+      </aside>
+    </>
+  );
+}
+
+function SidebarItem({
+  icon,
+  label,
+  displayLabel,
+  isCollapsed,
+  isActive,
+  onClick,
+  isLight
+}: {
+  icon: React.ReactNode;
+  label: string;
+  displayLabel?: string;
+  isCollapsed: boolean;
+  isActive: boolean;
+  onClick: () => void;
+  isLight: boolean;
+}) {
+  const showLabel = displayLabel || label;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm ${isActive
+          ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
+          : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
+        }`}
+      title={isCollapsed ? showLabel : undefined}
+    >
+      <span className="flex-shrink-0">{icon}</span>
+      {!isCollapsed && <span>{showLabel}</span>}
+    </button>
+  );
 }
