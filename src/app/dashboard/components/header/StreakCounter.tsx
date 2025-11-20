@@ -4,8 +4,13 @@
 import { useState, useEffect } from "react";
 import { getUserStreak, updateUserStreak } from "@/lib/supabase/helpers";
 import { createClient } from "@/lib/supabase/client";
+import type { Theme } from "@/types/database";
 
-export default function StreakCounter() {
+interface StreakCounterProps {
+    theme: Theme;
+}
+
+export default function StreakCounter({ theme }: StreakCounterProps) {
     const [streak, setStreak] = useState(0);
     const [loading, setLoading] = useState(true);
 
@@ -18,7 +23,10 @@ export default function StreakCounter() {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
 
-            if (!user) return;
+            if (!user) {
+                setLoading(false);
+                return;
+            }
 
             // Update streak on page load (counts as activity)
             await updateUserStreak(user.id);
@@ -28,6 +36,7 @@ export default function StreakCounter() {
 
             if (error) {
                 console.error("Error loading streak:", error);
+                setLoading(false);
                 return;
             }
 
@@ -41,24 +50,36 @@ export default function StreakCounter() {
         }
     };
 
+    const isLight = theme === 'light';
+
     if (loading) {
         return (
-            <div className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200 animate-pulse">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border animate-pulse ${isLight
+                    ? 'bg-orange-50 border-orange-200'
+                    : 'bg-orange-900/20 border-orange-800'
+                }`}>
                 <span className="text-xl">🔥</span>
                 <div className="flex items-center gap-1">
-                    <span className="text-base font-bold text-orange-600">-</span>
-                    <span className="text-xs text-slate-600 font-medium">Streaks</span>
+                    <span className={`text-base font-bold ${isLight ? 'text-orange-600' : 'text-orange-400'
+                        }`}>-</span>
+                    <span className={`text-xs font-medium ${isLight ? 'text-slate-600' : 'text-slate-300'
+                        }`}>Streaks</span>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors">
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-colors ${isLight
+                ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+                : 'bg-orange-900/15 border-orange-400/30 hover:bg-orange-900/30'
+            }`}>
             <span className="text-xl">🔥</span>
             <div className="flex items-center gap-1">
-                <span className="text-base font-bold text-orange-600">{streak}</span>
-                <span className="text-xs text-slate-600 font-medium">
+                <span className={`text-base font-bold ${isLight ? 'text-orange-600' : 'text-orange-400'
+                    }`}>{streak}</span>
+                <span className={`text-xs font-medium ${isLight ? 'text-slate-600' : 'text-slate-300'
+                    }`}>
                     {streak === 1 ? 'Streak' : 'Streaks'}
                 </span>
             </div>

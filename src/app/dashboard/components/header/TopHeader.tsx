@@ -22,13 +22,16 @@ export default function TopHeader({
     theme,
     onThemeChange
 }: TopHeaderProps) {
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
-    // Live time update
+    // Only start the clock after component mounts (client-side only)
     useEffect(() => {
+        setCurrentTime(new Date());
+
         const timer = setInterval(() => {
             setCurrentTime(new Date());
         }, 1000);
+
         return () => clearInterval(timer);
     }, []);
 
@@ -49,8 +52,6 @@ export default function TopHeader({
     };
 
     const isLight = theme === 'light';
-    // Cast the imported component to any so we can pass the theme prop without TypeScript complaining
-    const Streak = StreakCounter as any;
 
     return (
         <header className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-800 border-slate-700'
@@ -68,26 +69,40 @@ export default function TopHeader({
                 {/* Center: Date & Time */}
                 <div className={`flex items-center gap-3 text-sm ${isLight ? 'text-slate-600' : 'text-slate-300'
                     }`}>
-                    <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span className="font-medium">{formatDate(currentTime)}</span>
-                    </div>
-                    <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
-                    <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="font-mono font-medium">{formatTime(currentTime)}</span>
-                    </div>
+                    {currentTime ? (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="font-medium">{formatDate(currentTime)}</span>
+                            </div>
+                            <span className={isLight ? 'text-slate-300' : 'text-slate-600'}>|</span>
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span className="font-mono font-medium">{formatTime(currentTime)}</span>
+                            </div>
+                        </>
+                    ) : (
+                        // Placeholder during SSR to prevent hydration mismatch
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span className="font-medium">Loading...</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right: Streak, Notifications, Profile */}
                 <div className="flex items-center gap-3">
 
                     {/* Streak Counter */}
-                    <Streak theme={theme} />
+                    <StreakCounter theme={theme} />
 
                     {/* Notifications */}
                     <NotificationDropdown theme={theme} />

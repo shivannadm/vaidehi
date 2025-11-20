@@ -115,22 +115,27 @@ export default function ProfileDropdown({
     };
 
     const displayName = profile?.full_name || 'User';
+    const isLight = theme === 'light';
 
     return (
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center gap-2 hover:bg-slate-50 px-2 py-1.5 rounded-lg transition"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${isLight
+                        ? 'hover:bg-slate-100'
+                        : 'hover:bg-slate-700/50'
+                    }`}
             >
-                <span className="font-medium text-slate-700 text-sm">{displayName}</span>
+                <span className={`font-medium text-sm ${isLight ? 'text-slate-700' : 'text-white'
+                    }`}>{displayName}</span>
                 {profile?.avatar_url ? (
                     <img
                         src={profile.avatar_url}
                         alt={displayName}
-                        className="w-9 h-9 rounded-full object-cover"
+                        className="w-9 h-9 rounded-full object-cover border-2 border-slate-700/20"
                     />
                 ) : (
-                    <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                         {getInitials(displayName)}
                     </div>
                 )}
@@ -138,13 +143,19 @@ export default function ProfileDropdown({
 
             {/* Profile Dropdown */}
             {showMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+                <div className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg border py-2 z-50 ${isLight
+                        ? 'bg-white border-slate-200'
+                        : 'bg-slate-800 border-slate-700'
+                    }`}>
                     <button
                         onClick={() => {
                             setShowMenu(false);
                             onProfileClick();
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+                        className={`w-full text-left px-4 py-2 text-sm transition ${isLight
+                                ? 'text-slate-700 hover:bg-slate-50'
+                                : 'text-slate-300 hover:bg-slate-700'
+                            }`}
                     >
                         <div className="flex items-center gap-3">
                             <User className="w-4 h-4" />
@@ -157,7 +168,10 @@ export default function ProfileDropdown({
                             setShowMenu(false);
                             onSettingsClick();
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition"
+                        className={`w-full text-left px-4 py-2 text-sm transition ${isLight
+                                ? 'text-slate-700 hover:bg-slate-50'
+                                : 'text-slate-300 hover:bg-slate-700'
+                            }`}
                     >
                         <div className="flex items-center gap-3">
                             <SettingsIcon className="w-4 h-4" />
@@ -166,14 +180,18 @@ export default function ProfileDropdown({
                     </button>
 
                     {/* Theme Toggle */}
-                    <div className="px-4 py-2 border-t border-slate-200 mt-2">
-                        <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Theme</p>
+                    <div className={`px-4 py-2 border-t mt-2 ${isLight ? 'border-slate-200' : 'border-slate-700'
+                        }`}>
+                        <p className={`text-xs uppercase tracking-wide mb-2 ${isLight ? 'text-slate-500' : 'text-slate-400'
+                            }`}>Theme</p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => handleThemeChange('light')}
                                 className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'light'
-                                    ? 'bg-indigo-100 text-indigo-700'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : isLight
+                                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                     }`}
                             >
                                 Light
@@ -181,8 +199,10 @@ export default function ProfileDropdown({
                             <button
                                 onClick={() => handleThemeChange('dark')}
                                 className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'dark'
-                                    ? 'bg-indigo-100 text-indigo-700'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : isLight
+                                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                     }`}
                             >
                                 Dark
@@ -190,8 +210,10 @@ export default function ProfileDropdown({
                             <button
                                 onClick={() => handleThemeChange('system')}
                                 className={`flex-1 px-3 py-1.5 rounded text-xs font-medium transition ${theme === 'system'
-                                    ? 'bg-indigo-100 text-indigo-700'
-                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                        ? 'bg-indigo-100 text-indigo-700'
+                                        : isLight
+                                            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                            : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                                     }`}
                             >
                                 Auto
@@ -199,11 +221,15 @@ export default function ProfileDropdown({
                         </div>
                     </div>
 
-                    <hr className="my-2 border-slate-200" />
+                    <hr className={`my-2 ${isLight ? 'border-slate-200' : 'border-slate-700'
+                        }`} />
 
                     <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
+                        className={`w-full text-left px-4 py-2 text-sm transition ${isLight
+                                ? 'text-red-600 hover:bg-red-50'
+                                : 'text-red-400 hover:bg-red-900/20'
+                            }`}
                     >
                         <div className="flex items-center gap-3">
                             <LogOut className="w-4 h-4" />

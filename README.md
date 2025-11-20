@@ -28,19 +28,25 @@ VAIDEHI/
 │   │   │   │   ├── Pricing.tsx
 │   │   │   │   └── TypeRotator.tsx
 │   │   │   └── page.tsx
-│   │   ├── auth/callback/
-│   │   │   └── route.ts
+│   │   ├── auth/
+│   │   │   └── callback/
+│   │   │       └── route.ts
 │   │   ├── dashboard/
 │   │   │   ├── components/
-│   │   │   │   ├── DashboardShell.tsx
-│   │   │   │   ├── ProfileDropdown.tsx
-│   │   │   │   ├── SettingsModal.tsx
-│   │   │   │   ├── Sidebar.tsx
-│   │   │   │   └── TopHeader.tsx
+│   │   │   │   ├── header/
+│   │   │   │   │   ├── NotificationDropdown.tsx
+│   │   │   │   │   ├── ProfileDropdown.tsx
+│   │   │   │   │   ├── StreakCounter.tsx
+│   │   │   │   │   └── TopHeader.tsx
+│   │   │   │   ├── modals/
+│   │   │   │   │   ├── ProfileModal.tsx
+│   │   │   │   │   └── SettingsModal.tsx
+│   │   │   │   ├── sidebar/
+│   │   │   │   │   └── Sidebar.tsx
+│   │   │   │   └── DashboardShell.tsx
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
-│   │   └── gobals.css
-|   |   └── layout.tsx
+│   │   └── layout.tsx
 │   ├── components/
 │   │   └── ui/
 │   ├── constants/
@@ -48,8 +54,11 @@ VAIDEHI/
 │   ├── lib/
 │   │   └── supabase/
 │   │       ├── client.ts
+│   │       ├── helpers.ts
 │   │       ├── middleware.ts
 │   │       └── server.ts
+│   ├── types/
+│   │   └── database.ts
 ├── .env.local
 ├── .gitignore
 ├── eslint.config.mjs
