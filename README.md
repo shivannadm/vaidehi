@@ -12,9 +12,13 @@ VAIDEHI/
 │   │   │   ├── callback/
 │   │   │   │   └── route.ts
 │   │   │   ├── forgot-password/
+│   │   │   │   └── page.tsx
 │   │   │   ├── login/
+│   │   │   │   └── page.tsx
 │   │   │   ├── reset-password/
+│   │   │   │   └── page.tsx
 │   │   │   ├── signup/
+│   │   │   │   └── page.tsx
 │   │   │   └── layout.tsx
 │   │   ├── (landing)/
 │   │   │   ├── components/
@@ -30,7 +34,7 @@ VAIDEHI/
 │   │   │   └── page.tsx
 │   │   ├── auth/
 │   │   │   └── callback/
-│   │   │       └── route.ts
+│   │   │       └── rout.ts
 │   │   ├── dashboard/
 │   │   │   ├── components/
 │   │   │   │   ├── header/
@@ -42,8 +46,12 @@ VAIDEHI/
 │   │   │   │   │   ├── ProfileModal.tsx
 │   │   │   │   │   └── SettingsModal.tsx
 │   │   │   │   ├── sidebar/
+│   │   │   │   │   ├── routine/
+│   │   │   │   │   ├── todo/
+│   │   │   │   │   ├── trading/
 │   │   │   │   │   └── Sidebar.tsx
-│   │   │   │   └── DashboardShell.tsx
+│   │   │   │   ├── DashboardShell.tsx
+│   │   │   │   └── theme-script.tsx
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
 │   │   └── layout.tsx
@@ -71,4 +79,3 @@ VAIDEHI/
 ├── tailwind.config.ts
 └── tsconfig.json
 ```
-
