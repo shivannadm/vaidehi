@@ -52,6 +52,14 @@ VAIDEHI/
 │   │   │   │   │   └── Sidebar.tsx
 │   │   │   │   ├── DashboardShell.tsx
 │   │   │   │   └── theme-script.tsx
+│   │   │   ├── routine/
+│   │   │   ├── todo/ 
+│   │   │   │   ├── schedule/
+│   │   │   │   ├── tasks
+│   │   │   │       ├── components/
+│   │   │   │       ├── hools/
+│   │   │   │       └── page.tsx
+│   │   │   ├── trading/
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
 │   │   └── layout.tsx
