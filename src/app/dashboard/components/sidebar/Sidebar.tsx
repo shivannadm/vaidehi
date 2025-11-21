@@ -78,7 +78,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
   return (
     <aside
       className={`${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
-        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-300 flex flex-col ${isCollapsed ? "w-16" : "w-56"
+        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex flex-col ${isCollapsed ? "w-16" : "w-56"
         }`}
       suppressHydrationWarning
     >
