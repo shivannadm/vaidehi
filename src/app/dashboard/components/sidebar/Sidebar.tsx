@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -39,50 +39,50 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
     routine: true,
     trading: true
   });
+  const [mounted, setMounted] = useState(false);
+
+  // Only render after mount to avoid hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleSection = (section: 'todo' | 'routine' | 'trading') => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
   const handleLogoClick = () => {
-    // Refresh page and show Dashboard from Trading section
     onItemClick('Dashboard', 'trading');
     window.scrollTo(0, 0);
   };
 
   const isLight = theme === 'light';
 
-  // Scrollbar styles as inline CSS to avoid hydration issues
-  const scrollbarStyles = `
-    .scrollbar-custom::-webkit-scrollbar {
-      width: 6px;
-    }
-    .scrollbar-custom::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .scrollbar-custom::-webkit-scrollbar-thumb {
-      background: ${isLight ? 'rgba(148, 163, 184, 0.3)' : 'rgba(148, 163, 184, 0.2)'};
-      border-radius: 10px;
-      transition: background 0.2s;
-    }
-    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-      background: ${isLight ? 'rgba(148, 163, 184, 0.5)' : 'rgba(148, 163, 184, 0.4)'};
-    }
-    .scrollbar-custom {
-      scrollbar-width: thin;
-      scrollbar-color: ${isLight ? 'rgba(148, 163, 184, 0.3) transparent' : 'rgba(148, 163, 184, 0.2) transparent'};
-    }
-  `;
+  // Return a placeholder during SSR to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <aside className="bg-slate-900 text-white h-screen sticky top-0 w-56 flex flex-col">
+        <div className="p-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-base">
+              <span className="text-indigo-500">V</span>aidehi
+            </span>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
-      <aside
-        className={`${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
-          } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-300 flex flex-col ${isCollapsed ? "w-16" : "w-56"
-          }`}
-      >
-        {/* Logo Section - Fixed Hydration Issue */}
+    <aside
+      className={`${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
+        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-300 flex flex-col ${isCollapsed ? "w-16" : "w-56"
+        }`}
+      suppressHydrationWarning
+    >
+        {/* Logo Section */}
         <div className={`p-3 flex items-center justify-between ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
           <div
             onClick={handleLogoClick}
@@ -125,7 +125,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         </div>
 
         {/* Navigation Sections with Custom Scrollbar */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-custom">
+        <nav className={`flex-1 overflow-y-auto p-3 space-y-1 ${isLight ? 'scrollbar-custom-light' : 'scrollbar-custom'}`} suppressHydrationWarning>
 
           {/* TO DO Section */}
           <div>
@@ -351,7 +351,6 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
           </div>
         </nav>
       </aside>
-    </>
   );
 }
 

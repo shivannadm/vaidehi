@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import DashboardShell from "./components/DashboardShell";
+import { ThemeScript } from "./components/theme-script";
 
 export const metadata: Metadata = {
     title: "Dashboard - Vaidehi",
@@ -24,5 +25,10 @@ export default async function DashboardLayout({
         redirect("/login");
     }
 
-    return <DashboardShell>{children}</DashboardShell>;
+    return (
+        <>
+            <ThemeScript />
+            <DashboardShell>{children}</DashboardShell>
+        </>
+    );
 }

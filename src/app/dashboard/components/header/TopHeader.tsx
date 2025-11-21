@@ -23,17 +23,43 @@ export default function TopHeader({
     onThemeChange
 }: TopHeaderProps) {
     const [currentTime, setCurrentTime] = useState<Date | null>(null);
+    const [mounted, setMounted] = useState(false);
+    const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('dark');
+
+    // Only render after mount to avoid hydration issues
+    useEffect(() => {
+        setMounted(true);
+        
+        // Check actual theme from HTML element
+        const isDark = document.documentElement.classList.contains('dark');
+        setActualTheme(isDark ? 'dark' : 'light');
+        
+        // Watch for theme changes
+        const observer = new MutationObserver(() => {
+            const isDark = document.documentElement.classList.contains('dark');
+            setActualTheme(isDark ? 'dark' : 'light');
+        });
+        
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        
+        return () => observer.disconnect();
+    }, []);
 
     // Only start the clock after component mounts (client-side only)
     useEffect(() => {
+        if (!mounted) return;
+        
         setCurrentTime(new Date());
-
+        
         const timer = setInterval(() => {
             setCurrentTime(new Date());
         }, 1000);
-
+        
         return () => clearInterval(timer);
-    }, []);
+    }, [mounted]);
 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('en-US', {
@@ -52,6 +78,27 @@ export default function TopHeader({
     };
 
     const isLight = theme === 'light';
+
+    // Return placeholder during SSR
+    if (!mounted) {
+        return (
+            <header className="bg-slate-800 border-b border-slate-700 px-4 py-3 sticky top-0 z-20">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-xl font-bold text-white">
+                            {currentSection}
+                        </h1>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-slate-300">
+                        <span>Loading...</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {/* Placeholder elements */}
+                    </div>
+                </div>
+            </header>
+        );
+    }
 
     return (
         <header className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-800 border-slate-700'
