@@ -177,11 +177,11 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 />
                 <SidebarItem
                   icon={<StickyNote className="w-4 h-4" />}
-                  label="Key Notes (Todo)"
-                  displayLabel="Key Notes"
+                  label="ToDo Notes"
+                  displayLabel="ToDo Notes"
                   isCollapsed={isCollapsed}
-                  isActive={activeItem === 'Key Notes (Todo)'}
-                  onClick={() => onItemClick('Key Notes (Todo)', 'todo')}
+                  isActive={activeItem === 'ToDo Notes'}
+                  onClick={() => onItemClick('ToDo Notes', 'todo')}
                   isLight={isLight}
                 />
                 <SidebarItem
@@ -246,11 +246,11 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 />
                 <SidebarItem
                   icon={<StickyNote className="w-4 h-4" />}
-                  label="Key Notes (Routine)"
+                  label="Key Notes"
                   displayLabel="Key Notes"
                   isCollapsed={isCollapsed}
-                  isActive={activeItem === 'Key Notes (Routine)'}
-                  onClick={() => onItemClick('Key Notes (Routine)', 'routine')}
+                  isActive={activeItem === 'Key Notes'}
+                  onClick={() => onItemClick('Key Notes', 'routine')}
                   isLight={isLight}
                 />
                 <SidebarItem
@@ -323,11 +323,11 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 />
                 <SidebarItem
                   icon={<StickyNote className="w-4 h-4" />}
-                  label="Key Notes (Trading)"
-                  displayLabel="Key Notes"
+                  label="Quick Notes"
+                  displayLabel="Quick Notes"
                   isCollapsed={isCollapsed}
-                  isActive={activeItem === 'Key Notes (Trading)'}
-                  onClick={() => onItemClick('Key Notes (Trading)', 'trading')}
+                  isActive={activeItem === 'Quick Notes'}
+                  onClick={() => onItemClick('Quick Notes', 'trading')}
                   isLight={isLight}
                 />
                 <SidebarItem
