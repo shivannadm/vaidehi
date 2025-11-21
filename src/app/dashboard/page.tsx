@@ -5,9 +5,37 @@ import { TrendingUp, BarChart3, Target, Clock, Plus, Clipboard, ChartBar } from 
 
 export default function DashboardPage() {
     const [mounted, setMounted] = useState(false);
+    // Initialize based on localStorage immediately
+    const [isDark, setIsDark] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'system') {
+                return window.matchMedia('(prefers-color-scheme: dark)').matches;
+            }
+            return theme !== 'light';
+        }
+        return true;
+    });
 
     useEffect(() => {
         setMounted(true);
+        
+        // Double-check actual theme from HTML element
+        const checkTheme = () => {
+            const dark = document.documentElement.classList.contains('dark');
+            setIsDark(dark);
+        };
+        
+        checkTheme();
+        
+        // Watch for theme changes
+        const observer = new MutationObserver(checkTheme);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        
+        return () => observer.disconnect();
     }, []);
 
     // Show loading state during SSR
@@ -28,10 +56,10 @@ export default function DashboardPage() {
 
             {/* Welcome Section */}
             <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <h1 className={`text-2xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Welcome back, Shiva! 👋
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm">
+                <p className={`mt-1 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Here's what's happening with your trading today.
                 </p>
             </div>
@@ -40,87 +68,111 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {/* Total P&L */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className={`rounded-xl p-5 border shadow-sm ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                            <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-green-900/30' : 'bg-green-100'}`}>
+                            <TrendingUp className={`w-5 h-5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                         </div>
-                        <span className="text-green-600 dark:text-green-400 text-xs font-semibold">+12.5%</span>
+                        <span className={`text-xs font-semibold ${isDark ? 'text-green-400' : 'text-green-600'}`}>+12.5%</span>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">$0.00</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Total P&L</div>
+                    <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>$0.00</div>
+                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Total P&L</div>
                 </div>
 
                 {/* Total Trades */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className={`rounded-xl p-5 border shadow-sm ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                            <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
+                            <BarChart3 className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                         </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">0</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Total Trades</div>
+                    <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>0</div>
+                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Total Trades</div>
                 </div>
 
                 {/* Win Rate */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className={`rounded-xl p-5 border shadow-sm ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                            <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-purple-900/30' : 'bg-purple-100'}`}>
+                            <Target className={`w-5 h-5 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
                         </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">0%</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Win Rate</div>
+                    <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>0%</div>
+                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Win Rate</div>
                 </div>
 
                 {/* Days Active */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className={`rounded-xl p-5 border shadow-sm ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-orange-900/30' : 'bg-orange-100'}`}>
+                            <Clock className={`w-5 h-5 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
                         </div>
                     </div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">0</div>
-                    <div className="text-xs text-slate-600 dark:text-slate-400">Days Active</div>
+                    <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>0</div>
+                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Days Active</div>
                 </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
+            <div className={`rounded-xl p-5 border shadow-sm ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                <h2 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Quick Actions</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
                     {/* Log a Trade */}
-                    <button className="flex items-start gap-3 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group">
-                        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800/50 transition">
-                            <Plus className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    <button className={`flex items-start gap-3 p-4 border-2 rounded-xl transition group ${
+                        isDark 
+                            ? 'border-slate-700 hover:bg-indigo-900/20 hover:border-indigo-300' 
+                            : 'border-slate-200 hover:bg-indigo-50 hover:border-indigo-300'
+                    }`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition ${
+                            isDark 
+                                ? 'bg-indigo-900/30 group-hover:bg-indigo-800/50' 
+                                : 'bg-indigo-100 group-hover:bg-indigo-200'
+                        }`}>
+                            <Plus className={`w-5 h-5 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`} />
                         </div>
                         <div className="text-left">
-                            <div className="font-semibold text-slate-900 dark:text-white mb-0.5 text-sm">Log a Trade</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Add your latest trade</div>
+                            <div className={`font-semibold mb-0.5 text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Log a Trade</div>
+                            <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Add your latest trade</div>
                         </div>
                     </button>
 
                     {/* Check Routine */}
-                    <button className="flex items-start gap-3 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition group">
-                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition">
-                            <Clipboard className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <button className={`flex items-start gap-3 p-4 border-2 rounded-xl transition group ${
+                        isDark 
+                            ? 'border-slate-700 hover:bg-blue-900/20 hover:border-blue-300' 
+                            : 'border-slate-200 hover:bg-blue-50 hover:border-blue-300'
+                    }`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition ${
+                            isDark 
+                                ? 'bg-blue-900/30 group-hover:bg-blue-800/50' 
+                                : 'bg-blue-100 group-hover:bg-blue-200'
+                        }`}>
+                            <Clipboard className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                         </div>
                         <div className="text-left">
-                            <div className="font-semibold text-slate-900 dark:text-white mb-0.5 text-sm">Check Routine</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">Review your checklist</div>
+                            <div className={`font-semibold mb-0.5 text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>Check Routine</div>
+                            <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Review your checklist</div>
                         </div>
                     </button>
 
                     {/* View Analytics */}
-                    <button className="flex items-start gap-3 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 transition group">
-                        <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-800/50 transition">
-                            <ChartBar className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <button className={`flex items-start gap-3 p-4 border-2 rounded-xl transition group ${
+                        isDark 
+                            ? 'border-slate-700 hover:bg-green-900/20 hover:border-green-300' 
+                            : 'border-slate-200 hover:bg-green-50 hover:border-green-300'
+                    }`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition ${
+                            isDark 
+                                ? 'bg-green-900/30 group-hover:bg-green-800/50' 
+                                : 'bg-green-100 group-hover:bg-green-200'
+                        }`}>
+                            <ChartBar className={`w-5 h-5 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                         </div>
                         <div className="text-left">
-                            <div className="font-semibold text-slate-900 dark:text-white mb-0.5 text-sm">View Analytics</div>
-                            <div className="text-xs text-slate-600 dark:text-slate-400">See your performance</div>
+                            <div className={`font-semibold mb-0.5 text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>View Analytics</div>
+                            <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>See your performance</div>
                         </div>
                     </button>
                 </div>

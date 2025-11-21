@@ -22,7 +22,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     return 'dark';
   });
   const [mounted, setMounted] = useState(false);
-  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('dark');
+  // Initialize actualTheme from localStorage
+  const [actualTheme, setActualTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      return savedTheme === 'light' ? 'light' : 'dark';
+    }
+    return 'dark';
+  });
 
   // Mount and watch for theme changes
   useEffect(() => {
@@ -112,11 +122,26 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     setTheme(newTheme);
   };
 
-  const isLight = theme === 'light';
+  const isLight = actualTheme === 'light';
+
+  // Return placeholder during SSR
+  if (!mounted) {
+    return (
+      <div className="flex h-screen bg-slate-900">
+        <div className="w-56 bg-slate-900"></div>
+        <div className="flex-1 flex flex-col">
+          <header className="bg-slate-800 border-b border-slate-700 px-4 py-3">
+            <h1 className="text-xl font-bold text-white">Loading...</h1>
+          </header>
+          <main className="flex-1 bg-slate-900"></main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      <div className={`flex h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'}`} suppressHydrationWarning>
+      <div className={`flex h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'}`}>
         {/* Sidebar */}
         <Sidebar
           activeItem={activeItem}
@@ -138,7 +163,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           {/* Page Content */}
           <main className={`flex-1 overflow-y-auto p-6 ${
             isLight ? 'bg-slate-50' : 'bg-slate-900'
-          }`} suppressHydrationWarning>
+          }`}>
             {children}
           </main>
         </div>
