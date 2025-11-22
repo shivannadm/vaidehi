@@ -57,7 +57,7 @@ export default function DashboardPage() {
             {/* Welcome Section */}
             <div>
                 <h1 className={`text-2xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    Welcome back, Shiva! 👋
+                    Welcome back, Raa&jee! 👋
                 </h1>
                 <p className={`mt-1 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Here's what's happening with your trading today.
