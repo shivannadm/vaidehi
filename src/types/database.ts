@@ -400,3 +400,284 @@ export function getGoalCardColor(percentage: number): {
     };
   }
 }
+
+// ============================================================
+// Schedule Things
+// ============================================
+
+// =====================================================
+// SCHEDULE TYPES & INTERFACES
+// Add these to your existing src/types/database.ts
+// =====================================================
+
+// Event Types
+export type EventType = 'trading' | 'routine' | 'personal' | 'meeting' | 'break';
+export type RecurrencePattern = 'daily' | 'weekly' | 'monthly';
+
+// Event Type Colors Configuration
+export interface EventTypeConfig {
+  type: EventType;
+  label: string;
+  lightBg: string;
+  darkBg: string;
+  lightText: string;
+  darkText: string;
+  icon: string; // emoji or icon name
+}
+
+// Schedule Event
+export interface ScheduleEvent {
+  id: string;
+  user_id: string;
+  title: string;
+  event_type: EventType;
+  date: string; // YYYY-MM-DD format
+  start_time: string; // HH:mm:ss format
+  end_time: string; // HH:mm:ss format
+  description: string | null;
+  is_recurring: boolean;
+  recurrence_pattern: RecurrencePattern | null;
+  recurrence_end_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// =====================================================
+// FORM & UI TYPES
+// =====================================================
+
+// Event Form Data (for Add/Edit modal)
+export interface EventFormData {
+  title: string;
+  event_type: EventType;
+  date: string;
+  start_time: string;
+  end_time: string;
+  description?: string;
+  is_recurring: boolean;
+  recurrence_pattern?: RecurrencePattern;
+  recurrence_end_date?: string;
+}
+
+// Calendar Day Data
+export interface CalendarDay {
+  date: Date;
+  dateString: string; // YYYY-MM-DD
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isSelected: boolean;
+  eventCount: number;
+  events: ScheduleEvent[];
+}
+
+// Month View Data
+export interface MonthViewData {
+  month: number; // 0-11
+  year: number;
+  monthName: string;
+  weeks: CalendarDay[][];
+}
+
+// =====================================================
+// UTILITY TYPES
+// =====================================================
+
+// For creating new events
+export type CreateScheduleEvent = Omit<ScheduleEvent, 'id' | 'created_at' | 'updated_at'>;
+
+// For updating events
+export type UpdateScheduleEvent = Partial<Omit<ScheduleEvent, 'id' | 'user_id' | 'created_at'>>;
+
+// =====================================================
+// EVENT TYPE COLOR CONFIGURATION
+// =====================================================
+export const EVENT_TYPE_CONFIG: Record<EventType, EventTypeConfig> = {
+  trading: {
+    type: 'trading',
+    label: 'Trading',
+    lightBg: '#DBEAFE', // Blue
+    darkBg: '#3B82F6',
+    lightText: '#1E3A8A',
+    darkText: '#DBEAFE',
+    icon: '📈',
+  },
+  routine: {
+    type: 'routine',
+    label: 'Routine',
+    lightBg: '#EDE9FE', // Purple
+    darkBg: '#A855F7',
+    lightText: '#6B21A8',
+    darkText: '#EDE9FE',
+    icon: '🔄',
+  },
+  personal: {
+    type: 'personal',
+    label: 'Personal',
+    lightBg: '#D1FAE5', // Green
+    darkBg: '#10B981',
+    lightText: '#065F46',
+    darkText: '#D1FAE5',
+    icon: '👤',
+  },
+  meeting: {
+    type: 'meeting',
+    label: 'Meeting',
+    lightBg: '#FFEDD5', // Orange
+    darkBg: '#F97316',
+    lightText: '#9A3412',
+    darkText: '#FFEDD5',
+    icon: '👥',
+  },
+  break: {
+    type: 'break',
+    label: 'Break',
+    lightBg: '#F3F4F6', // Gray
+    darkBg: '#6B7280',
+    lightText: '#374151',
+    darkText: '#F3F4F6',
+    icon: '☕',
+  },
+};
+
+// =====================================================
+// HELPER FUNCTIONS FOR SCHEDULE
+// =====================================================
+
+// Format time from 24h to 12h format
+export function formatTimeTo12Hour(time24: string): string {
+  const [hours, minutes] = time24.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+}
+
+// Format time from 12h to 24h format
+export function formatTimeTo24Hour(time12: string): string {
+  const match = time12.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return '00:00:00';
+  
+  let hours = parseInt(match[1]);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+  
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
+}
+
+// Format event time range
+export function formatEventTimeRange(startTime: string, endTime: string): string {
+  return `${formatTimeTo12Hour(startTime)} - ${formatTimeTo12Hour(endTime)}`;
+}
+
+// Calculate event duration in minutes
+export function calculateEventDuration(startTime: string, endTime: string): number {
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+  
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  const endTotalMinutes = endHours * 60 + endMinutes;
+  
+  return endTotalMinutes - startTotalMinutes;
+}
+
+// Format duration to readable string
+export function formatEventDuration(startTime: string, endTime: string): string {
+  const minutes = calculateEventDuration(startTime, endTime);
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  
+  if (hours > 0 && mins > 0) {
+    return `${hours}h ${mins}m`;
+  } else if (hours > 0) {
+    return `${hours}h`;
+  } else {
+    return `${mins}m`;
+  }
+}
+
+// Check if event is today
+export function isEventToday(eventDate: string): boolean {
+  const today = new Date().toISOString().split('T')[0];
+  return eventDate === today;
+}
+
+// Get month name
+export function getMonthName(month: number): string {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  return months[month];
+}
+
+// Get short month name
+export function getShortMonthName(month: number): string {
+  return getMonthName(month).substring(0, 3);
+}
+
+// Get day name
+export function getDayName(date: Date): string {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  return days[date.getDay()];
+}
+
+// Get short day name
+export function getShortDayName(date: Date): string {
+  return getDayName(date).substring(0, 3);
+}
+
+// Generate calendar weeks for a month
+export function generateMonthCalendar(year: number, month: number): Date[][] {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDate = new Date(firstDay);
+  startDate.setDate(startDate.getDate() - startDate.getDay()); // Start from Sunday
+  
+  const weeks: Date[][] = [];
+  let currentWeek: Date[] = [];
+  
+  for (let i = 0; i < 42; i++) { // 6 weeks max
+    const currentDate = new Date(startDate);
+    currentDate.setDate(startDate.getDate() + i);
+    
+    currentWeek.push(currentDate);
+    
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+    
+    // Stop if we've passed the last day and completed the week
+    if (currentDate > lastDay && currentWeek.length === 0) {
+      break;
+    }
+  }
+  
+  return weeks;
+}
+
+// Check if two dates are the same day
+export function isSameDay(date1: Date, date2: Date): boolean {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}
+
+// Sort events by start time
+export function sortEventsByTime(events: ScheduleEvent[]): ScheduleEvent[] {
+  return [...events].sort((a, b) => {
+    return a.start_time.localeCompare(b.start_time);
+  });
+}
+
+// Get events for specific date
+export function getEventsForDate(events: ScheduleEvent[], date: string): ScheduleEvent[] {
+  return events.filter(event => event.date === date);
+}
+
+// Get event type config
+export function getEventTypeConfig(eventType: EventType): EventTypeConfig {
+  return EVENT_TYPE_CONFIG[eventType];
+}
