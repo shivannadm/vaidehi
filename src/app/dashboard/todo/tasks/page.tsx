@@ -26,6 +26,7 @@ import {
   type DailyGoal
 } from "@/types/database";
 import { Play, Pause, Square, Star, Edit2, Trash2, Plus } from "lucide-react";
+import AddTaskModal from "./components/AddTaskModal";
 
 export default function TasksPage() {
   const [mounted, setMounted] = useState(false);
@@ -46,6 +47,9 @@ export default function TasksPage() {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
+  // Modal states
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
 
   // Loading states
   const [loading, setLoading] = useState(true);
@@ -310,10 +314,12 @@ export default function TasksPage() {
 
               <div className="space-y-2">
                 {/* Add Task Button */}
-                <button className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm ${isDark
-                    ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
-                    : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
-                  }`}>
+                <button
+                  onClick={() => setIsAddTaskModalOpen(true)}
+                  className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm ${isDark
+                      ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
+                      : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
+                    }`}>
                   + Add task
                 </button>
 
@@ -563,6 +569,21 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Add Task Modal */}
+      <AddTaskModal
+        isOpen={isAddTaskModalOpen}
+        onClose={() => setIsAddTaskModalOpen(false)}
+        userId={userId || ""}
+        selectedDate={formatDateToString(selectedDate)}
+        tags={tags}
+        onTaskCreated={() => {
+          if (userId) {
+            loadAllData(userId, formatDateToString(selectedDate));
+          }
+        }}
+        isDark={isDark}
+      />
     </div>
   );
 }

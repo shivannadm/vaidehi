@@ -1,6 +1,8 @@
+// src/app/dashboard/components/sidebar/Sidebar.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -33,6 +35,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: SidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState({
     todo: true,
@@ -44,7 +48,15 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
   // Only render after mount to avoid hydration issues
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    // Set active item based on current pathname
+    if (pathname.includes('/todo/tasks')) {
+      onItemClick('Tasks', 'todo');
+    } else if (pathname === '/dashboard') {
+      onItemClick('Dashboard', 'trading');
+    }
+    // Add more pathname checks as you build other pages
+  }, [pathname]);
 
   const toggleSection = (section: 'todo' | 'routine' | 'trading') => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -52,7 +64,12 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
   const handleLogoClick = () => {
     onItemClick('Dashboard', 'trading');
-    window.scrollTo(0, 0);
+    router.push('/dashboard');
+  };
+
+  const handleNavigation = (item: string, section: string, path: string) => {
+    onItemClick(item, section);
+    router.push(path);
   };
 
   const isLight = theme === 'light';
@@ -148,10 +165,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Tasks"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Tasks'}
-                onClick={() => {
-                  onItemClick('Tasks', 'todo');
-                  window.location.href = '/dashboard/todo/tasks';
-                }}
+                onClick={() => handleNavigation('Tasks', 'todo', '/dashboard/todo/tasks')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -159,7 +173,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Schedule"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Schedule'}
-                onClick={() => onItemClick('Schedule', 'todo')}
+                onClick={() => handleNavigation('Schedule', 'todo', '/dashboard/todo/schedule')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -167,7 +181,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Daily Highlights"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Daily Highlights'}
-                onClick={() => onItemClick('Daily Highlights', 'todo')}
+                onClick={() => handleNavigation('Daily Highlights', 'todo', '/dashboard/todo/daily-highlights')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -175,16 +189,15 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Projects"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Projects'}
-                onClick={() => onItemClick('Projects', 'todo')}
+                onClick={() => handleNavigation('Projects', 'todo', '/dashboard/todo/projects')}
                 isLight={isLight}
               />
               <SidebarItem
                 icon={<StickyNote className="w-4 h-4" />}
                 label="ToDo Notes"
-                displayLabel="ToDo Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'ToDo Notes'}
-                onClick={() => onItemClick('ToDo Notes', 'todo')}
+                onClick={() => handleNavigation('ToDo Notes', 'todo', '/dashboard/todo/todo-notes')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -192,7 +205,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Trends"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Trends'}
-                onClick={() => onItemClick('Trends', 'todo')}
+                onClick={() => handleNavigation('Trends', 'todo', '/dashboard/todo/trends')}
                 isLight={isLight}
               />
             </div>
@@ -250,7 +263,6 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
               <SidebarItem
                 icon={<StickyNote className="w-4 h-4" />}
                 label="Key Notes"
-                displayLabel="Key Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Key Notes'}
                 onClick={() => onItemClick('Key Notes', 'routine')}
@@ -289,7 +301,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Dashboard"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Dashboard'}
-                onClick={() => onItemClick('Dashboard', 'trading')}
+                onClick={() => handleNavigation('Dashboard', 'trading', '/dashboard')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -327,7 +339,6 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
               <SidebarItem
                 icon={<StickyNote className="w-4 h-4" />}
                 label="Quick Notes"
-                displayLabel="Quick Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Quick Notes'}
                 onClick={() => onItemClick('Quick Notes', 'trading')}
@@ -360,7 +371,6 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 function SidebarItem({
   icon,
   label,
-  displayLabel,
   isCollapsed,
   isActive,
   onClick,
@@ -368,14 +378,11 @@ function SidebarItem({
 }: {
   icon: React.ReactNode;
   label: string;
-  displayLabel?: string;
   isCollapsed: boolean;
   isActive: boolean;
   onClick: () => void;
   isLight: boolean;
 }) {
-  const showLabel = displayLabel || label;
-
   return (
     <button
       onClick={onClick}
@@ -383,10 +390,10 @@ function SidebarItem({
         ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
         : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
         }`}
-      title={isCollapsed ? showLabel : undefined}
+      title={isCollapsed ? label : undefined}
     >
       <span className="flex-shrink-0">{icon}</span>
-      {!isCollapsed && <span>{showLabel}</span>}
+      {!isCollapsed && <span>{label}</span>}
     </button>
   );
 }
