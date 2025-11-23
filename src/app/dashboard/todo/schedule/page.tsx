@@ -5,11 +5,14 @@ import { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import ScheduleCalendar from "./components/ScheduleCalendar";
 import DayEventsList from "./components/DayEventsList";
+import UpcomingEvents from "./components/UpcomingEvents";
 import AddEventModal from "./components/AddEventModal";
 import { useSchedule, useMonthEvents } from "./hooks/useSchedule";
 import { useEventActions } from "./hooks/useEventActions";
 import { formatDateToString } from "@/types/database";
 import type { ScheduleEvent, EventFormData } from "@/types/database";
+import { createClient } from "@/lib/supabase/client";
+import { getUpcomingEvents } from "@/lib/supabase/schedule-helpers";
 
 export default function SchedulePage() {
   const [mounted, setMounted] = useState(false);
@@ -18,6 +21,7 @@ export default function SchedulePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
   const [isDark, setIsDark] = useState(true);
+  const [upcomingEvents, setUpcomingEvents] = useState<ScheduleEvent[]>([]);
 
   // Fetch events for selected day
   const {
@@ -56,6 +60,25 @@ export default function SchedulePage() {
     return () => observer.disconnect();
   }, []);
 
+  // Fetch upcoming events
+  useEffect(() => {
+    const fetchUpcoming = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data } = await getUpcomingEvents(user.id, 5);
+        if (data) {
+          setUpcomingEvents(data);
+        }
+      }
+    };
+
+    fetchUpcoming();
+  }, [events]); // Refresh when events change
+
   // Handlers
   const handlePrevMonth = () => {
     setCurrentMonth(
@@ -82,6 +105,14 @@ export default function SchedulePage() {
   const handleEditEvent = (event: ScheduleEvent) => {
     setEditingEvent(event);
     setIsAddModalOpen(true);
+  };
+
+  const handleUpcomingEventClick = (event: ScheduleEvent) => {
+    // Jump to that event's date
+    const [year, month, day] = event.date.split('-').map(Number);
+    const eventDate = new Date(year, month - 1, day);
+    setSelectedDate(eventDate);
+    setCurrentMonth(new Date(eventDate.getFullYear(), eventDate.getMonth()));
   };
 
   const handleSubmitEvent = async (formData: EventFormData) => {
@@ -170,8 +201,8 @@ export default function SchedulePage() {
         </button>
       </div>
 
-      {/* Main Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+      {/* Main Layout - Calendar + Events + Upcoming in same row */}
+      <div className="grid grid-cols-1 lg:grid-cols-7 gap-5">
         {/* Calendar - Left Side (2 columns) */}
         <div className="lg:col-span-2">
           <ScheduleCalendar
@@ -185,8 +216,9 @@ export default function SchedulePage() {
           />
         </div>
 
-        {/* Day Events - Right Side (3 columns) */}
-        <div className="lg:col-span-3">
+        {/* Right Side (5 columns) - Events + Upcoming stacked */}
+        <div className="lg:col-span-5 space-y-5">
+          {/* Day Events - Top */}
           <DayEventsList
             selectedDate={selectedDate}
             events={events}
@@ -197,6 +229,15 @@ export default function SchedulePage() {
             onMoveToTask={handleMoveToTask}
             isDark={isDark}
           />
+
+          {/* Upcoming Events - Bottom (Pink Region) */}
+          {upcomingEvents.length > 0 && (
+            <UpcomingEvents
+              events={upcomingEvents}
+              onEventClick={handleUpcomingEventClick}
+              isDark={isDark}
+            />
+          )}
         </div>
       </div>
 
