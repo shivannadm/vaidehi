@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar } from "lucide-react";
 import ScheduleCalendar from "./components/ScheduleCalendar";
 import DayEventsList from "./components/DayEventsList";
 import UpcomingEvents from "./components/UpcomingEvents";
@@ -98,6 +97,17 @@ export default function SchedulePage() {
   };
 
   const handleAddEvent = () => {
+    // Check if selected date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected < today) {
+      alert("Cannot add events to past dates. Please select today or a future date.");
+      return;
+    }
+
     setEditingEvent(null);
     setIsAddModalOpen(true);
   };
@@ -116,6 +126,16 @@ export default function SchedulePage() {
   };
 
   const handleSubmitEvent = async (formData: EventFormData) => {
+    // Prevent scheduling in the past
+    const eventDate = new Date(formData.date + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (eventDate < today && !editingEvent) {
+      alert("Cannot schedule events in the past.");
+      return;
+    }
+
     try {
       if (editingEvent) {
         // Update existing event
@@ -158,53 +178,31 @@ export default function SchedulePage() {
     }
   };
 
+  const handleTodayClick = () => {
+    const today = new Date();
+    setSelectedDate(today);
+    setCurrentMonth(today);
+  };
+
   // SSR placeholder
   if (!mounted) {
     return (
-      <div className="space-y-5">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-6 h-6 text-indigo-400" />
-          <h1 className="text-2xl font-bold text-white">Loading Schedule...</h1>
-        </div>
+      <div className="h-full flex items-center justify-center">
+        <div
+          className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
+            isDark ? "border-indigo-400" : "border-indigo-600"
+          }`}
+        ></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5" suppressHydrationWarning>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar
-            className={`w-6 h-6 ${
-              isDark ? "text-indigo-400" : "text-indigo-600"
-            }`}
-          />
-          <h1
-            className={`text-2xl font-bold ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
-          >
-            Schedule
-          </h1>
-        </div>
-
-        <button
-          onClick={() => setSelectedDate(new Date())}
-          className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${
-            isDark
-              ? "bg-slate-700 hover:bg-slate-600 text-white"
-              : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-          }`}
-        >
-          Today
-        </button>
-      </div>
-
-      {/* Main Layout - Calendar + Events + Upcoming in same row */}
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-5">
+    <div className="h-full flex flex-col" suppressHydrationWarning>
+      {/* Main Content - Grid Layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-7 gap-5 overflow-hidden">
         {/* Calendar - Left Side (2 columns) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 overflow-hidden">
           <ScheduleCalendar
             selectedDate={selectedDate}
             currentMonth={currentMonth}
@@ -213,11 +211,12 @@ export default function SchedulePage() {
             onNextMonth={handleNextMonth}
             eventCounts={eventCounts}
             isDark={isDark}
+            onTodayClick={handleTodayClick}
           />
         </div>
 
-        {/* Right Side (5 columns) - Events + Upcoming stacked */}
-        <div className="lg:col-span-5 space-y-5">
+        {/* Right Side (5 columns) - Scrollable Events + Upcoming */}
+        <div className="lg:col-span-5 overflow-y-auto scrollbar-custom space-y-5 pr-2">
           {/* Day Events - Top */}
           <DayEventsList
             selectedDate={selectedDate}
@@ -230,7 +229,7 @@ export default function SchedulePage() {
             isDark={isDark}
           />
 
-          {/* Upcoming Events - Bottom (Pink Region) */}
+          {/* Upcoming Events - Bottom */}
           {upcomingEvents.length > 0 && (
             <UpcomingEvents
               events={upcomingEvents}

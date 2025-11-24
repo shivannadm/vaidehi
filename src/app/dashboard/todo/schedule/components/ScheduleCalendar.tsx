@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   generateMonthCalendar,
   getMonthName,
-  getShortDayName,
   isSameDay,
   formatDateToString,
 } from "@/types/database";
@@ -16,6 +15,7 @@ interface ScheduleCalendarProps {
   onDateSelect: (date: Date) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
+  onTodayClick: () => void;
   eventCounts: Record<string, number>;
   isDark: boolean;
 }
@@ -26,6 +26,7 @@ export default function ScheduleCalendar({
   onDateSelect,
   onPrevMonth,
   onNextMonth,
+  onTodayClick,
   eventCounts,
   isDark,
 }: ScheduleCalendarProps) {
@@ -39,7 +40,7 @@ export default function ScheduleCalendar({
 
   return (
     <div
-      className={`rounded-xl border p-5 ${
+      className={`rounded-xl border p-5 h-full flex flex-col ${
         isDark
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-slate-200"
@@ -94,7 +95,7 @@ export default function ScheduleCalendar({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="flex-1 grid grid-cols-7 gap-1 mb-4">
         {weeks.map((week, weekIndex) =>
           week.map((date, dayIndex) => {
             const dateString = formatDateToString(date);
@@ -154,6 +155,18 @@ export default function ScheduleCalendar({
           })
         )}
       </div>
+
+      {/* Today Button */}
+      <button
+        onClick={onTodayClick}
+        className={`w-full px-4 py-2 rounded-lg font-semibold text-sm transition ${
+          isDark
+            ? "bg-slate-700 hover:bg-slate-600 text-white"
+            : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+        }`}
+      >
+        Today
+      </button>
     </div>
   );
 }

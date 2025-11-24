@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { X, Clock, Calendar as CalendarIcon, Type, AlignLeft, Repeat } from "lucide-react";
 import type { ScheduleEvent, EventFormData, EventType, RecurrencePattern } from "@/types/database";
-import { EVENT_TYPE_CONFIG, formatTimeTo12Hour, formatTimeTo24Hour } from "@/types/database";
+import { EVENT_TYPE_CONFIG } from "@/types/database";
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -23,10 +23,13 @@ export default function AddEventModal({
   defaultDate,
   isDark,
 }: AddEventModalProps) {
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState<EventFormData>({
     title: "",
     event_type: "personal",
-    date: defaultDate || new Date().toISOString().split("T")[0],
+    date: defaultDate || today,
     start_time: "09:00:00",
     end_time: "10:00:00",
     description: "",
@@ -58,6 +61,13 @@ export default function AddEventModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate end time is after start time
+    if (formData.end_time <= formData.start_time) {
+      alert("End time must be after start time");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -74,7 +84,7 @@ export default function AddEventModal({
     setFormData({
       title: "",
       event_type: "personal",
-      date: defaultDate || new Date().toISOString().split("T")[0],
+      date: defaultDate || today,
       start_time: "09:00:00",
       end_time: "10:00:00",
       description: "",
@@ -97,7 +107,7 @@ export default function AddEventModal({
 
       {/* Modal */}
       <div
-        className={`relative w-full max-w-lg rounded-xl shadow-2xl border ${
+        className={`relative w-full max-w-lg rounded-xl shadow-2xl border max-h-[90vh] overflow-y-auto scrollbar-custom ${
           isDark
             ? "bg-slate-800 border-slate-700"
             : "bg-white border-slate-200"
@@ -105,8 +115,10 @@ export default function AddEventModal({
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-5 border-b ${
-            isDark ? "border-slate-700" : "border-slate-200"
+          className={`flex items-center justify-between p-5 border-b sticky top-0 z-10 ${
+            isDark 
+              ? "border-slate-700 bg-slate-800" 
+              : "border-slate-200 bg-white"
           }`}
         >
           <h2
@@ -172,6 +184,7 @@ export default function AddEventModal({
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
               }
+              min={editingEvent ? undefined : today}
               required
               className={`w-full px-4 py-2 rounded-lg border text-sm ${
                 isDark
@@ -351,6 +364,7 @@ export default function AddEventModal({
                       recurrence_end_date: e.target.value,
                     })
                   }
+                  min={formData.date}
                   placeholder="End date (optional)"
                   className={`w-full px-4 py-2 rounded-lg border text-sm ${
                     isDark
