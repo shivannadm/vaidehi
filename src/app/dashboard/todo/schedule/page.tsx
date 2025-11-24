@@ -8,6 +8,7 @@ import UpcomingEvents from "./components/UpcomingEvents";
 import AddEventModal from "./components/AddEventModal";
 import { useSchedule, useMonthEvents } from "./hooks/useSchedule";
 import { useEventActions } from "./hooks/useEventActions";
+import { useScheduleNotifications } from "./hooks/useScheduleNotifications";
 import { formatDateToString } from "@/types/database";
 import type { ScheduleEvent, EventFormData } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
@@ -77,6 +78,9 @@ export default function SchedulePage() {
 
     fetchUpcoming();
   }, [events]); // Refresh when events change
+
+  // 🔔 Enable schedule notifications (checks every 5 minutes)
+  useScheduleNotifications(upcomingEvents);
 
   // Handlers
   const handlePrevMonth = () => {
