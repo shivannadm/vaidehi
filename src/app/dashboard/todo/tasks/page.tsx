@@ -239,7 +239,7 @@ export default function TasksPage() {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       {/* Date Roller with Timer */}
-      <div className={`border-b ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'} px-6 py-4`}>
+      <div className={`border-a rounded-xl border p-5 ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-white'} px-4 py-3`}>
         <div className="flex items-center justify-between">
           <button
             onClick={handlePrevDay}
@@ -335,11 +335,11 @@ export default function TasksPage() {
       </div>
 
       {/* Main Content - 3 Columns */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="p-5 lg:px-0 py-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
           {/* LEFT COLUMN - Tasks */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Task to Complete */}
             <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
               }`}>
@@ -430,7 +430,7 @@ export default function TasksPage() {
           </div>
 
           {/* RIGHT COLUMN - Extras */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Tags */}
             <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
               }`}>
@@ -499,7 +499,7 @@ export default function TasksPage() {
                         : 'bg-lime-50 border-lime-400 text-lime-700'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(h => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(h => (
                       <option key={h} value={h}>{h}h</option>
                     ))}
                   </select>
@@ -508,7 +508,7 @@ export default function TasksPage() {
                 {/* Goal Card */}
                 <div className={`mt-4 p-4 rounded-xl border-2 ${goalCardColors.bg} ${goalCardColors.border}`}>
                   <div className="text-center">
-                    <div className={`text-sm font-medium mb-1 ${goalCardColors.text}`}>Goal</div>
+                    <div className={`text-sm font-medium mb-1 ${goalCardColors.text}`}>Goal achieved</div>
                     <div className={`text-3xl font-bold ${goalCardColors.text}`}>
                       {stats?.goalPercentage || 0}%
                     </div>
