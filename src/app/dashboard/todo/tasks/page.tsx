@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { 
-  getTasksByDate, 
-  getTags, 
+import {
+  getTasksByDate,
+  getTags,
   getSessionsByDate,
   getDailyReportStats,
   getDayNote,
@@ -13,9 +13,9 @@ import {
   upsertDayNote,
   upsertDailyGoal
 } from "@/lib/supabase/task-helpers";
-import { 
-  formatDateToString, 
-  formatDuration, 
+import {
+  formatDateToString,
+  formatDuration,
   getGoalCardColor,
   type TaskWithTag,
   type Tag,
@@ -64,7 +64,7 @@ export default function TasksPage() {
   // Initialize
   useEffect(() => {
     setMounted(true);
-    
+
     const init = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -190,7 +190,7 @@ export default function TasksPage() {
 
   const handleGoalChange = async (hours: number) => {
     if (!userId) return;
-    
+
     setGoalHours(hours);
     try {
       await upsertDailyGoal({
@@ -213,7 +213,7 @@ export default function TasksPage() {
     const dates = [];
     const start = new Date(selectedDate);
     start.setDate(start.getDate() - 3);
-    
+
     for (let i = 0; i < 7; i++) {
       const date = new Date(start);
       date.setDate(start.getDate() + i);
@@ -243,9 +243,8 @@ export default function TasksPage() {
         <div className="flex items-center justify-between">
           <button
             onClick={handlePrevDay}
-            className={`p-2 rounded-lg transition ${
-              isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
-            }`}
+            className={`p-2 rounded-lg transition ${isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
+              }`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -257,18 +256,17 @@ export default function TasksPage() {
             {weekDates.map((date, idx) => {
               const isSelected = formatDateToString(date) === formatDateToString(selectedDate);
               const dateNum = date.getDate();
-              
+
               return (
                 <button
                   key={idx}
                   onClick={() => setSelectedDate(date)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${
-                    isSelected
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${isSelected
                       ? 'bg-cyan-500 text-white'
                       : isDark
-                      ? 'text-slate-400 hover:bg-slate-700'
-                      : 'text-slate-600 hover:bg-slate-100'
-                  }`}
+                        ? 'text-slate-400 hover:bg-slate-700'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
                 >
                   {dateNum}
                 </button>
@@ -278,9 +276,8 @@ export default function TasksPage() {
 
           <button
             onClick={handleNextDay}
-            className={`p-2 rounded-lg transition ${
-              isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
-            }`}
+            className={`p-2 rounded-lg transition ${isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
+              }`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -296,43 +293,41 @@ export default function TasksPage() {
             </button>
           )}
 
-          <button className={`p-2 rounded-lg transition ml-2 ${
-            isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
-          }`}>
+          <button className={`p-2 rounded-lg transition ml-2 ${isDark ? 'hover:bg-slate-700 text-slate-300' : 'hover:bg-slate-100 text-slate-600'
+            }`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </button>
 
-          {/* Timer Display */}
-          <div className="flex items-center gap-3 ml-auto">
-            <div className="flex gap-2">
-              <button 
-                className={`p-2 rounded-lg transition ${
-                  isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-200 hover:bg-slate-300'
+          {/* Timer Display - MINIMAL & CLEAN */}
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              className={`p-2 rounded-lg transition ${timer.isRunning
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : isDark
+                    ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                    : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                 }`}
-                onClick={() => timer.isRunning ? pauseTimer() : resumeTimer()}
-                disabled={!timer.taskId}
-                title={timer.isRunning ? "Pause" : "Resume"}
-              >
-                {timer.isRunning ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-              </button>
-              <button 
-                className={`p-2 rounded-lg transition ${
-                  isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-200 hover:bg-slate-300'
-                }`}
-                onClick={handleStopTimer}
-                disabled={!timer.taskId}
-                title="Stop"
-              >
-                <Square className="w-4 h-4" />
-              </button>
-            </div>
-            <div className={`text-3xl font-mono font-bold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              onClick={() => timer.isRunning ? pauseTimer() : resumeTimer()}
+              disabled={!timer.taskId}
+              title={timer.isRunning ? "Pause" : "Resume"}
+            >
+              {timer.isRunning ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              className="p-2 rounded-lg transition bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+              onClick={handleStopTimer}
+              disabled={!timer.taskId}
+              title="Stop"
+            >
+              <Square className="w-4 h-4" />
+            </button>
+            <div className={`text-2xl font-mono font-bold tabular-nums ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {formatTime(timer.elapsedSeconds)}
             </div>
           </div>
@@ -342,27 +337,25 @@ export default function TasksPage() {
       {/* Main Content - 3 Columns */}
       <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* LEFT COLUMN - Tasks */}
           <div className="space-y-6">
             {/* Task to Complete */}
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Task to complete
               </h2>
 
               <div className="space-y-2">
                 {/* Add Task Button */}
-                <button 
+                <button
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
-                  className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${
-                  isDark 
-                    ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30' 
-                    : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
-                }`}>
+                  className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
+                      ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
+                      : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
+                    }`}>
                   + Add task
                 </button>
 
@@ -389,13 +382,12 @@ export default function TasksPage() {
             </div>
 
             {/* Completed Tasks */}
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Completed tasks
               </h2>
-              
+
               {completedTasks.length === 0 ? (
                 <p className={`text-center py-8 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   No completed tasks yet
@@ -419,29 +411,29 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* CENTER COLUMN - Timeline */}
-          <div>
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+          {/* CENTER COLUMN - Timeline - FULL HEIGHT ALIGNMENT */}
+          <div className="h-full">
+            <div className={`rounded-xl border p-5 h-full flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Today's Task time Record
               </h2>
-              
-              <Timeline 
-                sessions={sessions}
-                currentTime={currentTime}
-                isDark={isDark}
-              />
+
+              <div className="flex-1 min-h-0">
+                <Timeline
+                  sessions={sessions}
+                  currentTime={currentTime}
+                  isDark={isDark}
+                />
+              </div>
             </div>
           </div>
 
           {/* RIGHT COLUMN - Extras */}
           <div className="space-y-6">
             {/* Tags */}
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Tags
               </h2>
@@ -458,36 +450,33 @@ export default function TasksPage() {
             </div>
 
             {/* Task Report */}
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Task Report
               </h2>
-              
+
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     Task Completed:
                   </span>
-                  <span className={`px-3 py-1 rounded-lg font-bold ${
-                    isDark ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-900'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-lg font-bold ${isDark ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-900'
+                    }`}>
                     {stats?.completedCount || 0}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     Task in progress:
                   </span>
-                  <span className={`px-3 py-1 rounded-lg font-bold ${
-                    isDark ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-900'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-lg font-bold ${isDark ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-900'
+                    }`}>
                     {stats?.inProgressCount || 0}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     Total focused time:
@@ -496,7 +485,7 @@ export default function TasksPage() {
                     {formatDuration(stats?.totalFocusedTime || 0)}
                   </span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     Day focus goal:
@@ -505,13 +494,12 @@ export default function TasksPage() {
                     value={goalHours}
                     onChange={(e) => handleGoalChange(parseInt(e.target.value))}
                     disabled={isPast}
-                    className={`px-3 py-1 rounded-lg font-bold border-2 text-center ${
-                      isDark 
-                        ? 'bg-slate-700 border-lime-500 text-lime-400' 
+                    className={`px-3 py-1 rounded-lg font-bold border-2 text-center ${isDark
+                        ? 'bg-slate-700 border-lime-500 text-lime-400'
                         : 'bg-lime-50 border-lime-400 text-lime-700'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(h => (
                       <option key={h} value={h}>{h}h</option>
                     ))}
                   </select>
@@ -530,9 +518,8 @@ export default function TasksPage() {
             </div>
 
             {/* Day Note */}
-            <div className={`rounded-xl border p-5 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <div className="flex items-center justify-between mb-4">
                 <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Day Note
@@ -549,11 +536,10 @@ export default function TasksPage() {
                 placeholder="Add your day key insights here...."
                 rows={5}
                 disabled={isPast}
-                className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark 
-                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' 
+                className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
+                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                     : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-                } ${isPast ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  } ${isPast ? 'opacity-60 cursor-not-allowed' : ''}`}
               />
             </div>
           </div>

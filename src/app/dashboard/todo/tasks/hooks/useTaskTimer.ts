@@ -1,4 +1,3 @@
- 
 // src/app/dashboard/todo/tasks/hooks/useTaskTimer.ts
 import { useState, useEffect, useRef } from "react";
 import { 
@@ -131,17 +130,23 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
       const now = new Date();
       const duration = timer.elapsedSeconds;
 
-      // End the session
+      // IMPORTANT: Don't stop if duration is 0
+      if (duration === 0) {
+        console.warn("Cannot save 0-second session");
+        return false;
+      }
+
+      // End the session with correct duration
       const { error: endError } = await endTaskSession(
         timer.sessionId,
         now.toISOString(),
-        duration
+        duration // This is in SECONDS
       );
 
       if (endError) {
         console.error("Error ending session:", endError);
         alert("Failed to save timer");
-        return;
+        return false;
       }
 
       // Add time to task
