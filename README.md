@@ -2,8 +2,6 @@
 
 ```
 VAIDEHI/
-├── .next/
-├── node_modules/
 ├── public/
 │   └── favicon.ico
 ├── src/
@@ -46,20 +44,37 @@ VAIDEHI/
 │   │   │   │   │   ├── ProfileModal.tsx
 │   │   │   │   │   └── SettingsModal.tsx
 │   │   │   │   ├── sidebar/
-│   │   │   │   │   ├── routine/
-│   │   │   │   │   ├── todo/
-│   │   │   │   │   ├── trading/
 │   │   │   │   │   └── Sidebar.tsx
 │   │   │   │   ├── DashboardShell.tsx
 │   │   │   │   └── theme-script.tsx
 │   │   │   ├── routine/
-│   │   │   ├── todo/ 
+│   │   │   │   └── page.tsx
+│   │   │   ├── todo/
 │   │   │   │   ├── schedule/
-│   │   │   │   ├── tasks
-│   │   │   │       ├── components/
-│   │   │   │       ├── hools/
-│   │   │   │       └── page.tsx
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── AddEventModal.tsx
+│   │   │   │   │   │   ├── DayEventsList.tsx
+│   │   │   │   │   │   ├── EventCard.tsx
+│   │   │   │   │   │   ├── ScheduleCalendar.tsx
+│   │   │   │   │   │   └── UpcomingEvents.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   ├── useEventActions.ts
+│   │   │   │   │   │   ├── useSchedule.ts
+│   │   │   │   │   │   └── useScheduleNotifications.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── tasks/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── AddTaskModal.tsx
+│   │   │   │   │   │   ├── EditTaskModal.tsx
+│   │   │   │   │   │   ├── TagManager.tsx
+│   │   │   │   │   │   ├── TaskItem.tsx
+│   │   │   │   │   │   └── Timeline.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useTaskTimer.ts
+│   │   │   │   │   └── page.tsx
 │   │   │   ├── trading/
+│   │   │   │   ├── layout.tsx(not yet)
+│   │   │   │   └── page.tsxnot (yet)
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
 │   │   └── layout.tsx
@@ -71,19 +86,17 @@ VAIDEHI/
 │   │   └── supabase/
 │   │       ├── client.ts
 │   │       ├── helpers.ts
+│   │       ├── schedule-helpers.ts
+│   │       ├── task-helpers.ts
 │   │       ├── middleware.ts
 │   │       └── server.ts
 │   ├── types/
 │   │   └── database.ts
-├── .env.local
-├── .gitignore
-├── eslint.config.mjs
-├── middleware.ts
-├── next-env.d.ts
-├── next.config.ts
+├── README.md
+├── globals.css
+├── layout.tsx
 ├── package.json
 ├── package-lock.json
-├── postcss.config.mjs
 ├── tailwind.config.ts
 └── tsconfig.json
 ```

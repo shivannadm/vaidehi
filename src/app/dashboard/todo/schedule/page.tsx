@@ -9,10 +9,17 @@ import AddEventModal from "./components/AddEventModal";
 import { useSchedule, useMonthEvents } from "./hooks/useSchedule";
 import { useEventActions } from "./hooks/useEventActions";
 import { useScheduleNotifications } from "./hooks/useScheduleNotifications";
-import { formatDateToString } from "@/types/database";
 import type { ScheduleEvent, EventFormData } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
-import { getUpcomingEvents } from "@/lib/supabase/schedule-helpers";
+import { getUpcomingEvents, getScheduleEventsForDate } from "@/lib/supabase/schedule-helpers";
+
+// Helper function to format date correctly (fixes timezone issue)
+function formatDateForInput(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export default function SchedulePage() {
   const [mounted, setMounted] = useState(false);
@@ -22,13 +29,17 @@ export default function SchedulePage() {
   const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
   const [isDark, setIsDark] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState<ScheduleEvent[]>([]);
+  const [allTodayEvents, setAllTodayEvents] = useState<ScheduleEvent[]>([]);
+
+  // Get formatted date string (fixes timezone issue)
+  const selectedDateString = formatDateForInput(selectedDate);
 
   // Fetch events for selected day
   const {
     events,
     loading: eventsLoading,
     refreshEvents,
-  } = useSchedule(formatDateToString(selectedDate));
+  } = useSchedule(selectedDateString);
 
   // Fetch events for current month (for calendar dots)
   const {
@@ -60,27 +71,35 @@ export default function SchedulePage() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch upcoming events
+  // Fetch upcoming events and today's events for notifications
   useEffect(() => {
-    const fetchUpcoming = async () => {
+    const fetchEvents = async () => {
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (user) {
-        const { data } = await getUpcomingEvents(user.id, 5);
-        if (data) {
-          setUpcomingEvents(data);
+        // Fetch upcoming events (for display)
+        const { data: upcoming } = await getUpcomingEvents(user.id, 5);
+        if (upcoming) {
+          setUpcomingEvents(upcoming);
+        }
+
+        // Fetch ALL today's events (for notifications)
+        const today = formatDateForInput(new Date());
+        const { data: todayEvents } = await getScheduleEventsForDate(user.id, today);
+        if (todayEvents) {
+          setAllTodayEvents(todayEvents);
         }
       }
     };
 
-    fetchUpcoming();
+    fetchEvents();
   }, [events]); // Refresh when events change
 
-  // 🔔 Enable schedule notifications (checks every 5 minutes)
-  useScheduleNotifications(upcomingEvents);
+  // 🔔 Enable schedule notifications (checks every 1 minute)
+  useScheduleNotifications(allTodayEvents);
 
   // Handlers
   const handlePrevMonth = () => {
@@ -122,7 +141,7 @@ export default function SchedulePage() {
   };
 
   const handleUpcomingEventClick = (event: ScheduleEvent) => {
-    // Jump to that event's date
+    // Jump to that event's date (fixed timezone parsing)
     const [year, month, day] = event.date.split('-').map(Number);
     const eventDate = new Date(year, month - 1, day);
     setSelectedDate(eventDate);
@@ -131,9 +150,11 @@ export default function SchedulePage() {
 
   const handleSubmitEvent = async (formData: EventFormData) => {
     // Prevent scheduling in the past
-    const eventDate = new Date(formData.date + "T00:00:00");
+    const [year, month, day] = formData.date.split('-').map(Number);
+    const eventDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    eventDate.setHours(0, 0, 0, 0);
 
     if (eventDate < today && !editingEvent) {
       alert("Cannot schedule events in the past.");
@@ -244,7 +265,7 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* Add/Edit Event Modal */}
+      {/* Add/Edit Event Modal - Pass correct date string */}
       <AddEventModal
         isOpen={isAddModalOpen}
         onClose={() => {
@@ -253,7 +274,7 @@ export default function SchedulePage() {
         }}
         onSubmit={handleSubmitEvent}
         editingEvent={editingEvent}
-        defaultDate={formatDateToString(selectedDate)}
+        defaultDate={selectedDateString}
         isDark={isDark}
       />
     </div>
