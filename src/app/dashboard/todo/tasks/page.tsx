@@ -1,7 +1,7 @@
 // src/app/dashboard/todo/tasks/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   getTasksByDate,
@@ -50,10 +50,6 @@ export default function TasksPage() {
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskWithTag | null>(null);
-
-  // Dropdown state
-  const [isGoalOpen, setIsGoalOpen] = useState(false);
-  const goalDropdownRef = useRef<HTMLDivElement>(null);
 
   // Loading states
   const [loading, setLoading] = useState(true);
@@ -111,17 +107,6 @@ export default function TasksPage() {
       loadAllData(userId, formatDateToString(selectedDate));
     }
   }, [selectedDate, userId]);
-
-  // Handle clicking outside the custom dropdown to close it
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (goalDropdownRef.current && !goalDropdownRef.current.contains(event.target as Node)) {
-        setIsGoalOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Auto-save day note (debounced)
   useEffect(() => {
@@ -239,7 +224,6 @@ export default function TasksPage() {
 
   const weekDates = getWeekDates();
   const goalCardColors = getGoalCardColor(stats?.goalPercentage || 0);
-  const hoursList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
   if (!mounted || loading) {
     return (
@@ -278,10 +262,10 @@ export default function TasksPage() {
                   key={idx}
                   onClick={() => setSelectedDate(date)}
                   className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${isSelected
-                    ? 'bg-cyan-500 text-white'
-                    : isDark
-                      ? 'text-slate-400 hover:bg-slate-700'
-                      : 'text-slate-600 hover:bg-slate-100'
+                      ? 'bg-cyan-500 text-white'
+                      : isDark
+                        ? 'text-slate-400 hover:bg-slate-700'
+                        : 'text-slate-600 hover:bg-slate-100'
                     }`}
                 >
                   {dateNum}
@@ -320,10 +304,10 @@ export default function TasksPage() {
           <div className="flex items-center gap-2 ml-auto">
             <button
               className={`p-2 rounded-lg transition ${timer.isRunning
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : isDark
-                  ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : isDark
+                    ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                    : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                 }`}
               onClick={() => timer.isRunning ? pauseTimer() : resumeTimer()}
               disabled={!timer.taskId}
@@ -369,8 +353,8 @@ export default function TasksPage() {
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
                   className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
-                    ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
-                    : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
+                      ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
+                      : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
                     }`}>
                   + Add task
                 </button>
@@ -429,7 +413,7 @@ export default function TasksPage() {
 
           {/* CENTER COLUMN - Timeline - FULL HEIGHT ALIGNMENT */}
           <div className="h-full">
-            <div className={`rounded-xl border p-5 h-full flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            <div className={`rounded-xl border p-5 h-160 flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
               }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Today's Task time Record
@@ -502,50 +486,23 @@ export default function TasksPage() {
                   </span>
                 </div>
 
-                {/* CUSTOM GOAL DROPDOWN */}
-                <div className="flex justify-between items-center relative z-20">
+                <div className="flex justify-between items-center">
                   <span className={`text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                     Day focus goal:
                   </span>
-
-                  <div className="relative" ref={goalDropdownRef}>
-                    <button
-                      onClick={() => !isPast && setIsGoalOpen(!isGoalOpen)}
-                      disabled={isPast}
-                      className={`px-3 py-1 rounded-lg font-bold border-2 text-center min-w-[70px] flex justify-between items-center gap-2 ${isDark
-                          ? 'bg-slate-700 border-lime-500 text-lime-400'
-                          : 'bg-lime-50 border-lime-400 text-lime-700'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <span>{goalHours}h</span>
-                      <span className="text-[10px]">▼</span>
-                    </button>
-
-                    {isGoalOpen && (
-                      <div className={`absolute bottom-full mb-1 right-0 w-24 rounded-lg border-2 shadow-xl overflow-hidden ${isDark
-                          ? 'bg-slate-800 border-lime-600 text-lime-400'
-                          : 'bg-white border-lime-400 text-lime-700'
-                        }`}>
-                        <ul className="overflow-y-auto max-h-[200px] custom-scrollbar">
-                          {hoursList.map(h => (
-                            <li
-                              key={h}
-                              onClick={() => {
-                                handleGoalChange(h);
-                                setIsGoalOpen(false);
-                              }}
-                              className={`px-3 py-2 text-center cursor-pointer transition-colors text-sm font-semibold ${goalHours === h
-                                  ? (isDark ? 'bg-lime-900/50' : 'bg-lime-100')
-                                  : 'hover:bg-lime-500 hover:text-white'
-                                }`}
-                            >
-                              {h}h
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
+                  <select
+                    value={goalHours}
+                    onChange={(e) => handleGoalChange(parseInt(e.target.value))}
+                    disabled={isPast}
+                    className={`px-3 py-1 rounded-lg font-bold border-2 text-center ${isDark
+                        ? 'bg-slate-700 border-lime-500 text-lime-400'
+                        : 'bg-lime-50 border-lime-400 text-lime-700'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(h => (
+                      <option key={h} value={h}>{h}h</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Goal Card */}
@@ -580,8 +537,8 @@ export default function TasksPage() {
                 rows={5}
                 disabled={isPast}
                 className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                  ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
+                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
                   } ${isPast ? 'opacity-60 cursor-not-allowed' : ''}`}
               />
             </div>
@@ -619,23 +576,6 @@ export default function TasksPage() {
         }}
         isDark={isDark}
       />
-
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: ${isDark ? '#1e293b' : '#f1f5f9'};
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: ${isDark ? '#475569' : '#cbd5e1'};
-          border-radius: 20px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: ${isDark ? '#64748b' : '#94a3b8'};
-        }
-      `}</style>
     </div>
   );
 }
