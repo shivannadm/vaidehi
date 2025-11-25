@@ -8,171 +8,246 @@ interface TimelineProps {
   sessions: TaskSessionWithTask[];
   currentTime: Date;
   isDark: boolean;
-  activeSession?: { id: string; elapsedSeconds: number } | null; // ← CRITICAL
 }
 
-export default function Timeline({ 
-  sessions = [], 
-  currentTime, 
-  isDark,
-  activeSession 
-}: TimelineProps) {
-
-  // ── SMART TIMELINE RANGE (Fixed + Optimized) ─────────────────────
-  const { timelineHours, startHour, totalMinutes } = useMemo(() => {
-    const nowHour = currentTime.getHours();
-    let earliest = nowHour - 2;
-    let latest = nowHour + 4;
-
-    sessions.forEach(s => {
-      if (s.start_time) {
-        const h = new Date(s.start_time).getHours();
-        earliest = Math.min(earliest, h);
-        if (s.end_time) {
-          latest = Math.max(latest, new Date(s.end_time).getHours());
+export default function Timeline({ sessions = [], currentTime, isDark }: TimelineProps) {
+  
+  // Smart timeline range
+  const timelineHours = useMemo(() => {
+    const currentHour = currentTime?.getHours() ?? new Date().getHours();
+    
+    let earliestHour = currentHour;
+    let latestHour = currentHour;
+    
+    if (!Array.isArray(sessions)) {
+      const hours = [];
+      for (let i = Math.max(0, currentHour - 2); i <= currentHour + 1 && i <= 23; i++) {
+        hours.push(i);
+      }
+      return hours;
+    }
+    
+    sessions.forEach(session => {
+      if (session?.start_time) {
+        try {
+          const start = new Date(session.start_time);
+          if (!isNaN(start.getTime())) {
+            earliestHour = Math.min(earliestHour, start.getHours());
+          }
+        } catch (e) {
+          console.warn("Invalid start_time:", session.start_time);
         }
       }
+      // Don't use end_time for range calculation
     });
-
-    earliest = Math.max(0, earliest);
-    latest = Math.min(23, latest);
-
+    
+    const startHour = Math.max(0, Math.min(earliestHour, currentHour - 2));
+    const endHour = Math.min(23, Math.max(latestHour, currentHour));
+    
     const hours = [];
-    for (let i = earliest; i <= latest; i++) hours.push(i);
-
-    return {
-      timelineHours: hours,
-      startHour: earliest,
-      totalMinutes: (latest - earliest + 1) * 60,
-    };
+    for (let i = startHour; i <= endHour + 1; i++) {
+      if (i <= 23) hours.push(i);
+    }
+    
+    return hours;
   }, [sessions, currentTime]);
 
-  // ── REAL Duration Logic (This is the magic) ──────────────────────
-  const getActualDurationSeconds = (session: TaskSessionWithTask): number => {
-    // Case 1: This is the currently running session → use live timer
-    if (activeSession && activeSession.id === session.id) {
-      return activeSession.elapsedSeconds;
-    }
+  const startHour = timelineHours[0] ?? 8;
+  const endHour = timelineHours[timelineHours.length - 1] ?? 20;
+  const totalHours = Math.max(1, endHour - startHour);
 
-    // Case 2: Session is completed → trust stored duration (but not zero)
-    if (session.end_time && session.duration > 60) { // > 60s = real session
-      return session.duration;
+  // Format duration
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${minutes}m`;
     }
-
-    // Case 3: Very short or abandoned → ignore (under 60 seconds)
-    if (session.duration < 60) {
-      return 0;
-    }
-
-    return session.duration;
   };
 
-  // ── Position & Height (Now Perfect) ──────────────────────────────
-  const getSessionStyle = (session: TaskSessionWithTask) => {
-    const start = new Date(session.start_time);
-    if (isNaN(start.getTime())) return { top: "0%", height: "0%" };
-
-    const startMinutes = start.getHours() * 60 + start.getMinutes();
-    const timelineStartMinutes = startHour * 60;
-    const topPct = ((startMinutes - timelineStartMinutes) / totalMinutes) * 100;
-
-    const actualDurationSec = getActualDurationSeconds(session);
-    if (actualDurationSec === 0) return { top: "0%", height: "0%" };
-
-    let heightPct = (actualDurationSec / 60 / totalMinutes) * 100;
-
-    // Never go past current time
-    const nowMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
-    const currentPct = ((nowMinutes - timelineStartMinutes) / totalMinutes) * 100;
-    const maxAllowedHeight = currentPct - topPct;
-    heightPct = Math.min(heightPct, Math.max(1.5, maxAllowedHeight)); // min visibility
-
-    return {
-      top: `${Math.max(0, topPct)}%`,
-      height: `${heightPct}%`,
-    };
+  // ⭐ THE FIX: Calculate position based ONLY on duration
+  const getSessionPosition = (session: TaskSessionWithTask) => {
+    try {
+      const start = new Date(session.start_time);
+      if (isNaN(start.getTime())) {
+        return { top: '0%', height: '0%' };
+      }
+      
+      const startMinutes = start.getHours() * 60 + start.getMinutes();
+      const timelineStartMinutes = startHour * 60;
+      const timelineTotalMinutes = totalHours * 60;
+      
+      // TOP POSITION: Based on start time
+      const topPercent = ((startMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
+      
+      // HEIGHT: ONLY based on session.duration (in seconds)
+      // This is the KEY - ignore start/end time difference
+      const durationMinutes = session.duration / 60;
+      let heightPercent = (durationMinutes / timelineTotalMinutes) * 100;
+      
+      // CRITICAL: Cap at current time (never show future)
+      const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+      const currentPercent = ((currentMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
+      const maxAllowedHeight = currentPercent - topPercent;
+      
+      // If block would extend past current time, cap it
+      if (heightPercent > maxAllowedHeight) {
+        heightPercent = Math.max(0, maxAllowedHeight);
+      }
+      
+      // Minimum 2% for visibility (but only if duration > 0)
+      const finalHeight = session.duration > 0 ? Math.max(heightPercent, 2) : 0;
+      
+      return {
+        top: `${Math.max(0, topPercent)}%`,
+        height: `${finalHeight}%`
+      };
+    } catch (e) {
+      console.warn("Error calculating position:", e);
+      return { top: '0%', height: '0%' };
+    }
   };
 
-  // ── Current Time Position ───────────────────────────────────────
-  const currentTimeTop = useMemo(() => {
-    const nowM = currentTime.getHours() * 60 + currentTime.getMinutes();
-    const startM = startHour * 60;
-    const pct = ((nowM - startM) / totalMinutes) * 100;
-    return `${Math.min(100, Math.max(0, pct))}%`;
-  }, [currentTime, startHour, totalMinutes]);
+  // Current time line position
+  const getCurrentTimePosition = () => {
+    try {
+      if (!currentTime) return null;
+      
+      const hour = currentTime.getHours();
+      const minute = currentTime.getMinutes();
+      
+      if (hour < startHour || hour > endHour) return null;
+      
+      const currentMinutes = hour * 60 + minute;
+      const timelineStartMinutes = startHour * 60;
+      const timelineTotalMinutes = totalHours * 60;
+      
+      const topPercent = ((currentMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
+      
+      return `${Math.max(0, Math.min(100, topPercent))}%`;
+    } catch (e) {
+      console.warn("Error calculating current time position:", e);
+      return null;
+    }
+  };
 
-  const containerHeight = timelineHours.length * 80;
+  const currentTimePos = getCurrentTimePosition();
+  
+  const pixelsPerHour = 60;
+  const totalHeight = totalHours * pixelsPerHour;
 
   return (
     <div className="relative h-full">
-      <div className="relative h-full overflow-y-auto timeline-scrollbar">
-        <div className="relative pr-2" style={{ minHeight: `${containerHeight}px` }}>
+      <div className={`relative h-full overflow-y-auto timeline-scrollbar`}>
+        <div className="relative pr-2" style={{ minHeight: `${totalHeight}px` }}>
+          
           {/* Time Labels */}
-          <div className="absolute left-0 top-0 w-14" style={{ height: `${containerHeight}px` }}>
-            {timelineHours.map((h, i) => (
-              <div key={h} className="absolute left-0" style={{ top: `${(i / timelineHours.length) * 100}%`, transform: "translateY(-8px)" }}>
-                <span className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  {h.toString().padStart(2, "0")}:00
+          <div className="absolute left-0 top-0 w-14" style={{ height: `${totalHeight}px` }}>
+            {Array.isArray(timelineHours) && timelineHours.map((hour, idx) => (
+              <div 
+                key={hour}
+                className="absolute left-0"
+                style={{ 
+                  top: `${(idx / Math.max(1, totalHours)) * 100}%`,
+                  transform: 'translateY(-6px)'
+                }}
+              >
+                <span className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {hour.toString().padStart(2, '0')}:00
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="ml-14 relative" style={{ height: `${containerHeight}px` }}>
+          {/* Timeline Grid */}
+          <div className="ml-14 relative" style={{ height: `${totalHeight}px` }}>
+            
             {/* Hour Lines */}
-            {timelineHours.map((_, i) => (
-              <div key={i} className={`absolute inset-x-0 border-t ${isDark ? "border-slate-700" : "border-slate-200"}`} style={{ top: `${(i / timelineHours.length) * 100}%` }} />
+            {Array.isArray(timelineHours) && timelineHours.map((hour, idx) => (
+              <div
+                key={`line-${hour}`}
+                className={`absolute left-0 right-0 border-t ${
+                  isDark ? 'border-slate-700' : 'border-slate-200'
+                }`}
+                style={{ 
+                  top: `${(idx / Math.max(1, totalHours)) * 100}%`
+                }}
+              />
             ))}
 
-            {/* Sessions */}
-            {sessions.filter(s => getActualDurationSeconds(s) >= 60).map(session => {
-              const style = getSessionStyle(session);
-              if (style.height === "0%") return null;
-
-              const isRunning = activeSession?.id === session.id;
-              const tagColor = session.task?.tag ? TAG_COLORS[session.task.tag.color] : { darkBg: "#f97316", lightBg: "#fed7aa", darkText: "#fff", lightText: "#000" };
+            {/* Session Blocks */}
+            {Array.isArray(sessions) && sessions
+              .filter(s => s && s.duration > 0) // Only show sessions with actual duration
+              .map((session, idx) => {
+              const position = getSessionPosition(session);
+              
+              // Skip if height is 0
+              if (position.height === '0%') return null;
+              
+              const tagColor = session.task?.tag 
+                ? TAG_COLORS[session.task.tag.color]
+                : { darkBg: '#f97316', lightBg: '#fed7aa', darkText: '#fff', lightText: '#000' };
 
               return (
                 <div
-                  key={session.id}
-                  className={`absolute inset-x-0 rounded-lg p-2.5 shadow-md transition-all ${isRunning ? "ring-2 ring-orange-500 animate-pulse" : ""}`}
+                  key={`${session.id}-${idx}`}
+                  className="absolute left-0 right-0 rounded-lg p-2.5 shadow-md"
                   style={{
-                    ...style,
+                    top: position.top,
+                    height: position.height,
                     backgroundColor: isDark ? tagColor.darkBg : tagColor.lightBg,
-                    minHeight: "38px",
-                    zIndex: isRunning ? 20 : 10,
+                    minHeight: '30px',
+                    zIndex: 5
                   }}
                 >
-                  <div className="flex items-center justify-between h-full">
-                    <span className="text-sm font-semibold truncate" style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}>
-                      {session.task?.title}
-                    </span>
-                    <span className="text-xs font-bold ml-2" style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}>
-                      {(() => {
-                        const sec = getActualDurationSeconds(session);
-                        const m = Math.floor(sec / 60);
-                        return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
-                      })()}
-                    </span>
+                  <div className="flex items-start justify-between h-full">
+                    <div
+                      className="text-sm font-semibold truncate flex-1"
+                      style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                    >
+                      {session.task?.title || 'Untitled'}
+                    </div>
+                    <div
+                      className="text-xs font-bold ml-2 flex-shrink-0"
+                      style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                    >
+                      {formatDuration(session.duration || 0)}
+                    </div>
                   </div>
                 </div>
               );
             })}
 
-            {/* Current Time Red Line */}
-            <div className="absolute inset-x-0 flex items-center pointer-events-none z-30" style={{ top: currentTimeTop }}>
-              <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg animate-pulse" />
-              <div className="flex-1 h-0.5 bg-red-500" />
-            </div>
+            {/* Current Time Line */}
+            {currentTimePos && (
+              <div
+                className="absolute left-0 right-0 flex items-center pointer-events-none"
+                style={{ 
+                  top: currentTimePos,
+                  zIndex: 20
+                }}
+              >
+                <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 shadow-lg animate-pulse" />
+                <div className="flex-1 h-0.5 bg-red-500" />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {sessions.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-center">
+      {/* Empty State */}
+      {(!sessions || sessions.length === 0) && (
+        <div className={`absolute inset-0 flex items-center justify-center text-center pointer-events-none ${
+          isDark ? 'text-slate-400' : 'text-slate-500'
+        }`}>
           <div>
-            <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No time records yet</p>
-            <p className="text-xs mt-1 text-slate-500">Start a task timer to see it here</p>
+            <p className="text-sm">No time records yet</p>
+            <p className="text-xs mt-2">Start a task timer to see it here</p>
           </div>
         </div>
       )}

@@ -684,3 +684,107 @@ export function getEventsForDate(events: ScheduleEvent[], date: string): Schedul
 export function getEventTypeConfig(eventType: EventType): EventTypeConfig {
   return EVENT_TYPE_CONFIG[eventType];
 }
+// =====================================================
+// DAILY HIGHLIGHTS TYPES
+// Add these to your existing src/types/database.ts
+// =====================================================
+
+export type HighlightReason = 'urgency' | 'satisfaction' | 'joy';
+
+// Daily Highlight
+export interface DailyHighlight {
+  id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD format
+  highlight_text: string;
+  highlight_completed: boolean;
+  selection_reason: HighlightReason | null;
+  yesterday_reflection: string | null;
+  tomorrow_preview: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// For creating new highlights
+export type CreateDailyHighlight = Omit<DailyHighlight, 'id' | 'created_at' | 'updated_at'>;
+
+// For updating highlights
+export type UpdateDailyHighlight = Partial<Omit<DailyHighlight, 'id' | 'user_id' | 'created_at'>>;
+
+// Yesterday's snapshot data
+export interface YesterdaySnapshot {
+  tasksCompleted: number;
+  timeFocused: number; // in seconds
+  reflection: string | null;
+}
+
+// Highlight reason configuration
+export interface HighlightReasonConfig {
+  reason: HighlightReason;
+  label: string;
+  description: string;
+  icon: string;
+  lightBg: string;
+  darkBg: string;
+  lightText: string;
+  darkText: string;
+  lightBorder: string;
+  darkBorder: string;
+}
+
+// =====================================================
+// HIGHLIGHT REASON CONFIGURATION
+// =====================================================
+export const HIGHLIGHT_REASONS: Record<HighlightReason, HighlightReasonConfig> = {
+  urgency: {
+    reason: 'urgency',
+    label: 'Urgency',
+    description: 'Has a deadline',
+    icon: '⚡',
+    lightBg: '#FEE2E2',
+    darkBg: '#991B1B',
+    lightText: '#991B1B',
+    darkText: '#FEE2E2',
+    lightBorder: '#DC2626',
+    darkBorder: '#FCA5A5',
+  },
+  satisfaction: {
+    reason: 'satisfaction',
+    label: 'Satisfaction',
+    description: 'Would feel great to complete',
+    icon: '🎯',
+    lightBg: '#DBEAFE',
+    darkBg: '#1E3A8A',
+    lightText: '#1E3A8A',
+    darkText: '#DBEAFE',
+    lightBorder: '#3B82F6',
+    darkBorder: '#93C5FD',
+  },
+  joy: {
+    reason: 'joy',
+    label: 'Joy',
+    description: 'Would bring happiness',
+    icon: '✨',
+    lightBg: '#FCE7F3',
+    darkBg: '#831843',
+    lightText: '#9F1239',
+    darkText: '#FCE7F3',
+    lightBorder: '#EC4899',
+    darkBorder: '#F9A8D4',
+  },
+};
+
+// =====================================================
+// HELPER FUNCTIONS FOR HIGHLIGHTS
+// =====================================================
+
+// Get reason config
+export function getHighlightReasonConfig(reason: HighlightReason): HighlightReasonConfig {
+  return HIGHLIGHT_REASONS[reason];
+}
+
+// Format yesterday's snapshot for display
+export function formatYesterdaySnapshot(snapshot: YesterdaySnapshot): string {
+  const { tasksCompleted, timeFocused } = snapshot;
+  return `${tasksCompleted} tasks completed • ${formatDuration(timeFocused)} focused`;
+}
