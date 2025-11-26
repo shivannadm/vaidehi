@@ -904,3 +904,300 @@ export const NOTE_COLORS: Record<
     darkText: "#fbcfe8",
   },
 };
+
+// ============================================
+// ADD TO: src/types/database.ts
+// Add these types at the end of the file
+// ============================================
+
+// ============================================
+// PROJECTS TYPES
+// ============================================
+
+export interface Project {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  priority: ProjectPriority;
+  color: ProjectColor;
+  is_favorite: boolean;
+  start_date: string | null;
+  target_end_date: string | null;
+  progress: number;
+  total_tasks: number;
+  completed_tasks: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProjectStatus = 
+  | 'planning' 
+  | 'active' 
+  | 'on_hold' 
+  | 'completed' 
+  | 'archived';
+
+export type ProjectPriority = 
+  | 'low' 
+  | 'medium' 
+  | 'high' 
+  | 'critical';
+
+export type ProjectColor = 
+  | 'blue' 
+  | 'green' 
+  | 'orange' 
+  | 'purple' 
+  | 'red' 
+  | 'teal' 
+  | 'pink' 
+  | 'yellow';
+
+// ============================================
+// PROJECT STATUS CONFIG
+// ============================================
+
+export const PROJECT_STATUS_CONFIG: Record<
+  ProjectStatus,
+  {
+    label: string;
+    icon: string;
+    lightBg: string;
+    darkBg: string;
+    lightText: string;
+    darkText: string;
+    lightBorder: string;
+    darkBorder: string;
+  }
+> = {
+  planning: {
+    label: 'Planning',
+    icon: '📋',
+    lightBg: '#e0e7ff',
+    darkBg: '#312e81',
+    lightText: '#3730a3',
+    darkText: '#c7d2fe',
+    lightBorder: '#a5b4fc',
+    darkBorder: '#4338ca',
+  },
+  active: {
+    label: 'Active',
+    icon: '🟢',
+    lightBg: '#d1fae5',
+    darkBg: '#14532d',
+    lightText: '#065f46',
+    darkText: '#86efac',
+    lightBorder: '#6ee7b7',
+    darkBorder: '#166534',
+  },
+  on_hold: {
+    label: 'On Hold',
+    icon: '⏸️',
+    lightBg: '#fef3c7',
+    darkBg: '#713f12',
+    lightText: '#92400e',
+    darkText: '#fef08a',
+    lightBorder: '#fde047',
+    darkBorder: '#854d0e',
+  },
+  completed: {
+    label: 'Completed',
+    icon: '✅',
+    lightBg: '#dbeafe',
+    darkBg: '#1e3a8a',
+    lightText: '#1e40af',
+    darkText: '#bfdbfe',
+    lightBorder: '#93c5fd',
+    darkBorder: '#1e40af',
+  },
+  archived: {
+    label: 'Archived',
+    icon: '📦',
+    lightBg: '#e2e8f0',
+    darkBg: '#334155',
+    lightText: '#475569',
+    darkText: '#cbd5e1',
+    lightBorder: '#cbd5e1',
+    darkBorder: '#475569',
+  },
+};
+
+// ============================================
+// PROJECT PRIORITY CONFIG
+// ============================================
+
+export const PROJECT_PRIORITY_CONFIG: Record<
+  ProjectPriority,
+  {
+    label: string;
+    icon: string;
+    color: string;
+  }
+> = {
+  low: {
+    label: 'Low',
+    icon: '⬇️',
+    color: '#64748b',
+  },
+  medium: {
+    label: 'Medium',
+    icon: '➡️',
+    color: '#3b82f6',
+  },
+  high: {
+    label: 'High',
+    icon: '⬆️',
+    color: '#f59e0b',
+  },
+  critical: {
+    label: 'Critical',
+    icon: '🔴',
+    color: '#ef4444',
+  },
+};
+
+// ============================================
+// PROJECT COLOR THEMES
+// ============================================
+
+export const PROJECT_COLORS: Record<
+  ProjectColor,
+  {
+    lightBg: string;
+    darkBg: string;
+    lightBorder: string;
+    darkBorder: string;
+    lightText: string;
+    darkText: string;
+  }
+> = {
+  blue: {
+    lightBg: '#dbeafe',
+    darkBg: '#1e3a8a',
+    lightBorder: '#93c5fd',
+    darkBorder: '#1e40af',
+    lightText: '#1e3a8a',
+    darkText: '#bfdbfe',
+  },
+  green: {
+    lightBg: '#d1fae5',
+    darkBg: '#14532d',
+    lightBorder: '#6ee7b7',
+    darkBorder: '#166534',
+    lightText: '#14532d',
+    darkText: '#86efac',
+  },
+  orange: {
+    lightBg: '#ffedd5',
+    darkBg: '#7c2d12',
+    lightBorder: '#fdba74',
+    darkBorder: '#9a3412',
+    lightText: '#7c2d12',
+    darkText: '#fed7aa',
+  },
+  purple: {
+    lightBg: '#e9d5ff',
+    darkBg: '#581c87',
+    lightBorder: '#c084fc',
+    darkBorder: '#6b21a8',
+    lightText: '#581c87',
+    darkText: '#d8b4fe',
+  },
+  red: {
+    lightBg: '#fee2e2',
+    darkBg: '#7f1d1d',
+    lightBorder: '#fca5a5',
+    darkBorder: '#991b1b',
+    lightText: '#7f1d1d',
+    darkText: '#fecaca',
+  },
+  teal: {
+    lightBg: '#ccfbf1',
+    darkBg: '#134e4a',
+    lightBorder: '#5eead4',
+    darkBorder: '#115e59',
+    lightText: '#134e4a',
+    darkText: '#99f6e4',
+  },
+  pink: {
+    lightBg: '#fce7f3',
+    darkBg: '#831843',
+    lightBorder: '#f9a8d4',
+    darkBorder: '#9f1239',
+    lightText: '#831843',
+    darkText: '#fbcfe8',
+  },
+  yellow: {
+    lightBg: '#fef3c7',
+    darkBg: '#713f12',
+    lightBorder: '#fde047',
+    darkBorder: '#854d0e',
+    lightText: '#713f12',
+    darkText: '#fef08a',
+  },
+};
+
+// ============================================
+// PROJECT WITH TASKS (for detailed view)
+// ============================================
+
+export interface ProjectWithTasks extends Project {
+  tasks: TaskWithTag[];
+}
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+export function getProjectStatusConfig(status: ProjectStatus) {
+  return PROJECT_STATUS_CONFIG[status];
+}
+
+export function getProjectPriorityConfig(priority: ProjectPriority) {
+  return PROJECT_PRIORITY_CONFIG[priority];
+}
+
+export function getProjectColorTheme(color: ProjectColor) {
+  return PROJECT_COLORS[color];
+}
+
+export function calculateDaysRemaining(targetDate: string | null): number | null {
+  if (!targetDate) return null;
+  
+  const target = new Date(targetDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const diffTime = target.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
+}
+
+export function isProjectOverdue(targetDate: string | null): boolean {
+  const daysRemaining = calculateDaysRemaining(targetDate);
+  return daysRemaining !== null && daysRemaining < 0;
+}
+
+export function formatProjectDateRange(
+  startDate: string | null, 
+  endDate: string | null
+): string {
+  if (!startDate && !endDate) return 'No timeline set';
+  
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+  
+  if (startDate && endDate) {
+    return `${formatDate(startDate)} → ${formatDate(endDate)}`;
+  } else if (startDate) {
+    return `Started ${formatDate(startDate)}`;
+  } else {
+    return `Due ${formatDate(endDate!)}`;
+  }
+}
