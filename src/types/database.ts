@@ -788,3 +788,119 @@ export function formatYesterdaySnapshot(snapshot: YesterdaySnapshot): string {
   const { tasksCompleted, timeFocused } = snapshot;
   return `${tasksCompleted} tasks completed • ${formatDuration(timeFocused)} focused`;
 }
+
+// highlights
+// ADD TO: src/types/database.ts
+
+// ============================================
+// NOTES TYPES
+// ============================================
+
+export interface Note {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  color: NoteColor;
+  is_pinned: boolean;
+  is_archived: boolean;
+  labels: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export type NoteColor = 
+  | "default" 
+  | "red" 
+  | "orange" 
+  | "yellow" 
+  | "green" 
+  | "teal" 
+  | "blue" 
+  | "purple" 
+  | "pink";
+
+export const NOTE_COLORS: Record<
+  NoteColor,
+  {
+    lightBg: string;
+    darkBg: string;
+    lightBorder: string;
+    darkBorder: string;
+    lightText: string;
+    darkText: string;
+  }
+> = {
+  default: {
+    lightBg: "#ffffff",
+    darkBg: "#1e293b",
+    lightBorder: "#e2e8f0",
+    darkBorder: "#334155",
+    lightText: "#0f172a",
+    darkText: "#f1f5f9",
+  },
+  red: {
+    lightBg: "#fee2e2",
+    darkBg: "#7f1d1d",
+    lightBorder: "#fca5a5",
+    darkBorder: "#991b1b",
+    lightText: "#7f1d1d",
+    darkText: "#fecaca",
+  },
+  orange: {
+    lightBg: "#ffedd5",
+    darkBg: "#7c2d12",
+    lightBorder: "#fdba74",
+    darkBorder: "#9a3412",
+    lightText: "#7c2d12",
+    darkText: "#fed7aa",
+  },
+  yellow: {
+    lightBg: "#fef3c7",
+    darkBg: "#713f12",
+    lightBorder: "#fde047",
+    darkBorder: "#854d0e",
+    lightText: "#713f12",
+    darkText: "#fef08a",
+  },
+  green: {
+    lightBg: "#d1fae5",
+    darkBg: "#14532d",
+    lightBorder: "#6ee7b7",
+    darkBorder: "#166534",
+    lightText: "#14532d",
+    darkText: "#86efac",
+  },
+  teal: {
+    lightBg: "#ccfbf1",
+    darkBg: "#134e4a",
+    lightBorder: "#5eead4",
+    darkBorder: "#115e59",
+    lightText: "#134e4a",
+    darkText: "#99f6e4",
+  },
+  blue: {
+    lightBg: "#dbeafe",
+    darkBg: "#1e3a8a",
+    lightBorder: "#93c5fd",
+    darkBorder: "#1e40af",
+    lightText: "#1e3a8a",
+    darkText: "#bfdbfe",
+  },
+  purple: {
+    lightBg: "#e9d5ff",
+    darkBg: "#581c87",
+    lightBorder: "#c084fc",
+    darkBorder: "#6b21a8",
+    lightText: "#581c87",
+    darkText: "#d8b4fe",
+  },
+  pink: {
+    lightBg: "#fce7f3",
+    darkBg: "#831843",
+    lightBorder: "#f9a8d4",
+    darkBorder: "#9f1239",
+    lightText: "#831843",
+    darkText: "#fbcfe8",
+  },
+};

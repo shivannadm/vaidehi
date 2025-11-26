@@ -197,7 +197,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="ToDo Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'ToDo Notes'}
-                onClick={() => handleNavigation('ToDo Notes', 'todo', '/dashboard/todo/todo-notes')}
+                onClick={() => handleNavigation('ToDo Notes', 'todo', '/dashboard/todo/notes')}
                 isLight={isLight}
               />
               <SidebarItem
