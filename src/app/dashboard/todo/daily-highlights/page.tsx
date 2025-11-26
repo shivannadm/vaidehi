@@ -12,13 +12,10 @@ import {
 } from "@/lib/supabase/highlight-helpers";
 import {
   formatDateToString,
-  formatDuration,
-  type DailyHighlight,
   type YesterdaySnapshot,
   type HighlightReason,
-  HIGHLIGHT_REASONS,
 } from "@/types/database";
-import { Sparkles, Calendar, CheckCircle2, TrendingUp } from "lucide-react";
+import { Sparkles, CheckCircle2 } from "lucide-react";
 import HighlightInput from "./components/HighlightInput";
 import ReasonSelector from "./components/ReasonSelector";
 import YesterdayCard from "./components/YesterdayCard";
@@ -32,7 +29,6 @@ export default function DailyHighlightsPage() {
   const [loading, setLoading] = useState(true);
 
   // Data states
-  const [todayHighlight, setTodayHighlight] = useState<DailyHighlight | null>(null);
   const [yesterdaySnapshot, setYesterdaySnapshot] = useState<YesterdaySnapshot | null>(null);
   const [streak, setStreak] = useState<number>(0);
 
@@ -87,7 +83,6 @@ export default function DailyHighlightsPage() {
       ]);
 
       if (highlightRes.data) {
-        setTodayHighlight(highlightRes.data);
         setHighlightText(highlightRes.data.highlight_text);
         setSelectedReason(highlightRes.data.selection_reason);
         setIsCompleted(highlightRes.data.highlight_completed);
@@ -131,7 +126,7 @@ export default function DailyHighlightsPage() {
 
   // Auto-save reason
   useEffect(() => {
-    if (!userId || !mounted || !selectedReason) return;
+    if (!userId || !mounted || !selectedReason || !highlightText.trim()) return;
 
     const save = async () => {
       try {
@@ -157,6 +152,8 @@ export default function DailyHighlightsPage() {
     if (!userId || !mounted) return;
 
     const timeout = setTimeout(async () => {
+      if (!highlightText.trim()) return;
+      
       try {
         await upsertDailyHighlight({
           user_id: userId,
@@ -191,7 +188,7 @@ export default function DailyHighlightsPage() {
       }
     } catch (err) {
       console.error("Error toggling completion:", err);
-      setIsCompleted(!newCompleted); // Revert on error
+      setIsCompleted(!newCompleted);
     }
   };
 
@@ -207,113 +204,101 @@ export default function DailyHighlightsPage() {
   }
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'} p-6`}>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      {/* Optimized Container - Fits Working Area */}
+      <div className="h-full overflow-y-auto p-4 md:p-6">
+        <div className="max-w-6xl mx-auto space-y-5">
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className={`text-3xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              <Sparkles className="w-8 h-8 text-yellow-500" />
-              Daily Highlights
-            </h1>
-            <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-              Focus on the ONE thing that matters most today
-            </p>
-          </div>
-
-          {/* Quick Stats */}
-          <div className={`flex items-center gap-4 px-4 py-3 rounded-xl border ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-          }`}>
-            <div className="text-center">
-              <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                {streak}
-              </div>
-              <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                Day Streak
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Highlight Card */}
-        <div className={`rounded-xl border p-8 ${
-          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-        }`}>
-          <div className="flex items-start justify-between mb-6">
+          {/* Compact Header */}
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className={`text-xl font-bold flex items-center gap-2 ${
-                isDark ? 'text-white' : 'text-slate-900'
-              }`}>
-                🎯 Today's Highlight
-              </h2>
-              <p className={`mt-1 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                What's the ONE thing you want to accomplish today?
+              <h1 className={`text-2xl md:text-3xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
+                Daily Highlights
+              </h1>
+              <p className={`mt-1 text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                Focus on the ONE thing that matters most today
               </p>
             </div>
 
-            {/* Completion Checkbox */}
-            <button
-              onClick={handleToggleCompletion}
-              className={`p-2 rounded-lg transition ${
-                isCompleted
-                  ? 'bg-green-500/20 text-green-500'
-                  : isDark
-                    ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-              }`}
-              title={isCompleted ? "Mark as incomplete" : "Mark as complete"}
-            >
-              <CheckCircle2 className={`w-6 h-6 ${isCompleted ? 'fill-green-500' : ''}`} />
-            </button>
+            {/* Quick Streak Badge */}
+            <div className={`px-4 py-2 rounded-lg border ${
+              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
+              <div className="text-center">
+                <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  {streak}
+                </div>
+                <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  🔥 Streak
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Highlight Input */}
-          <HighlightInput
-            value={highlightText}
-            onChange={setHighlightText}
-            isCompleted={isCompleted}
-            isDark={isDark}
-          />
+          {/* Main Highlight Card - Compact */}
+          <div className={`rounded-xl border p-5 md:p-6 ${
+            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+          }`}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className={`text-lg font-bold flex items-center gap-2 ${
+                  isDark ? 'text-white' : 'text-slate-900'
+                }`}>
+                  🎯 Today's Highlight
+                </h2>
+                <p className={`mt-1 text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  What's the ONE thing you want to accomplish?
+                </p>
+              </div>
 
-          {/* Reason Selector */}
-          <div className="mt-6">
-            <label className={`block text-sm font-medium mb-3 ${
-              isDark ? 'text-slate-300' : 'text-slate-700'
-            }`}>
-              Why is this your highlight?
-            </label>
-            <ReasonSelector
-              selectedReason={selectedReason}
-              onSelect={setSelectedReason}
+              {/* Completion Toggle */}
+              <button
+                onClick={handleToggleCompletion}
+                className={`p-2 rounded-lg transition-all hover:scale-110 ${
+                  isCompleted
+                    ? 'bg-green-500/20 text-green-500 shadow-lg'
+                    : isDark
+                      ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
+                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                }`}
+              >
+                <CheckCircle2 className={`w-6 h-6 ${isCompleted ? 'fill-green-500' : ''}`} />
+              </button>
+            </div>
+
+            {/* Input Component */}
+            <HighlightInput
+              value={highlightText}
+              onChange={setHighlightText}
+              isCompleted={isCompleted}
               isDark={isDark}
             />
+
+            {/* Reason Selector */}
+            <div className="mt-5">
+              <label className={`block text-sm font-medium mb-3 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
+                Why is this your highlight?
+              </label>
+              <ReasonSelector
+                selectedReason={selectedReason}
+                onSelect={setSelectedReason}
+                isDark={isDark}
+              />
+            </div>
           </div>
+
+          {/* Two Column Layout - Responsive */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <YesterdayCard snapshot={yesterdaySnapshot} isDark={isDark} />
+            <TomorrowCard value={tomorrowText} onChange={setTomorrowText} isDark={isDark} />
+          </div>
+
+          {/* Stats Section */}
+          <StatsCard streak={streak} highlightCompleted={isCompleted} isDark={isDark} />
         </div>
-
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Yesterday's Snapshot */}
-          <YesterdayCard
-            snapshot={yesterdaySnapshot}
-            isDark={isDark}
-          />
-
-          {/* Tomorrow's Preview */}
-          <TomorrowCard
-            value={tomorrowText}
-            onChange={setTomorrowText}
-            isDark={isDark}
-          />
-        </div>
-
-        {/* Stats Section */}
-        <StatsCard
-          streak={streak}
-          highlightCompleted={isCompleted}
-          isDark={isDark}
-        />
       </div>
     </div>
   );
