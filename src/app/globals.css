@@ -105,3 +105,17 @@ body,
 html:not(.dark) * {
   scrollbar-color: #cbd5e1 #f1f5f9;
 }
+
+/* Shimmer animation for progress bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
