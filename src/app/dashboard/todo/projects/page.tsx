@@ -36,9 +36,16 @@ export default function ProjectsPage() {
     toggleFavorite,
   } = useProjects(userId);
 
-  // Initialize
+  // Initialize - Load view mode from localStorage
   useEffect(() => {
     setMounted(true);
+    
+    // Load saved view mode
+    const savedViewMode = localStorage.getItem('projectsViewMode');
+    if (savedViewMode === 'list' || savedViewMode === 'grid') {
+      setViewMode(savedViewMode);
+    }
+    
     const init = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -122,6 +129,12 @@ export default function ProjectsPage() {
 
   const handleProjectClick = (projectId: string) => {
     router.push(`/dashboard/todo/projects/${projectId}`);
+  };
+
+  // Save view mode to localStorage when it changes
+  const handleViewModeChange = (mode: "grid" | "list") => {
+    setViewMode(mode);
+    localStorage.setItem('projectsViewMode', mode);
   };
 
   if (!mounted || loading) {
@@ -240,7 +253,7 @@ export default function ProjectsPage() {
                 isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-100 border-slate-200'
               }`}>
                 <button
-                  onClick={() => setViewMode("grid")}
+                  onClick={() => handleViewModeChange("grid")}
                   className={`p-2 rounded-l-lg transition ${
                     viewMode === "grid"
                       ? 'bg-indigo-600 text-white'
@@ -250,7 +263,7 @@ export default function ProjectsPage() {
                   <Grid3x3 className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => setViewMode("list")}
+                  onClick={() => handleViewModeChange("list")}
                   className={`p-2 rounded-r-lg transition ${
                     viewMode === "list"
                       ? 'bg-indigo-600 text-white'

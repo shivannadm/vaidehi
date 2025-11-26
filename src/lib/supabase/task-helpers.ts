@@ -35,7 +35,7 @@ import type {
  */
 export async function getTags(userId: string): Promise<SupabaseResponse<Tag[]>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tags")
     .select("*")
@@ -50,7 +50,7 @@ export async function getTags(userId: string): Promise<SupabaseResponse<Tag[]>> 
  */
 export async function createTag(tag: CreateTag): Promise<SupabaseResponse<Tag>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tags")
     .insert(tag)
@@ -68,7 +68,7 @@ export async function updateTag(
   updates: UpdateTag
 ): Promise<SupabaseResponse<Tag>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tags")
     .update(updates)
@@ -84,7 +84,7 @@ export async function updateTag(
  */
 export async function deleteTag(tagId: string): Promise<SupabaseResponse<null>> {
   const supabase = createClient();
-  
+
   const { error } = await supabase
     .from("tags")
     .delete()
@@ -105,7 +105,7 @@ export async function getTasksByDate(
   date: string
 ): Promise<SupabaseResponse<TasksResponse>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .select(`
@@ -138,7 +138,7 @@ export async function getTasksByDate(
  */
 export async function getTaskById(taskId: string): Promise<SupabaseResponse<TaskWithTag>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .select(`
@@ -154,12 +154,30 @@ export async function getTaskById(taskId: string): Promise<SupabaseResponse<Task
 /**
  * Create a new task
  */
-export async function createTask(task: CreateTask): Promise<SupabaseResponse<Task>> {
+export async function createTask(taskData: {
+  user_id: string;
+  title: string;
+  tag_id: string | null;
+  is_important: boolean;
+  is_completed: boolean;
+  total_time_spent: number;
+  date: string;
+  project_id?: string | null;  // ← ADD THIS LINE
+}) {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
-    .insert(task)
+    .insert({
+      user_id: taskData.user_id,
+      title: taskData.title,
+      tag_id: taskData.tag_id,
+      is_important: taskData.is_important,
+      is_completed: taskData.is_completed,
+      total_time_spent: taskData.total_time_spent,
+      date: taskData.date,
+      project_id: taskData.project_id || null,  // ← ADD THIS LINE
+    })
     .select()
     .single();
 
@@ -174,7 +192,7 @@ export async function updateTask(
   updates: UpdateTask
 ): Promise<SupabaseResponse<Task>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .update(updates)
@@ -190,7 +208,7 @@ export async function updateTask(
  */
 export async function completeTask(taskId: string): Promise<SupabaseResponse<Task>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .update({
@@ -209,7 +227,7 @@ export async function completeTask(taskId: string): Promise<SupabaseResponse<Tas
  */
 export async function uncompleteTask(taskId: string): Promise<SupabaseResponse<Task>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .update({
@@ -228,7 +246,7 @@ export async function uncompleteTask(taskId: string): Promise<SupabaseResponse<T
  */
 export async function deleteTask(taskId: string): Promise<SupabaseResponse<null>> {
   const supabase = createClient();
-  
+
   const { error } = await supabase
     .from("tasks")
     .delete()
@@ -245,7 +263,7 @@ export async function addTimeToTask(
   seconds: number
 ): Promise<SupabaseResponse<Task>> {
   const supabase = createClient();
-  
+
   // First get current time
   const { data: task, error: fetchError } = await supabase
     .from("tasks")
@@ -282,7 +300,7 @@ export async function getSessionsByDate(
   date: string
 ): Promise<SupabaseResponse<TaskSessionWithTask[]>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("task_sessions")
     .select(`
@@ -306,7 +324,7 @@ export async function createTaskSession(
   session: CreateTaskSession
 ): Promise<SupabaseResponse<TaskSession>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("task_sessions")
     .insert(session)
@@ -325,7 +343,7 @@ export async function endTaskSession(
   duration: number
 ): Promise<SupabaseResponse<TaskSession>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("task_sessions")
     .update({
@@ -346,7 +364,7 @@ export async function getActiveSession(
   userId: string
 ): Promise<SupabaseResponse<TaskSessionWithTask>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("task_sessions")
     .select(`
@@ -370,7 +388,7 @@ export async function deleteTaskSession(
   sessionId: string
 ): Promise<SupabaseResponse<null>> {
   const supabase = createClient();
-  
+
   const { error } = await supabase
     .from("task_sessions")
     .delete()
@@ -391,7 +409,7 @@ export async function getDayNote(
   date: string
 ): Promise<SupabaseResponse<DayNote>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("day_notes")
     .select("*")
@@ -409,7 +427,7 @@ export async function upsertDayNote(
   note: CreateDayNote
 ): Promise<SupabaseResponse<DayNote>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("day_notes")
     .upsert(note, { onConflict: "user_id,date" })
@@ -427,7 +445,7 @@ export async function deleteDayNote(
   date: string
 ): Promise<SupabaseResponse<null>> {
   const supabase = createClient();
-  
+
   const { error } = await supabase
     .from("day_notes")
     .delete()
@@ -449,7 +467,7 @@ export async function getDailyGoal(
   date: string
 ): Promise<SupabaseResponse<DailyGoal>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("daily_goals")
     .select("*")
@@ -467,7 +485,7 @@ export async function upsertDailyGoal(
   goal: CreateDailyGoal
 ): Promise<SupabaseResponse<DailyGoal>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("daily_goals")
     .upsert(goal, { onConflict: "user_id,date" })
@@ -489,7 +507,7 @@ export async function getDailyReportStats(
   date: string
 ): Promise<SupabaseResponse<DailyReportStats>> {
   const supabase = createClient();
-  
+
   // Get tasks for the date
   const { data: tasks, error: tasksError } = await supabase
     .from("tasks")
@@ -509,10 +527,10 @@ export async function getDailyReportStats(
   const completedCount = tasks?.filter((t) => t.is_completed).length || 0;
   const inProgressCount = tasks?.filter((t) => !t.is_completed).length || 0;
   const totalFocusedTime = tasks?.reduce((sum, t) => sum + (t.total_time_spent || 0), 0) || 0;
-  
+
   const goalSeconds = goalHours * 3600;
-  const goalPercentage = goalSeconds > 0 
-    ? Math.round((totalFocusedTime / goalSeconds) * 100) 
+  const goalPercentage = goalSeconds > 0
+    ? Math.round((totalFocusedTime / goalSeconds) * 100)
     : 0;
 
   return {
@@ -535,7 +553,7 @@ export async function getTotalTimeByDate(
   date: string
 ): Promise<SupabaseResponse<number>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("task_sessions")
     .select("duration")
@@ -559,7 +577,7 @@ export async function getTaskCountsByDate(
   date: string
 ): Promise<SupabaseResponse<{ completed: number; inProgress: number; total: number }>> {
   const supabase = createClient();
-  
+
   const { data, error } = await supabase
     .from("tasks")
     .select("is_completed")
@@ -621,7 +639,7 @@ export default {
   createTag,
   updateTag,
   deleteTag,
-  
+
   // Tasks
   getTasksByDate,
   getTaskById,
@@ -631,23 +649,23 @@ export default {
   uncompleteTask,
   deleteTask,
   addTimeToTask,
-  
+
   // Sessions
   getSessionsByDate,
   createTaskSession,
   endTaskSession,
   getActiveSession,
   deleteTaskSession,
-  
+
   // Day Notes
   getDayNote,
   upsertDayNote,
   deleteDayNote,
-  
+
   // Daily Goals
   getDailyGoal,
   upsertDailyGoal,
-  
+
   // Analytics
   getDailyReportStats,
   getTotalTimeByDate,

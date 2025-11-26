@@ -52,7 +52,7 @@ export default function StatsCard({ streak, highlightCompleted, isDark }: StatsC
               {streak}
             </div>
             <div className={`text-xs font-medium ${
-              isDark ? 'text-slate-400' : 'text-slate-600'
+              isDark ? 'text-slate-300' : 'text-slate-600'
             }`}>
               Day Streak
             </div>

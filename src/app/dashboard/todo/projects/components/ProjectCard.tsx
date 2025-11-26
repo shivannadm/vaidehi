@@ -241,7 +241,9 @@ export default function ProjectCard({
       onClick={() => onClick(project.id)}
       className="group cursor-pointer rounded-xl p-5 border-2 transition-all hover:shadow-lg relative"
       style={{
-        backgroundColor: isDark ? colorTheme.darkBg : colorTheme.lightBg,
+        backgroundColor: isDark 
+          ? `${colorTheme.darkBg}40`  // 40 = 25% opacity for dark mode
+          : `${colorTheme.lightBg}80`, // 80 = 50% opacity for light mode
         borderColor: isDark ? colorTheme.darkBorder : colorTheme.lightBorder,
       }}
     >
