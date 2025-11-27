@@ -1,6 +1,6 @@
 // src/lib/supabase/trends-helpers.ts
 import { createClient } from "./client";
-import type { 
+import type {
   TaskWithTag,
   TaskSession,
   Project,
@@ -24,7 +24,7 @@ export async function getTrendsStats(userId: string): Promise<{ data: TrendsStat
     const supabase = createClient();
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    
+
     // Start of week (Monday)
     const startOfWeek = new Date(now);
     const dayOfWeek = now.getDay();
@@ -85,8 +85,8 @@ export interface PomodoroSession {
 }
 
 export async function getTaskSessions(
-  userId: string, 
-  startDate: string, 
+  userId: string,
+  startDate: string,
   endDate: string
 ): Promise<{ data: PomodoroSession[] | null; error: any }> {
   try {
@@ -232,7 +232,7 @@ export async function getFocusTimeData(
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
-      
+
       result.push(grouped[dateStr] || {
         date: dateStr,
         totalHours: 0,
@@ -422,6 +422,6 @@ function getProjectColor(color: string): string {
     pink: '#EC4899',
     yellow: '#EAB308'
   };
-  
+
   return colorMap[color] || '#94a3b8';
 }

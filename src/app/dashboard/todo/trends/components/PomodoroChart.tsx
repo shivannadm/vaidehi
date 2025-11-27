@@ -75,14 +75,14 @@ export default function PomodoroChart({
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
+      className={`rounded-xl border p-6 h-full flex flex-col ${
         isDark
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-slate-200"
       }`}
     >
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-6 flex-shrink-0">
         <h2
           className={`text-lg font-bold ${
             isDark ? "text-white" : "text-slate-900"
@@ -99,10 +99,10 @@ export default function PomodoroChart({
         </p>
       </div>
 
-      {/* Chart Container */}
-      <div className="relative">
+      {/* Chart Container - Scrollable */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         {/* Time Labels (Top) */}
-        <div className="flex items-center mb-2 pl-20">
+        <div className="flex items-center mb-2 pl-20 flex-shrink-0">
           {timeLabels.map((hour) => (
             <div
               key={hour}
@@ -120,8 +120,8 @@ export default function PomodoroChart({
           ))}
         </div>
 
-        {/* Chart Area */}
-        <div className="space-y-1 max-h-96 overflow-y-auto scrollbar-custom">
+        {/* Chart Area - Scrollable */}
+        <div className="space-y-1 h-full overflow-y-auto scrollbar-custom pr-2">
           {dates.map((date, index) => {
             const daySessions = getSessionsForDate(date);
             
@@ -184,38 +184,38 @@ export default function PomodoroChart({
             );
           })}
         </div>
+      </div>
 
-        {/* Legend */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span
-            className={`text-xs font-medium ${
-              isDark ? "text-slate-400" : "text-slate-600"
-            }`}
-          >
-            Project colors:
-          </span>
-          {Array.from(new Set(sessions.map(s => s.projectName)))
-            .filter(Boolean)
-            .slice(0, 5)
-            .map((projectName, i) => {
-              const session = sessions.find(s => s.projectName === projectName);
-              return (
-                <div key={i} className="flex items-center gap-1">
-                  <div
-                    className="w-3 h-3 rounded"
-                    style={{ backgroundColor: session?.color }}
-                  />
-                  <span
-                    className={`text-xs ${
-                      isDark ? "text-slate-300" : "text-slate-700"
-                    }`}
-                  >
-                    {projectName}
-                  </span>
-                </div>
-              );
-            })}
-        </div>
+      {/* Legend */}
+      <div className="mt-4 flex flex-wrap gap-2 flex-shrink-0">
+        <span
+          className={`text-xs font-medium ${
+            isDark ? "text-slate-400" : "text-slate-600"
+          }`}
+        >
+          Project colors:
+        </span>
+        {Array.from(new Set(sessions.map(s => s.projectName)))
+          .filter(Boolean)
+          .slice(0, 5)
+          .map((projectName, i) => {
+            const session = sessions.find(s => s.projectName === projectName);
+            return (
+              <div key={i} className="flex items-center gap-1">
+                <div
+                  className="w-3 h-3 rounded"
+                  style={{ backgroundColor: session?.color }}
+                />
+                <span
+                  className={`text-xs ${
+                    isDark ? "text-slate-300" : "text-slate-700"
+                  }`}
+                >
+                  {projectName}
+                </span>
+              </div>
+            );
+          })}
       </div>
     </div>
   );

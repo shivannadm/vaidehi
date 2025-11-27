@@ -108,7 +108,7 @@ export default function TrendsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Left Column - Pomodoro Chart (2 cols) */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 h-[600px]">
               <PomodoroChart
                 sessions={sessions}
                 startDate={startDate}
@@ -118,7 +118,7 @@ export default function TrendsPage() {
             </div>
 
             {/* Right Column - Focus Time Chart */}
-            <div>
+            <div className="h-[600px]">
               <FocusTimeChart
                 data={focusData}
                 timeRange={timeRange}
