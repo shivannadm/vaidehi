@@ -12,6 +12,7 @@ interface Session {
   task: {
     title: string;
     tag: {
+      name: string;
       color: string;
     } | null;
   };
@@ -49,6 +50,7 @@ export default function PomodoroChart({
           tasks (
             title,
             tags (
+              name,
               color
             )
           )
@@ -60,11 +62,7 @@ export default function PomodoroChart({
         .order('date', { ascending: false })
         .order('start_time', { ascending: true });
 
-      console.log('Sessions data:', data);
-      console.log('Sessions error:', error);
-
-      if (data) {
-        // Map to our format
+      if (data && !error) {
         const mapped = data.map((s: any) => ({
           id: s.id,
           date: s.date,
@@ -75,7 +73,11 @@ export default function PomodoroChart({
             tag: s.tasks?.tags || null
           }
         }));
+        
+        console.log('Mapped sessions:', mapped);
         setSessions(mapped);
+      } else {
+        console.error('Error fetching sessions:', error);
       }
 
       setLoading(false);
@@ -84,20 +86,16 @@ export default function PomodoroChart({
     fetchSessions();
   }, [startDate, endDate]);
 
-  // Generate dates for display (last 30 days)
-  const generateDates = () => {
-    const dates: Date[] = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  // Get unique dates that have sessions
+  const getDatesWithSessions = () => {
+    const uniqueDates = Array.from(new Set(sessions.map(s => s.date)))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Newest first
+      .slice(0, 15); // Show max 15 days with data
     
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      dates.push(new Date(d));
-    }
-    
-    return dates.reverse().slice(0, 30);
+    return uniqueDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
   };
 
-  const dates = generateDates();
+  const dates = getDatesWithSessions();
   const timeLabels = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
 
   // Get sessions for a specific date
@@ -120,16 +118,34 @@ export default function PomodoroChart({
       pink: '#EC4899',
       cyan: '#06B6D4',
       lime: '#84CC16',
+      brown: '#78716C',
+      gray: '#6B7280',
+      slate: '#475569',
+      violet: '#C026D3',
     };
     return colors[color] || '#94a3b8';
   };
 
   // Calculate position and width
   const getBlockStyle = (session: Session) => {
-    // Parse start time (HH:MM:SS or HH:MM)
-    const timeParts = session.start_time.split(':');
-    const hours = parseInt(timeParts[0]) || 0;
-    const minutes = parseInt(timeParts[1]) || 0;
+    // Parse start time - CRITICAL FIX
+    const timeStr = session.start_time;
+    let hours = 0;
+    let minutes = 0;
+
+    // Handle different time formats
+    if (timeStr.includes('T')) {
+      // ISO timestamp format: "2025-11-27T12:44:00"
+      const date = new Date(timeStr);
+      hours = date.getHours();
+      minutes = date.getMinutes();
+    } else {
+      // Time string format: "12:44:00" or "12:44"
+      const parts = timeStr.split(':');
+      hours = parseInt(parts[0]) || 0;
+      minutes = parseInt(parts[1]) || 0;
+    }
+
     const startHours = hours + minutes / 60;
 
     // Duration in hours
@@ -137,11 +153,13 @@ export default function PomodoroChart({
 
     // Calculate percentages
     const left = (startHours / 24) * 100;
-    const width = Math.max((durationHours / 24) * 100, 0.5);
+    const width = Math.max((durationHours / 24) * 100, 0.3); // Min 0.3% for visibility
 
     const color = session.task.tag 
       ? getTagColor(session.task.tag.color)
       : '#94a3b8';
+
+    console.log(`Session: ${session.task.title}, Time: ${hours}:${minutes}, Left: ${left}%, Width: ${width}%`);
 
     return {
       left: `${left}%`,
@@ -167,9 +185,18 @@ export default function PomodoroChart({
 
   // Format time for tooltip
   const formatTime = (timeStr: string, durationSeconds: number) => {
-    const parts = timeStr.split(':');
-    const hours = parseInt(parts[0]) || 0;
-    const minutes = parseInt(parts[1]) || 0;
+    let hours = 0;
+    let minutes = 0;
+
+    if (timeStr.includes('T')) {
+      const date = new Date(timeStr);
+      hours = date.getHours();
+      minutes = date.getMinutes();
+    } else {
+      const parts = timeStr.split(':');
+      hours = parseInt(parts[0]) || 0;
+      minutes = parseInt(parts[1]) || 0;
+    }
     
     // Start time
     const startPeriod = hours >= 12 ? 'PM' : 'AM';
@@ -178,12 +205,23 @@ export default function PomodoroChart({
     
     // End time
     const endMinutes = hours * 60 + minutes + Math.floor(durationSeconds / 60);
-    const endHours = Math.floor(endMinutes / 60);
+    const endHours = Math.floor(endMinutes / 60) % 24;
     const endMins = endMinutes % 60;
     const endPeriod = endHours >= 12 ? 'PM' : 'AM';
     const endHour = endHours % 12 || 12;
     
     return `${startHour}:${startMin} ${startPeriod} - ${endHour}:${endMins.toString().padStart(2, '0')} ${endPeriod}`;
+  };
+
+  // Get unique tags for legend
+  const getUniqueTags = () => {
+    const tagMap = new Map<string, string>();
+    sessions.forEach(s => {
+      if (s.task.tag) {
+        tagMap.set(s.task.tag.name, s.task.tag.color);
+      }
+    });
+    return Array.from(tagMap.entries()).map(([name, color]) => ({ name, color }));
   };
 
   if (loading) {
@@ -223,107 +261,101 @@ export default function PomodoroChart({
       </div>
 
       {/* Chart */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        {/* Time labels */}
-        <div className="flex items-center mb-2 pl-20 flex-shrink-0">
-          {timeLabels.map((hour) => (
-            <div
-              key={hour}
-              className="flex-1 text-center"
-              style={{ minWidth: `${100 / timeLabels.length}%` }}
-            >
-              <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-600"}`}>
-                {hour}:00
-              </span>
-            </div>
-          ))}
+      {dates.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl mb-2">📊</div>
+            <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+              No sessions recorded yet
+            </p>
+          </div>
         </div>
-
-        {/* Timeline rows */}
-        <div className="flex-1 overflow-y-auto scrollbar-custom pr-2 space-y-1">
-          {dates.map((date, index) => {
-            const daySessions = getSessionsForDate(date);
-            
-            return (
-              <div key={index} className="flex items-center group min-h-[32px]">
-                {/* Date label */}
-                <div className="w-20 flex-shrink-0 pr-3 text-right">
-                  <span className={`text-xs font-medium ${
-                    isDark ? "text-slate-400" : "text-slate-600"
-                  }`}>
-                    {formatDateLabel(date)}
-                  </span>
-                </div>
-
-                {/* Timeline bar */}
-                <div className={`flex-1 h-8 rounded relative ${
-                  isDark ? "bg-slate-700/30" : "bg-slate-100"
-                }`}>
-                  {/* Grid lines */}
-                  {timeLabels.map((hour) => (
-                    <div
-                      key={hour}
-                      className={`absolute top-0 bottom-0 border-l ${
-                        isDark ? "border-slate-700" : "border-slate-200"
-                      }`}
-                      style={{ left: `${(hour / 24) * 100}%` }}
-                    />
-                  ))}
-
-                  {/* Session blocks */}
-                  {daySessions.map((session) => (
-                    <div
-                      key={session.id}
-                      className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:opacity-80 hover:shadow-lg hover:z-10"
-                      style={getBlockStyle(session)}
-                      title={`${session.task.title}\n${formatTime(session.start_time, session.duration)}\n${Math.round(session.duration / 60)}m`}
-                    />
-                  ))}
-
-                  {/* Empty state */}
-                  {daySessions.length === 0 && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className={`text-xs ${
-                        isDark ? "text-slate-600" : "text-slate-400"
-                      }`}>
-                        No sessions
-                      </span>
-                    </div>
-                  )}
-                </div>
+      ) : (
+        <div className="flex-1 min-h-0 flex flex-col">
+          {/* Time labels */}
+          <div className="flex items-center mb-2 pl-20 flex-shrink-0">
+            {timeLabels.map((hour) => (
+              <div
+                key={hour}
+                className="flex-1 text-center"
+                style={{ minWidth: `${100 / timeLabels.length}%` }}
+              >
+                <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-600"}`}>
+                  {hour}:00
+                </span>
               </div>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* Legend */}
+          {/* Timeline rows - ONLY DAYS WITH SESSIONS */}
+          <div className="flex-1 overflow-y-auto scrollbar-custom pr-2 space-y-2">
+            {dates.map((date, index) => {
+              const daySessions = getSessionsForDate(date);
+              
+              return (
+                <div key={index} className="flex items-center group">
+                  {/* Date label */}
+                  <div className="w-20 flex-shrink-0 pr-3 text-right">
+                    <span className={`text-xs font-medium ${
+                      isDark ? "text-slate-400" : "text-slate-600"
+                    }`}>
+                      {formatDateLabel(date)}
+                    </span>
+                  </div>
+
+                  {/* Timeline bar */}
+                  <div className={`flex-1 h-10 rounded relative ${
+                    isDark ? "bg-slate-700/30" : "bg-slate-100"
+                  }`}>
+                    {/* Grid lines */}
+                    {timeLabels.map((hour) => (
+                      <div
+                        key={hour}
+                        className={`absolute top-0 bottom-0 border-l ${
+                          isDark ? "border-slate-700" : "border-slate-200"
+                        }`}
+                        style={{ left: `${(hour / 24) * 100}%` }}
+                      />
+                    ))}
+
+                    {/* Session blocks */}
+                    {daySessions.map((session) => (
+                      <div
+                        key={session.id}
+                        className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:opacity-80 hover:shadow-lg hover:z-10"
+                        style={getBlockStyle(session)}
+                        title={`${session.task.title}${session.task.tag ? ` (#${session.task.tag.name})` : ''}\n${formatTime(session.start_time, session.duration)}\n${Math.round(session.duration / 60)}m`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Legend - Show Tags */}
       {sessions.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2 flex-shrink-0 border-t pt-3 border-slate-700">
           <span className={`text-xs font-medium ${
             isDark ? "text-slate-400" : "text-slate-600"
           }`}>
-            Tasks:
+            Tags:
           </span>
-          {Array.from(new Set(sessions.map(s => s.task.title)))
-            .slice(0, 8)
-            .map((title, i) => {
-              const session = sessions.find(s => s.task.title === title);
-              const color = session?.task.tag 
-                ? getTagColor(session.task.tag.color)
-                : '#94a3b8';
-              
-              return (
-                <div key={i} className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: color }} />
-                  <span className={`text-xs truncate max-w-[100px] ${
-                    isDark ? "text-slate-300" : "text-slate-700"
-                  }`}>
-                    {title}
-                  </span>
-                </div>
-              );
-            })}
+          {getUniqueTags().map((tag, i) => (
+            <div key={i} className="flex items-center gap-1">
+              <div 
+                className="w-3 h-3 rounded" 
+                style={{ backgroundColor: getTagColor(tag.color) }} 
+              />
+              <span className={`text-xs ${
+                isDark ? "text-slate-300" : "text-slate-700"
+              }`}>
+                #{tag.name}
+              </span>
+            </div>
+          ))}
         </div>
       )}
     </div>

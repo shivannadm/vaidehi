@@ -1202,3 +1202,19 @@ export function formatProjectDateRange(
     return `Due ${formatDate(endDate!)}`;
   }
 }
+
+// Add to src/types/database.ts
+
+// Morning Routine Entry Type (for journaling wake-up, habits, energy)
+export interface MorningRoutineEntry {
+  id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  wake_time?: string | null; // e.g., "07:30"
+  meditation_time: number; // minutes
+  exercise_time: number; // minutes
+  energy_level: number; // 1-10
+  notes?: string | null;
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
