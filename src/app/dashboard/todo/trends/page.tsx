@@ -110,7 +110,6 @@ export default function TrendsPage() {
             {/* Left Column - Pomodoro Chart (2 cols) */}
             <div className="lg:col-span-2 h-[600px]">
               <PomodoroChart
-                sessions={sessions}
                 startDate={startDate}
                 endDate={endDate}
                 isDark={isDark}

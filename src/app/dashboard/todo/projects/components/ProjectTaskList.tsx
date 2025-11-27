@@ -80,6 +80,11 @@ export default function ProjectTaskList({
     const incompleteTasks = tasks.filter(t => !t.is_completed);
     const completedTasks = tasks.filter(t => t.is_completed);
 
+    const getTodayDateString = () => {
+        const today = new Date();
+        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    };
+
     const handleAddTask = async () => {
         if (!newTaskTitle.trim()) return;
 
@@ -90,14 +95,11 @@ export default function ProjectTaskList({
 
             if (!user) return;
 
-            const today = new Date();
-            const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
             await createTask({
                 user_id: user.id,
                 title: newTaskTitle.trim(),
                 project_id: projectId,
-                date: dateString,
+                date: getTodayDateString(),
                 is_completed: false,
                 is_important: false,
                 total_time_spent: 0,
@@ -160,9 +162,9 @@ export default function ProjectTaskList({
             if (!user) return;
 
             const now = new Date();
-            const dateString = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const dateString = getTodayDateString();
 
-            // Create task session
+            // Create task session with TODAY's date
             const { data: session, error } = await supabase
                 .from('task_sessions')
                 .insert({
@@ -171,7 +173,7 @@ export default function ProjectTaskList({
                     start_time: now.toISOString(),
                     end_time: null,
                     duration: 0,
-                    date: dateString,
+                    date: dateString, // Use today's date
                 })
                 .select()
                 .single();
@@ -200,7 +202,7 @@ export default function ProjectTaskList({
             const totalElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
             const finalDuration = activeTimer.elapsedSeconds + totalElapsed;
 
-            // Update session
+            // Update session with end time
             const { error: sessionError } = await supabase
                 .from('task_sessions')
                 .update({
@@ -210,8 +212,8 @@ export default function ProjectTaskList({
                 .eq('id', activeTimer.sessionId);
 
             if (sessionError) {
-                console.error("Error pausing timer:", sessionError);
-                return;
+                console.error("Error updating session:", sessionError);
+                // Continue anyway to update task
             }
 
             // Update task total time
@@ -228,11 +230,19 @@ export default function ProjectTaskList({
                 }
             }
 
+            // Clear timer state
             setActiveTimer(null);
             setTimerDisplay(0);
+            localStorage.removeItem(`project_timer_${projectId}`);
+            
+            // Refresh to show updated time
             onRefresh();
         } catch (error) {
-            console.error("Error pausing timer:", error);
+            console.error("Error stopping timer:", error);
+            // Still clear the timer even if there was an error
+            setActiveTimer(null);
+            setTimerDisplay(0);
+            localStorage.removeItem(`project_timer_${projectId}`);
         }
     };
 

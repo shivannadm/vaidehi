@@ -253,7 +253,7 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
         isDark ? 'bg-slate-800 border-slate-700' : 'bg-blue-50 border-blue-200'
       }`}>
         <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-blue-900'}`}>
-          💡 <strong>Tip:</strong> Drag tasks between columns to change their status. Tasks in "In Progress" have time tracked.
+          💡 <strong>Tip:</strong> Drag tasks between columns to change their status or start timer from tasks. Tasks in "In Progress" have time tracked.
         </p>
       </div>
     </div>
