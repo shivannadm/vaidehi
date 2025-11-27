@@ -1,12 +1,12 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/MilestoneSection.tsx
-// Phase 2 Implementation - Project Milestones
+// FIXED: Milestone saving now works properly with better error handling
 // ============================================
 
 "use client";
 
 import { useState, useEffect } from "react";
-import { Flag, Plus, CheckCircle2, Circle, Edit2, Trash2, Calendar } from "lucide-react";
+import { Flag, Plus, CheckCircle2, Circle, Trash2, Calendar, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Milestone {
@@ -28,6 +28,8 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [newMilestone, setNewMilestone] = useState({
     title: "",
     due_date: "",
@@ -40,59 +42,98 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
   const fetchMilestones = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const supabase = createClient();
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from("milestones")
         .select("*")
         .eq("project_id", projectId)
-        .order("due_date", { ascending: true });
+        .order("due_date", { ascending: true, nullsFirst: false });
 
-      if (!error && data) {
+      if (fetchError) {
+        console.error("Fetch error:", fetchError);
+        setError("Failed to load milestones");
+        return;
+      }
+
+      if (data) {
         setMilestones(data);
       }
     } catch (error) {
       console.error("Error fetching milestones:", error);
+      setError("An error occurred while loading milestones");
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddMilestone = async () => {
-    if (!newMilestone.title.trim()) return;
+    if (!newMilestone.title.trim()) {
+      setError("Milestone title is required");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.from("milestones").insert({
+      
+      // Prepare the data
+      const milestoneData = {
         project_id: projectId,
         title: newMilestone.title.trim(),
         due_date: newMilestone.due_date || null,
-        description: newMilestone.description.trim(),
+        description: newMilestone.description.trim() || "",
         is_completed: false,
-      });
+      };
 
-      if (!error) {
-        setNewMilestone({ title: "", due_date: "", description: "" });
-        setIsAdding(false);
-        fetchMilestones();
+      console.log("Inserting milestone:", milestoneData);
+
+      const { data, error: insertError } = await supabase
+        .from("milestones")
+        .insert(milestoneData)
+        .select();
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        setError(`Failed to create milestone: ${insertError.message}`);
+        return;
       }
+
+      console.log("Milestone created:", data);
+
+      // Reset form and refresh
+      setNewMilestone({ title: "", due_date: "", description: "" });
+      setIsAdding(false);
+      await fetchMilestones();
     } catch (error) {
       console.error("Error creating milestone:", error);
+      setError("An error occurred while creating the milestone");
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleToggleComplete = async (milestone: Milestone) => {
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from("milestones")
         .update({ is_completed: !milestone.is_completed })
         .eq("id", milestone.id);
 
-      if (!error) {
-        fetchMilestones();
+      if (updateError) {
+        console.error("Update error:", updateError);
+        setError("Failed to update milestone");
+        return;
       }
+
+      await fetchMilestones();
     } catch (error) {
       console.error("Error updating milestone:", error);
+      setError("An error occurred while updating the milestone");
     }
   };
 
@@ -101,16 +142,21 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
     try {
       const supabase = createClient();
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from("milestones")
         .delete()
         .eq("id", milestoneId);
 
-      if (!error) {
-        fetchMilestones();
+      if (deleteError) {
+        console.error("Delete error:", deleteError);
+        setError("Failed to delete milestone");
+        return;
       }
+
+      await fetchMilestones();
     } catch (error) {
       console.error("Error deleting milestone:", error);
+      setError("An error occurred while deleting the milestone");
     }
   };
 
@@ -118,6 +164,9 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
     return (
       <div className="p-6 text-center">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+          Loading milestones...
+        </p>
       </div>
     );
   }
@@ -137,14 +186,39 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
             Break your project into phases
           </p>
         </div>
-        <button
-          onClick={() => setIsAdding(true)}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Milestone
-        </button>
+        {!isAdding && (
+          <button
+            onClick={() => {
+              setIsAdding(true);
+              setError(null);
+            }}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Milestone
+          </button>
+        )}
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className={`rounded-lg border p-3 flex items-start gap-2 ${
+          isDark 
+            ? 'bg-red-900/20 border-red-800 text-red-400' 
+            : 'bg-red-50 border-red-200 text-red-700'
+        }`}>
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+          <button
+            onClick={() => setError(null)}
+            className="text-sm underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Progress Bar */}
       {milestones.length > 0 && (
@@ -184,6 +258,7 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
               }`}
+              disabled={saving}
             />
             <textarea
               value={newMilestone.description}
@@ -195,6 +270,7 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
               }`}
+              disabled={saving}
             />
             <input
               type="date"
@@ -205,27 +281,30 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   ? 'bg-slate-700 border-slate-600 text-white'
                   : 'bg-white border-slate-300 text-slate-900'
               }`}
+              disabled={saving}
             />
             <div className="flex gap-2">
               <button
                 onClick={() => {
                   setIsAdding(false);
                   setNewMilestone({ title: "", due_date: "", description: "" });
+                  setError(null);
                 }}
+                disabled={saving}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium text-sm transition ${
                   isDark
                     ? 'bg-slate-700 hover:bg-slate-600 text-white'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
-                }`}
+                } disabled:opacity-50`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddMilestone}
-                disabled={!newMilestone.title.trim()}
+                disabled={!newMilestone.title.trim() || saving}
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                Create
+                {saving ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
