@@ -79,7 +79,7 @@ export default function TrendsPage() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <div className="h-full overflow-y-auto p-3">
+      <div className="h-full overflow-y-auto p-6">
         <div className="max-w-7xl mx-auto space-y-5 ">
 
           {/* Header */}

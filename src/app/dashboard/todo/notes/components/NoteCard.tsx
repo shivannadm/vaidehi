@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pin, Trash2, Archive, MoreVertical } from "lucide-react";
+import { Pin, Trash2, Archive, MoreVertical, Calendar, Clock } from "lucide-react";
 import type { Note } from "@/types/database";
 import { NOTE_COLORS } from "@/types/database";
 
@@ -29,6 +29,48 @@ export default function NoteCard({
 
   const colorConfig = NOTE_COLORS[note.color];
 
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    // If today
+    if (diffInDays === 0) {
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+    
+    // If yesterday
+    if (diffInDays === 1) {
+      return 'Yesterday';
+    }
+    
+    // If within last week
+    if (diffInDays < 7) {
+      return `${diffInDays} days ago`;
+    }
+    
+    // If within current year
+    if (date.getFullYear() === now.getFullYear()) {
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+    
+    // Full date
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`Delete note "${note.title || 'Untitled'}"?`)) {
@@ -49,7 +91,7 @@ export default function NoteCard({
   return (
     <div
       onClick={() => onEdit(note)}
-      className={`group cursor-pointer rounded-xl p-4 border-2 transition-all hover:shadow-lg ${
+      className={`group cursor-pointer rounded-xl p-4 border-2 transition-all hover:shadow-lg relative ${
         viewMode === "list" ? "flex items-start gap-4" : ""
       }`}
       style={{
@@ -57,12 +99,24 @@ export default function NoteCard({
         borderColor: isDark ? colorConfig.darkBorder : colorConfig.lightBorder,
       }}
     >
+      {/* Pinned Indicator */}
+      {note.is_pinned && (
+        <div className="absolute top-3 right-3">
+          <Pin
+            className="w-4 h-4 fill-current"
+            style={{
+              color: isDark ? colorConfig.darkText : colorConfig.lightText,
+            }}
+          />
+        </div>
+      )}
+
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Title */}
         {note.title && (
           <h3
-            className="font-bold text-lg mb-2 truncate"
+            className="font-bold text-lg mb-2 truncate pr-8"
             style={{
               color: isDark ? colorConfig.darkText : colorConfig.lightText,
             }}
@@ -89,7 +143,7 @@ export default function NoteCard({
 
         {/* Labels */}
         {note.labels && note.labels.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-1 mb-3">
             {note.labels.map((label, idx) => (
               <span
                 key={idx}
@@ -106,10 +160,54 @@ export default function NoteCard({
             ))}
           </div>
         )}
+
+        {/* Date Information */}
+        <div className="flex items-center gap-3 text-xs mt-2">
+          {/* Created Date */}
+          <div 
+            className="flex items-center gap-1"
+            style={{
+              color: isDark 
+                ? colorConfig.darkText + "99" 
+                : colorConfig.lightText + "99",
+            }}
+            title={`Created: ${new Date(note.created_at).toLocaleString()}`}
+          >
+            <Calendar className="w-3 h-3" />
+            <span>{formatDate(note.created_at)}</span>
+          </div>
+
+          {/* Edited Date (if different from created) */}
+          {note.updated_at && note.updated_at !== note.created_at && (
+            <>
+              <span 
+                style={{
+                  color: isDark 
+                    ? colorConfig.darkText + "66" 
+                    : colorConfig.lightText + "66",
+                }}
+              >
+                •
+              </span>
+              <div 
+                className="flex items-center gap-1"
+                style={{
+                  color: isDark 
+                    ? colorConfig.darkText + "99" 
+                    : colorConfig.lightText + "99",
+                }}
+                title={`Edited: ${new Date(note.updated_at).toLocaleString()}`}
+              >
+                <Clock className="w-3 h-3" />
+                <span>Edited {formatDate(note.updated_at)}</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Actions - Show on hover */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-start gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-3 right-3">
         {/* Pin */}
         <button
           onClick={handlePin}
@@ -154,18 +252,6 @@ export default function NoteCard({
           />
         </button>
       </div>
-
-      {/* Pinned Indicator */}
-      {note.is_pinned && (
-        <div className="absolute top-2 right-2">
-          <Pin
-            className="w-4 h-4 fill-current"
-            style={{
-              color: isDark ? colorConfig.darkText : colorConfig.lightText,
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }

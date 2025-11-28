@@ -12,9 +12,9 @@ interface StatsCardProps {
 export default function StatsCard({ streak, highlightCompleted, isDark }: StatsCardProps) {
   const getStreakLevel = () => {
     if (streak >= 30) return { emoji: "🏆", label: "Legend!", color: "from-yellow-500 to-orange-500" };
-    if (streak >= 14) return { emoji: "💎", label: "Diamond!", color: "from-cyan-500 to-blue-500" };
-    if (streak >= 7) return { emoji: "⭐", label: "Star!", color: "from-indigo-500 to-purple-500" };
-    if (streak >= 3) return { emoji: "🔥", label: "Hot!", color: "from-orange-500 to-red-500" };
+    if (streak >= 15) return { emoji: "💎", label: "Diamond!", color: "from-cyan-500 to-blue-500" };
+    if (streak >= 10) return { emoji: "⭐", label: "Star!", color: "from-indigo-500 to-purple-500" };
+    if (streak >= 5) return { emoji: "🔥", label: "Hot!", color: "from-orange-500 to-red-500" };
     return { emoji: "🌱", label: "Starting!", color: "from-green-500 to-emerald-500" };
   };
 
@@ -44,20 +44,20 @@ export default function StatsCard({ streak, highlightCompleted, isDark }: StatsC
           )}
           <div className="relative z-10">
             <Flame className={`w-8 h-8 mx-auto mb-2 ${
-              streak > 0 ? 'text-orange-500 animate-pulse' : isDark ? 'text-slate-600' : 'text-slate-300'
+              streak > 0 ? 'text-orange-200 animate-pulse' : isDark ? 'text-slate-600' : 'text-slate-300'
             }`} />
             <div className={`text-3xl font-bold mb-1 ${
-              streak > 0 ? 'text-orange-500' : isDark ? 'text-white' : 'text-slate-900'
+              streak > 0 ? 'text-orange-200' : isDark ? 'text-white' : 'text-slate-900'
             }`}>
               {streak}
             </div>
             <div className={`text-xs font-medium ${
-              isDark ? 'text-slate-300' : 'text-slate-600'
+              isDark ? 'text-orange-200' : 'text-slate-600'
             }`}>
               Day Streak
             </div>
             {streak > 0 && (
-              <div className="mt-2 text-xs font-bold text-orange-500">
+              <div className="mt-2 text-xs font-bold text-orange-200">
                 {level.emoji} {level.label}
               </div>
             )}
