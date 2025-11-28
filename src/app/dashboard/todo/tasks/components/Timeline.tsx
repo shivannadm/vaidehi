@@ -2,8 +2,9 @@
 // ✅ FIXED: Session blocks now respect current time boundary and only show duration
 "use client";
 
-import { useMemo } from "react";
-import { TAG_COLORS, type TaskSessionWithTask } from "@/types/database";
+import { TAG_COLORS } from "@/types/database";
+import type { TaskSessionWithTask } from "@/types/database";
+import { useMemo, useEffect, useRef } from "react";
 
 interface TimelineProps {
   sessions: TaskSessionWithTask[];
@@ -12,14 +13,32 @@ interface TimelineProps {
 }
 
 export default function Timeline({ sessions = [], currentTime, isDark }: TimelineProps) {
-  
+  // ✅ Refs for auto-scroll functionality
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const currentTimeLineRef = useRef<HTMLDivElement>(null);
+  // ✅ Auto-scroll to current time on mount and updates
+  useEffect(() => {
+    if (scrollContainerRef.current && currentTimeLineRef.current) {
+      const container = scrollContainerRef.current;
+      const timeLine = currentTimeLineRef.current;
+
+      const linePosition = timeLine.offsetTop;
+      const containerHeight = container.clientHeight;
+      const scrollPosition = linePosition - (containerHeight / 2);
+
+      container.scrollTo({
+        top: Math.max(0, scrollPosition),
+        behavior: 'smooth'
+      });
+    }
+  }, [currentTime]);
   // Smart timeline range
   const timelineHours = useMemo(() => {
     const currentHour = currentTime?.getHours() ?? new Date().getHours();
-    
+
     let earliestHour = currentHour;
     let latestHour = currentHour;
-    
+
     if (!Array.isArray(sessions)) {
       const hours = [];
       for (let i = Math.max(0, currentHour - 2); i <= currentHour + 1 && i <= 23; i++) {
@@ -27,7 +46,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
       }
       return hours;
     }
-    
+
     sessions.forEach(session => {
       if (session?.start_time) {
         try {
@@ -40,15 +59,15 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
         }
       }
     });
-    
+
     const startHour = Math.max(0, Math.min(earliestHour, currentHour - 2));
     const endHour = Math.min(23, Math.max(latestHour, currentHour));
-    
+
     const hours = [];
     for (let i = startHour; i <= endHour + 1; i++) {
       if (i <= 23) hours.push(i);
     }
-    
+
     return hours;
   }, [sessions, currentTime]);
 
@@ -60,7 +79,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
   const formatDuration = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0 && minutes > 0) {
       return `${hours}h ${minutes}m`;
     } else if (hours > 0) {
@@ -77,34 +96,34 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
       if (isNaN(start.getTime())) {
         return { top: '0%', height: '0%' };
       }
-      
+
       const startMinutes = start.getHours() * 60 + start.getMinutes();
       const timelineStartMinutes = startHour * 60;
       const timelineTotalMinutes = totalHours * 60;
-      
+
       // TOP POSITION: Based on start time
       const topPercent = ((startMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
-      
+
       // ✅ HEIGHT CALCULATION - KEY FIX:
       // 1. Calculate duration in minutes from session.duration (in seconds)
       const durationMinutes = session.duration / 60;
       let heightPercent = (durationMinutes / timelineTotalMinutes) * 100;
-      
+
       // 2. Calculate current time position to cap the block
       const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
       const currentPercent = ((currentMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
-      
+
       // 3. Maximum allowed height = distance from start to current time
       const maxAllowedHeight = currentPercent - topPercent;
-      
+
       // 4. If block would extend past current time, cap it at current time
       if (heightPercent > maxAllowedHeight) {
         heightPercent = Math.max(0, maxAllowedHeight);
       }
-      
+
       // 5. Ensure minimum visibility (but only if duration > 0)
       const finalHeight = session.duration > 0 ? Math.max(heightPercent, 2) : 0;
-      
+
       return {
         top: `${Math.max(0, topPercent)}%`,
         height: `${finalHeight}%`
@@ -119,18 +138,18 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
   const getCurrentTimePosition = () => {
     try {
       if (!currentTime) return null;
-      
+
       const hour = currentTime.getHours();
       const minute = currentTime.getMinutes();
-      
+
       if (hour < startHour || hour > endHour) return null;
-      
+
       const currentMinutes = hour * 60 + minute;
       const timelineStartMinutes = startHour * 60;
       const timelineTotalMinutes = totalHours * 60;
-      
+
       const topPercent = ((currentMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
-      
+
       return `${Math.max(0, Math.min(100, topPercent))}%`;
     } catch (e) {
       console.warn("Error calculating current time position:", e);
@@ -139,22 +158,25 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
   };
 
   const currentTimePos = getCurrentTimePosition();
-  
+
   const pixelsPerHour = 120;
   const totalHeight = totalHours * pixelsPerHour;
 
   return (
     <div className="relative h-full">
-      <div className={`relative h-full overflow-y-auto timeline-scrollbar`}>
+      <div
+        ref={scrollContainerRef}
+        className={`relative h-full overflow-y-auto timeline-scrollbar`}
+      >
         <div className="relative pr-2" style={{ minHeight: `${totalHeight}px` }}>
-          
+
           {/* Time Labels */}
           <div className="absolute left-0 top-0 w-14" style={{ height: `${totalHeight}px` }}>
             {Array.isArray(timelineHours) && timelineHours.map((hour, idx) => (
-              <div 
+              <div
                 key={hour}
                 className="absolute left-0"
-                style={{ 
+                style={{
                   top: `${(idx / Math.max(1, totalHours)) * 100}%`,
                   transform: 'translateY(-6px)'
                 }}
@@ -168,15 +190,14 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
 
           {/* Timeline Grid */}
           <div className="ml-14 relative" style={{ height: `${totalHeight}px` }}>
-            
+
             {/* Hour Lines */}
             {Array.isArray(timelineHours) && timelineHours.map((hour, idx) => (
               <div
                 key={`line-${hour}`}
-                className={`absolute left-0 right-0 border-t ${
-                  isDark ? 'border-slate-700' : 'border-slate-200'
-                }`}
-                style={{ 
+                className={`absolute left-0 right-0 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'
+                  }`}
+                style={{
                   top: `${(idx / Math.max(1, totalHours)) * 100}%`
                 }}
               />
@@ -186,54 +207,55 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
             {Array.isArray(sessions) && sessions
               .filter(s => s && s.duration >= 60) // Only show sessions >= 1 minute (60 seconds)
               .map((session, idx) => {
-              const position = getSessionPosition(session);
-              
-              // Skip if height is 0
-              if (position.height === '0%') return null;
-              
-              const tagColor = session.task?.tag 
-                ? TAG_COLORS[session.task.tag.color]
-                : { darkBg: '#f97316', lightBg: '#fed7aa', darkText: '#fff', lightText: '#000' };
+                const position = getSessionPosition(session);
 
-              // Calculate actual pixel height for proper minHeight
-              const heightPercent = parseFloat(position.height);
-              const minHeightPx = Math.max((heightPercent / 100) * totalHeight); // At least 20px for visibility
+                // Skip if height is 0
+                if (position.height === '0%') return null;
 
-              return (
-                <div
-                  key={`${session.id}-${idx}`}
-                  className="absolute left-0 right-0 rounded-lg p-1 px-3 py-0.5 overflow-hidden "
-                  style={{
-                    top: position.top,
-                    height: position.height,
-                    backgroundColor: isDark ? tagColor.darkBg : tagColor.lightBg,
-                    minHeight: `${minHeightPx}px`, // Dynamic minHeight based on actual duration
-                    zIndex: 5
-                  }}
-                >
-                  <div className="flex items-start justify-between h-full">
-                    <div
-                      className="text-xs  truncate flex-1"
-                      style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
-                    >
-                      {session.task?.title || 'Untitled'}
-                    </div>
-                    <div
-                      className="text-xs font-bold ml-2 flex-shrink-0"
-                      style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
-                    >
-                      {formatDuration(session.duration || 0)}
+                const tagColor = session.task?.tag
+                  ? TAG_COLORS[session.task.tag.color]
+                  : { darkBg: '#f97316', lightBg: '#fed7aa', darkText: '#fff', lightText: '#000' };
+
+                // Calculate actual pixel height for proper minHeight
+                const heightPercent = parseFloat(position.height);
+                const minHeightPx = Math.max((heightPercent / 100) * totalHeight); // At least 20px for visibility
+
+                return (
+                  <div
+                    key={`${session.id}-${idx}`}
+                    className="absolute left-0 right-0 rounded-lg p-1 px-3 py-0.5 overflow-hidden "
+                    style={{
+                      top: position.top,
+                      height: position.height,
+                      backgroundColor: isDark ? tagColor.darkBg : tagColor.lightBg,
+                      minHeight: `${minHeightPx}px`, // Dynamic minHeight based on actual duration
+                      zIndex: 5
+                    }}
+                  >
+                    <div className="flex items-start justify-between h-full">
+                      <div
+                        className="text-xs  truncate flex-1"
+                        style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                      >
+                        {session.task?.title || 'Untitled'}
+                      </div>
+                      <div
+                        className="text-xs font-bold ml-2 flex-shrink-0"
+                        style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                      >
+                        {formatDuration(session.duration || 0)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
 
             {/* Current Time Line - Always visible at current time */}
             {currentTimePos && (
               <div
+                ref={currentTimeLineRef}
                 className="absolute left-0 right-0 flex items-center pointer-events-none"
-                style={{ 
+                style={{
                   top: currentTimePos,
                   zIndex: 20
                 }}
@@ -248,9 +270,8 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
 
       {/* Empty State */}
       {(!sessions || sessions.length === 0) && (
-        <div className={`absolute inset-0 flex items-center justify-center text-center pointer-events-none ${
-          isDark ? 'text-slate-400' : 'text-slate-500'
-        }`}>
+        <div className={`absolute inset-0 flex items-center justify-center text-center pointer-events-none ${isDark ? 'text-slate-400' : 'text-slate-500'
+          }`}>
           <div>
             <p className="text-sm">No time records yet</p>
             <p className="text-xs mt-2">Start a task timer to see it here</p>

@@ -216,6 +216,7 @@ export default function TasksPage() {
 
   const isToday = formatDateToString(selectedDate) === formatDateToString(new Date());
   const isPast = selectedDate < new Date(new Date().setHours(0, 0, 0, 0));
+const isFuture = selectedDate > new Date(new Date().setHours(0, 0, 0, 0));
 
   const getWeekDates = () => {
     const dates = [];
@@ -382,6 +383,7 @@ export default function TasksPage() {
                       onPlayClick={handlePlayTask}
                       isDark={isDark}
                       isPast={isPast}
+                      isFuture={isFuture}
                       isRunning={timer.taskId === task.id}
                     />
                   ))
@@ -411,6 +413,7 @@ export default function TasksPage() {
                       isDark={isDark}
                       isCompleted
                       isPast={isPast}
+                      isFuture={isFuture}
                     />
                   ))}
                 </div>

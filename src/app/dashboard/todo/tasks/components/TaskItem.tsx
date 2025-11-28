@@ -14,6 +14,7 @@ interface TaskItemProps {
   isDark: boolean;
   isCompleted?: boolean;
   isPast?: boolean;
+  isFuture?: boolean;
   isRunning?: boolean; // NEW: Indicates if this task's timer is running
 }
 
@@ -25,6 +26,7 @@ export default function TaskItem({
   isDark,
   isCompleted = false,
   isPast = false,
+  isFuture = false,
   isRunning = false // NEW
 }: TaskItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -100,12 +102,12 @@ export default function TaskItem({
         type="checkbox"
         checked={isCompleted}
         onChange={handleToggleComplete}
-        disabled={isToggling || isPast}
+        disabled={isToggling || isPast || isFuture}
         className="w-3.5 h-3.5 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 flex-shrink-0"
       />
 
       {/* Play Button - COMPACT */}
-      {!isCompleted && !isPast && (
+      {!isCompleted && !isPast && !isFuture &&(
         <button
           className={`p-1 rounded-full transition relative flex-shrink-0 ${isRunning
             ? 'bg-orange-500/20 shadow-md shadow-orange-500/50'
