@@ -1,11 +1,13 @@
-// src/app/dashboard/todo/tasks/hooks/useTaskTimer.ts
-// ✅ FIXED: Timer now continues running when switching tabs/windows
-import { useState, useEffect, useRef } from "react";
-import {
-  createTaskSession,
-  endTaskSession,
+// src/app/dashboard/components/TimerContext.tsx
+// ✅ NEW FILE: Global timer context that persists across route changes
+"use client";
+
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { 
+  createTaskSession, 
+  endTaskSession, 
   addTimeToTask,
-  getActiveSession
+  getActiveSession 
 } from "@/lib/supabase/task-helpers";
 import { formatDateToString } from "@/types/database";
 
@@ -18,7 +20,18 @@ interface TimerState {
   isRunning: boolean;
 }
 
-export function useTaskTimer(userId: string | null, currentDate: Date) {
+interface TimerContextType {
+  timer: TimerState;
+  startTimer: (taskId: string, taskTitle: string, userId: string, date: Date) => Promise<void>;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+  stopTimer: () => Promise<boolean>;
+  formatTime: (seconds: number) => string;
+}
+
+const TimerContext = createContext<TimerContextType | null>(null);
+
+export function TimerProvider({ children, userId }: { children: ReactNode; userId: string | null }) {
   const [timer, setTimer] = useState<TimerState>({
     taskId: null,
     taskTitle: null,
@@ -29,7 +42,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
   });
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number | null>(null); // ✅ Store actual start timestamp
+  const startTimeRef = useRef<number | null>(null);
 
   // Check for active session on mount
   useEffect(() => {
@@ -43,7 +56,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
           const now = new Date();
           const elapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
 
-          startTimeRef.current = start.getTime(); // ✅ Store timestamp
+          startTimeRef.current = start.getTime();
 
           setTimer({
             taskId: data.task_id,
@@ -62,14 +75,13 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
     checkActiveSession();
   }, [userId]);
 
-  // ✅ KEY FIX: Timer tick using Date.now() instead of increment
-  // This ensures accurate time tracking regardless of tab switching
+  // ✅ Timer tick - persists across route changes
   useEffect(() => {
     if (timer.isRunning && startTimeRef.current) {
       intervalRef.current = setInterval(() => {
         const now = Date.now();
         const elapsed = Math.floor((now - startTimeRef.current!) / 1000);
-
+        
         setTimer(prev => ({
           ...prev,
           elapsedSeconds: elapsed
@@ -82,16 +94,16 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
       }
     }
 
+    // ✅ CRITICAL: Don't clear interval on unmount - let it persist
     return () => {
-      if (intervalRef.current) {
+      // Only clear if explicitly stopped
+      if (!timer.isRunning && intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [timer.isRunning]); // Only depends on isRunning
+  }, [timer.isRunning]);
 
-  const startTimer = async (taskId: string, taskTitle: string) => {
-    if (!userId) return;
-
+  const startTimer = async (taskId: string, taskTitle: string, userId: string, date: Date) => {
     try {
       const now = new Date();
       const { data, error } = await createTaskSession({
@@ -100,7 +112,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
         start_time: now.toISOString(),
         end_time: null,
         duration: 0,
-        date: formatDateToString(currentDate)
+        date: formatDateToString(date)
       });
 
       if (error || !data) {
@@ -109,7 +121,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
         return;
       }
 
-      startTimeRef.current = now.getTime(); // ✅ Store timestamp
+      startTimeRef.current = now.getTime();
 
       setTimer({
         taskId,
@@ -140,23 +152,19 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
 
     try {
       const now = new Date();
-
-      // ✅ Calculate actual duration from start timestamp
-      const duration = startTimeRef.current
+      const duration = startTimeRef.current 
         ? Math.floor((now.getTime() - startTimeRef.current) / 1000)
         : timer.elapsedSeconds;
 
-      // IMPORTANT: Don't stop if duration is 0
       if (duration === 0) {
         console.warn("Cannot save 0-second session");
         return false;
       }
 
-      // End the session with correct duration
       const { error: endError } = await endTaskSession(
         timer.sessionId,
         now.toISOString(),
-        duration // This is in SECONDS
+        duration
       );
 
       if (endError) {
@@ -165,14 +173,18 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
         return false;
       }
 
-      // Add time to task
       const { error: addTimeError } = await addTimeToTask(timer.taskId, duration);
 
       if (addTimeError) {
         console.error("Error adding time to task:", addTimeError);
       }
 
-      // Reset timer and clear timestamp
+      // Clear interval explicitly
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
       startTimeRef.current = null;
       setTimer({
         taskId: null,
@@ -183,7 +195,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
         isRunning: false
       });
 
-      return true; // Success
+      return true;
     } catch (err) {
       console.error("Error stopping timer:", err);
       alert("An error occurred");
@@ -202,42 +214,17 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  return {
-    timer,
-    startTimer,
-    pauseTimer,
-    resumeTimer,
-    stopTimer,
-    formatTime
-  };
+  return (
+    <TimerContext.Provider value={{ timer, startTimer, pauseTimer, resumeTimer, stopTimer, formatTime }}>
+      {children}
+    </TimerContext.Provider>
+  );
 }
 
-// ============================================
-// ✅ KEY CHANGES FOR TAB SWITCHING FIX:
-// ============================================
-/*
-1. Line 31: Added startTimeRef to store actual start timestamp
-   - Uses useRef so it persists across re-renders
-   - Stores millisecond timestamp from Date.now()
-
-2. Line 56: Store timestamp when loading active session
-
-3. Line 69-82: CRITICAL FIX - Timer calculation
-   - Calculate elapsed time using Date.now() - startTimeRef
-   - This ensures accurate time even when tab is inactive
-   - Browser may throttle setInterval, but Date.now() is always accurate
-
-4. Line 107: Store timestamp when starting new timer
-
-5. Line 150-153: Use timestamp for final duration calculation
-   - Calculate from actual start time, not elapsed seconds
-   - Ensures accurate duration regardless of tab switches
-
-WHY THIS WORKS:
-- setInterval can be throttled/paused when tab is inactive
-- Date.now() always returns accurate current time
-- By recalculating from start timestamp, we get true elapsed time
-- Timer "catches up" when tab becomes active again
-
-This is the standard solution for accurate timers in web apps!
-*/
+export function useTimer() {
+  const context = useContext(TimerContext);
+  if (!context) {
+    throw new Error("useTimer must be used within TimerProvider");
+  }
+  return context;
+}

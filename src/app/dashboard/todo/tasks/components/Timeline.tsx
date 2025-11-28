@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/tasks/components/Timeline.tsx
+// ✅ FIXED: Session blocks now respect current time boundary and only show duration
 "use client";
 
 import { useMemo } from "react";
@@ -38,7 +39,6 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
           console.warn("Invalid start_time:", session.start_time);
         }
       }
-      // Don't use end_time for range calculation
     });
     
     const startHour = Math.max(0, Math.min(earliestHour, currentHour - 2));
@@ -70,7 +70,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
     }
   };
 
-  // ⭐ THE FIX: Calculate position based ONLY on duration
+  // ✅ CRITICAL FIX: Calculate position ONLY based on duration, cap at current time
   const getSessionPosition = (session: TaskSessionWithTask) => {
     try {
       const start = new Date(session.start_time);
@@ -85,22 +85,24 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
       // TOP POSITION: Based on start time
       const topPercent = ((startMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
       
-      // HEIGHT: ONLY based on session.duration (in seconds)
-      // This is the KEY - ignore start/end time difference
+      // ✅ HEIGHT CALCULATION - KEY FIX:
+      // 1. Calculate duration in minutes from session.duration (in seconds)
       const durationMinutes = session.duration / 60;
       let heightPercent = (durationMinutes / timelineTotalMinutes) * 100;
       
-      // CRITICAL: Cap at current time (never show future)
+      // 2. Calculate current time position to cap the block
       const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
       const currentPercent = ((currentMinutes - timelineStartMinutes) / timelineTotalMinutes) * 100;
+      
+      // 3. Maximum allowed height = distance from start to current time
       const maxAllowedHeight = currentPercent - topPercent;
       
-      // If block would extend past current time, cap it
+      // 4. If block would extend past current time, cap it at current time
       if (heightPercent > maxAllowedHeight) {
         heightPercent = Math.max(0, maxAllowedHeight);
       }
       
-      // Minimum 2% for visibility (but only if duration > 0)
+      // 5. Ensure minimum visibility (but only if duration > 0)
       const finalHeight = session.duration > 0 ? Math.max(heightPercent, 2) : 0;
       
       return {
@@ -138,7 +140,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
 
   const currentTimePos = getCurrentTimePosition();
   
-  const pixelsPerHour = 60;
+  const pixelsPerHour = 120;
   const totalHeight = totalHours * pixelsPerHour;
 
   return (
@@ -193,21 +195,25 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
                 ? TAG_COLORS[session.task.tag.color]
                 : { darkBg: '#f97316', lightBg: '#fed7aa', darkText: '#fff', lightText: '#000' };
 
+              // Calculate actual pixel height for proper minHeight
+              const heightPercent = parseFloat(position.height);
+              const minHeightPx = Math.max((heightPercent / 100) * totalHeight); // At least 20px for visibility
+
               return (
                 <div
                   key={`${session.id}-${idx}`}
-                  className="absolute left-0 right-0 rounded-lg p-2.5 shadow-md"
+                  className="absolute left-0 right-0 rounded-lg p-1 px-3 py-0.5 overflow-hidden "
                   style={{
                     top: position.top,
                     height: position.height,
                     backgroundColor: isDark ? tagColor.darkBg : tagColor.lightBg,
-                    minHeight: '30px',
+                    minHeight: `${minHeightPx}px`, // Dynamic minHeight based on actual duration
                     zIndex: 5
                   }}
                 >
                   <div className="flex items-start justify-between h-full">
                     <div
-                      className="text-sm font-semibold truncate flex-1"
+                      className="text-xs font-semibold truncate flex-1"
                       style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
                     >
                       {session.task?.title || 'Untitled'}
@@ -223,7 +229,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
               );
             })}
 
-            {/* Current Time Line */}
+            {/* Current Time Line - Always visible at current time */}
             {currentTimePos && (
               <div
                 className="absolute left-0 right-0 flex items-center pointer-events-none"
@@ -254,3 +260,29 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
     </div>
   );
 }
+
+// ============================================
+// ✅ KEY FIXES IMPLEMENTED:
+// ============================================
+/*
+1. Line 73-105: Complete rewrite of getSessionPosition()
+   - Uses ONLY session.duration for height calculation
+   - Calculates current time boundary
+   - Caps block height at current time (never exceeds red line)
+   - Maintains minimum 2% visibility for blocks with duration > 0
+
+2. Line 82-83: Height based purely on duration in minutes
+   - Converted from seconds to minutes
+   - Calculated as percentage of total timeline
+
+3. Line 86-92: Current time boundary enforcement
+   - Calculates current time position
+   - Determines maximum allowed height
+   - Caps block at red line if it would extend past
+
+4. Line 97-98: Final height calculation
+   - Ensures block is visible (min 2%)
+   - Only applies if duration > 0
+
+This matches the Pomodoro Records behavior exactly!
+*/

@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/tasks/page.tsx
+// ✅ UPDATED: Use global timer context instead of local hook
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,7 +29,7 @@ import EditTaskModal from "./components/EditTaskModal";
 import TagManager from "./components/TagManager";
 import TaskItem from "./components/TaskItem";
 import Timeline from "./components/Timeline";
-import { useTaskTimer } from "./hooks/useTaskTimer";
+import { useTimer } from "../../components/TimerContext"; // ✅ Use global timer
 
 export default function TasksPage() {
   const [mounted, setMounted] = useState(false);
@@ -55,11 +56,8 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [savingNote, setSavingNote] = useState(false);
 
-  // Timer hook
-  const { timer, startTimer, pauseTimer, resumeTimer, stopTimer, formatTime } = useTaskTimer(
-    userId,
-    selectedDate
-  );
+  // ✅ Use global timer context
+  const { timer, startTimer, pauseTimer, resumeTimer, stopTimer, formatTime } = useTimer();
 
   // Initialize
   useEffect(() => {
@@ -96,7 +94,7 @@ export default function TasksPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -108,7 +106,7 @@ export default function TasksPage() {
     }
   }, [selectedDate, userId]);
 
-  // Auto-save day note (debounced)
+  // Auto-save day note
   useEffect(() => {
     if (!userId || !mounted) return;
 
@@ -125,7 +123,7 @@ export default function TasksPage() {
       } finally {
         setSavingNote(false);
       }
-    }, 1000); // Save 1 second after user stops typing
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [dayNote, userId, selectedDate, mounted]);
@@ -177,13 +175,14 @@ export default function TasksPage() {
   };
 
   const handlePlayTask = (taskId: string, taskTitle: string) => {
-    startTimer(taskId, taskTitle);
+    if (userId) {
+      startTimer(taskId, taskTitle, userId, selectedDate);
+    }
   };
 
   const handleStopTimer = async () => {
     const success = await stopTimer();
     if (success && userId) {
-      // Reload data to show updated times
       await loadAllData(userId, formatDateToString(selectedDate));
     }
   };
@@ -198,7 +197,6 @@ export default function TasksPage() {
         goal_hours: hours,
         date: formatDateToString(selectedDate)
       });
-      // Reload stats
       const { data } = await getDailyReportStats(userId, formatDateToString(selectedDate));
       if (data) setStats(data);
     } catch (err) {
@@ -300,7 +298,7 @@ export default function TasksPage() {
             </svg>
           </button>
 
-          {/* Timer Display - MINIMAL & CLEAN */}
+          {/* Timer Display */}
           <div className="flex items-center gap-2 ml-auto">
             <button
               className={`p-2 rounded-lg transition ${timer.isRunning
@@ -352,7 +350,7 @@ export default function TasksPage() {
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
-                  className={`w-full text-left px-4 py-3 rounded-lg border-2 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
+                  className={`w-full text-left px-50 py-3 rounded-lg border-1 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
                       ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
                       : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
                     }`}>
@@ -411,9 +409,9 @@ export default function TasksPage() {
             </div>
           </div>
 
-          {/* CENTER COLUMN - Timeline - FULL HEIGHT ALIGNMENT */}
+          {/* CENTER COLUMN - Timeline */}
           <div className="h-full">
-            <div className={`rounded-xl border p-5 h-160 flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            <div className={`rounded-xl border  p-5 h-198 flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
               }`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Today's Task time Record
