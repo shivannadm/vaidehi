@@ -79,8 +79,8 @@ export default function TrendsPage() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      <div className="h-full overflow-y-auto p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <div className="h-full overflow-y-auto p-3">
+        <div className="max-w-7xl mx-auto space-y-5 ">
           
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -105,7 +105,7 @@ export default function TrendsPage() {
           <StatsCards stats={stats} isDark={isDark} />
 
           {/* Main Grid - 2 Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             
             {/* Left Column - Pomodoro Chart (2 cols) */}
             <div className="lg:col-span-2 h-[600px]">
@@ -127,7 +127,7 @@ export default function TrendsPage() {
           </div>
 
           {/* Bottom Grid - 2 Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             
             {/* Project Distribution */}
             <ProjectDistribution
