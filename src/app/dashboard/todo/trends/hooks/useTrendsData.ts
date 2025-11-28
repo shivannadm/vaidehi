@@ -60,15 +60,6 @@ export function useTrendsData(
 
   useEffect(() => {
     fetchAllData();
-    
-    // Auto-refresh every 30 seconds to catch new completions
-    const interval = setInterval(() => {
-      if (userId) {
-        fetchAllData();
-      }
-    }, 30000); // 30 seconds
-    
-    return () => clearInterval(interval);
   }, [userId, timeRange, startDate, endDate, selectedYear, selectedMonth]);
 
   return {

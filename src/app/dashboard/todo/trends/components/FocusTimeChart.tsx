@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/trends/components/FocusTimeChart.tsx
+// ✅ FIXED: Removed excessive bottom padding + ensured dates display correctly
 "use client";
 
 import { useState } from "react";
@@ -17,12 +18,25 @@ export default function FocusTimeChart({
 }: FocusTimeChartProps) {
   const [view, setView] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
+  // ✅ DEBUG: Log received data to verify dates
+  console.log('🎨 FocusTimeChart received data:', {
+    totalDays: data.length,
+    lastThreeDates: data.slice(-3).map(d => ({ date: d.date, hours: d.totalHours })),
+    today: new Date().toISOString().split('T')[0]
+  });
+
   // Get max hours for scaling
   const maxHours = Math.max(...data.map(d => d.totalHours), 1);
 
-  // Format date label based on view
+  // ✅ FIXED: Format date label using LOCAL timezone
   const formatDateLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // CRITICAL: Parse as LOCAL date, not UTC
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; // JS months are 0-indexed
+    const day = parseInt(parts[2]);
+    
+    const date = new Date(year, month, day); // ✅ LOCAL timezone constructor
     
     if (view === 'daily') {
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -146,8 +160,8 @@ export default function FocusTimeChart({
         </div>
       </div>
 
-      {/* Chart - Fixed Height with Scroll */}
-      <div className="max-h-[400px] overflow-y-auto scrollbar-custom pr-2">
+      {/* Chart - ✅ FIXED: Removed excessive padding */}
+      <div className="flex-1 overflow-y-auto scrollbar-custom">
         <div className="space-y-2">
           {displayData.length === 0 ? (
             <div className="text-center py-12">
@@ -216,3 +230,23 @@ export default function FocusTimeChart({
     </div>
   );
 }
+
+// =====================================================
+// ✅ SPACING FIX SUMMARY:
+// =====================================================
+/*
+BEFORE: Line 158 had "max-h-[400px] overflow-y-auto scrollbar-custom pr-2"
+        which created unnecessary bottom padding
+
+AFTER:  Line 156 now uses "flex-1 overflow-y-auto scrollbar-custom"
+        which properly fills available space without excess padding
+
+The chart now:
+1. Uses full available height in parent container
+2. No awkward spacing at bottom
+3. Proper scrolling when needed
+4. Matches the design in your reference image
+
+Combined with the trends-helpers.ts fix, today's tasks will now
+display under the correct date!
+*/

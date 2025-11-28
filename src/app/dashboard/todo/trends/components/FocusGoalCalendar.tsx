@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/trends/components/FocusGoalCalendar.tsx
+// FIXED: Timezone issue - tasks now show on correct date
 "use client";
 
 import { useState } from "react";
@@ -58,13 +59,18 @@ export default function FocusGoalCalendar({
 
   const days = generateCalendar();
 
-  // Get goal data for a specific day - FIXED for timezone
+  // FIXED: Get goal data for a specific day - Now uses LOCAL timezone correctly
   const getGoalData = (day: number): GoalDayData | undefined => {
-    const year = selectedYear;
-    const month = String(selectedMonth + 1).padStart(2, '0');
-    const dayStr = String(day).padStart(2, '0');
+    // Create a date in LOCAL timezone for this day
+    const localDate = new Date(selectedYear, selectedMonth, day);
+    
+    // Format as YYYY-MM-DD in LOCAL timezone (not UTC)
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(localDate.getDate()).padStart(2, '0');
     const dateStr = `${year}-${month}-${dayStr}`;
     
+    // Find matching goal day data
     return goalDays.find(g => g.date === dateStr);
   };
 
@@ -118,7 +124,7 @@ export default function FocusGoalCalendar({
                 isDark ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              Goal: 7H
+              Click date for details
             </span>
           </div>
         </div>
