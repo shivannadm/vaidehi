@@ -1218,3 +1218,10 @@ export interface MorningRoutineEntry {
   created_at: string; // ISO timestamp
   updated_at: string; // ISO timestamp
 }
+
+// Add to MorningRoutineEntry interface
+export interface MorningRoutineEntry {
+  // ... existing fields
+  custom_fields?: Record<string, string | number | boolean>;
+  morning_streak?: number;
+}
