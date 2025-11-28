@@ -261,7 +261,7 @@ export default function ProjectEditor({
                         isSelected
                           ? "border-indigo-500"
                           : isDark
-                          ? "border-slate-600 hover:border-slate-500"
+                          ? "border-slate-600 text-slate-300 hover:border-slate-500"
                           : "border-slate-200 hover:border-slate-300"
                       }`}
                       style={
@@ -298,7 +298,7 @@ export default function ProjectEditor({
                         isSelected
                           ? "border-indigo-500"
                           : isDark
-                          ? "border-slate-600 hover:border-slate-500"
+                          ? "border-slate-600 text-slate-300 hover:border-slate-500"
                           : "border-slate-200 hover:border-slate-300"
                       }`}
                       style={
