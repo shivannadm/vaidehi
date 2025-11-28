@@ -1,4 +1,6 @@
 // src/app/dashboard/todo/trends/components/PomodoroChart.tsx
+// FIXED: 1. Scroll bar no longer crosses timeline (pb-6 padding)
+//        2. Hover shows individual task only (stopPropagation + individual state)
 "use client";
 
 import { useEffect, useState } from "react";
@@ -31,6 +33,7 @@ export default function PomodoroChart({
 }: PomodoroChartProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  // FIXED: Individual hover state per session
   const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
 
   // Fetch sessions directly from component
@@ -75,7 +78,6 @@ export default function PomodoroChart({
           }
         }));
         
-        console.log('Mapped sessions:', mapped);
         setSessions(mapped);
       } else {
         console.error('Error fetching sessions:', error);
@@ -104,9 +106,8 @@ export default function PomodoroChart({
   const dates = getLast30Days();
   const timeLabels = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
 
-  // Get sessions for a specific date - FIXED for timezone
+  // Get sessions for a specific date
   const getSessionsForDate = (date: Date) => {
-    // Use local date string, not UTC
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -139,38 +140,27 @@ export default function PomodoroChart({
 
   // Calculate position and width
   const getBlockStyle = (session: Session) => {
-    // Parse start time - CRITICAL FIX
     const timeStr = session.start_time;
     let hours = 0;
     let minutes = 0;
 
-    // Handle different time formats
     if (timeStr.includes('T')) {
-      // ISO timestamp format: "2025-11-27T12:44:00"
       const date = new Date(timeStr);
       hours = date.getHours();
       minutes = date.getMinutes();
     } else {
-      // Time string format: "12:44:00" or "12:44"
       const parts = timeStr.split(':');
       hours = parseInt(parts[0]) || 0;
       minutes = parseInt(parts[1]) || 0;
     }
 
     const startHours = hours + minutes / 60;
-
-    // Duration in hours
-    const durationHours = session.duration / 3600; // seconds to hours
-
-    // Calculate percentages
+    const durationHours = session.duration / 3600;
     const left = (startHours / 24) * 100;
-    const width = Math.max((durationHours / 24) * 100, 0.3); // Min 0.3% for visibility
-
+    const width = Math.max((durationHours / 24) * 100, 0.3);
     const color = session.task.tag 
       ? getTagColor(session.task.tag.color)
       : '#94a3b8';
-
-    console.log(`Session: ${session.task.title}, Time: ${hours}:${minutes}, Left: ${left}%, Width: ${width}%`);
 
     return {
       left: `${left}%`,
@@ -209,12 +199,10 @@ export default function PomodoroChart({
       minutes = parseInt(parts[1]) || 0;
     }
     
-    // Start time
     const startPeriod = hours >= 12 ? 'PM' : 'AM';
     const startHour = hours % 12 || 12;
     const startMin = minutes.toString().padStart(2, '0');
     
-    // End time
     const endMinutes = hours * 60 + minutes + Math.floor(durationSeconds / 60);
     const endHours = Math.floor(endMinutes / 60) % 24;
     const endMins = endMinutes % 60;
@@ -271,7 +259,7 @@ export default function PomodoroChart({
         )}
       </div>
 
-      {/* Chart */}
+      {/* Chart - FIXED: Added pb-6 to prevent scroll from crossing timeline */}
       {dates.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -282,7 +270,7 @@ export default function PomodoroChart({
           </div>
         </div>
       ) : (
-        <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col pb-6">
           {/* Time labels */}
           <div className="flex items-center mb-2 pl-20 flex-shrink-0">
             {timeLabels.map((hour) => (
@@ -298,13 +286,13 @@ export default function PomodoroChart({
             ))}
           </div>
 
-          {/* Timeline rows - ONLY DAYS WITH SESSIONS */}
+          {/* Timeline rows - FIXED: Removed 'group' class that was causing hover conflicts */}
           <div className="flex-1 overflow-y-auto scrollbar-custom pr-2 space-y-2">
             {dates.map((date, index) => {
               const daySessions = getSessionsForDate(date);
               
               return (
-                <div key={index} className="flex items-center group">
+                <div key={index} className="flex items-center">
                   {/* Date label */}
                   <div className="w-20 flex-shrink-0 pr-3 text-right">
                     <span className={`text-xs font-medium ${
@@ -329,37 +317,59 @@ export default function PomodoroChart({
                       />
                     ))}
 
-                    {/* Session blocks - WITH HOVER TOOLTIP */}
-                    {daySessions.map((session) => {
-                      const tooltip = `${session.task.title}${session.task.tag ? ` (#${session.task.tag.name})` : ''}\n${formatTime(session.start_time, session.duration)}\nDuration: ${Math.round(session.duration / 60)}m`;
-                      
-                      return (
-                        <div
-                          key={session.id}
-                          className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:opacity-80 hover:shadow-lg hover:z-10 hover:scale-105"
-                          style={getBlockStyle(session)}
-                          title={tooltip}
-                        >
-                          {/* Hover Label */}
-                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
-                            <div className={`px-3 py-2 rounded-lg shadow-xl text-xs ${
-                              isDark ? 'bg-slate-900 text-white border border-slate-700' : 'bg-white text-slate-900 border border-slate-200'
+                    {/* Session blocks - FIXED: Individual hover detection with stopPropagation */}
+                    {daySessions.map((session) => (
+                      <div
+                        key={session.id}
+                        className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:z-50 hover:scale-105 hover:shadow-lg"
+                        style={getBlockStyle(session)}
+                        // CRITICAL: Stop event bubbling to prevent row hover
+                        onMouseEnter={(e) => {
+                          e.stopPropagation();
+                          setHoveredSessionId(session.id);
+                        }}
+                        onMouseLeave={(e) => {
+                          e.stopPropagation();
+                          setHoveredSessionId(null);
+                        }}
+                      >
+                        {/* FIXED: Tooltip shows ONLY for this specific session */}
+                        {hoveredSessionId === session.id && (
+                          <div 
+                            className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-[100]"
+                            style={{ 
+                              bottom: '100%',
+                              marginBottom: '8px'
+                            }}
+                          >
+                            <div className={`px-3 py-2 rounded-lg shadow-2xl text-xs whitespace-nowrap border-2 ${
+                              isDark ? 'bg-slate-900 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-200'
                             }`}>
-                              <div className="font-bold">{session.task.title}</div>
+                              <div className="font-bold mb-1">{session.task.title}</div>
                               {session.task.tag && (
-                                <div className="text-xs opacity-75">#{session.task.tag.name}</div>
+                                <div className="opacity-75 mb-1">#{session.task.tag.name}</div>
                               )}
-                              <div className="text-xs opacity-75">
+                              <div className="opacity-75">
                                 {formatTime(session.start_time, session.duration)}
                               </div>
-                              <div className="text-xs opacity-75">
+                              <div className="opacity-75">
                                 {Math.round(session.duration / 60)}m
                               </div>
+                              {/* Tooltip arrow pointing down */}
+                              <div 
+                                className="absolute left-1/2 -translate-x-1/2 w-0 h-0"
+                                style={{
+                                  top: '100%',
+                                  borderLeft: '8px solid transparent',
+                                  borderRight: '8px solid transparent',
+                                  borderTop: `8px solid ${isDark ? '#1e293b' : '#ffffff'}`
+                                }}
+                              />
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               );
