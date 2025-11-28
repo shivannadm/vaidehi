@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/page.tsx
-// Create this new file
+// FIXED: Favorites filter now works correctly
 // ============================================
 
 "use client";
@@ -23,7 +23,7 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<ProjectPriority | "all">("all");
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -90,16 +90,22 @@ export default function ProjectsPage() {
         return false;
       }
 
-      // Favorites filter
-      if (showFavorites && !project.is_favorite) {
+      // Favorites filter - ONLY show favorites when toggled ON
+      if (showFavoritesOnly && !project.is_favorite) {
         return false;
       }
 
       return true;
     });
 
-  const favoriteProjects = filteredProjects.filter(p => p.is_favorite);
-  const otherProjects = filteredProjects.filter(p => !p.is_favorite);
+  // Separate favorites and other projects for display
+  const favoriteProjects = showFavoritesOnly 
+    ? filteredProjects  // When filtering, all filtered projects are favorites
+    : filteredProjects.filter(p => p.is_favorite); // When not filtering, get just favorites
+  
+  const otherProjects = showFavoritesOnly 
+    ? []  // When filtering by favorites, hide other projects
+    : filteredProjects.filter(p => !p.is_favorite); // When not filtering, show others
 
   const handleCreateProject = () => {
     setEditingProject(null);
@@ -235,16 +241,16 @@ export default function ProjectsPage() {
 
               {/* Favorites Toggle */}
               <button
-                onClick={() => setShowFavorites(!showFavorites)}
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
                 className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${
-                  showFavorites
+                  showFavoritesOnly
                     ? 'bg-yellow-500/20 text-yellow-500 border-2 border-yellow-500'
                     : isDark
                       ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                 }`}
               >
-                <Star className={`w-4 h-4 ${showFavorites ? 'fill-yellow-500' : ''}`} />
+                <Star className={`w-4 h-4 ${showFavoritesOnly ? 'fill-yellow-500' : ''}`} />
                 Favorites
               </button>
 
@@ -281,16 +287,16 @@ export default function ProjectsPage() {
             <div className="text-center py-20">
               <div className="text-6xl mb-4">🎯</div>
               <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                {searchQuery || statusFilter !== "all" || priorityFilter !== "all" || showFavorites
+                {searchQuery || statusFilter !== "all" || priorityFilter !== "all" || showFavoritesOnly
                   ? 'No projects found'
                   : 'No projects yet'}
               </h3>
               <p className={`text-sm mb-6 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                {searchQuery || statusFilter !== "all" || priorityFilter !== "all" || showFavorites
+                {searchQuery || statusFilter !== "all" || priorityFilter !== "all" || showFavoritesOnly
                   ? 'Try adjusting your filters'
                   : 'Click "New Project" to create your first project'}
               </p>
-              {!searchQuery && statusFilter === "all" && priorityFilter === "all" && !showFavorites && (
+              {!searchQuery && statusFilter === "all" && priorityFilter === "all" && !showFavoritesOnly && (
                 <button
                   onClick={handleCreateProject}
                   className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
@@ -301,15 +307,23 @@ export default function ProjectsPage() {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Favorite Projects */}
-              {favoriteProjects.length > 0 && !showFavorites && (
+              {/* Favorite Projects Section */}
+              {favoriteProjects.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
-                    <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      Favorites
-                    </h2>
-                  </div>
+                  {/* Show header with count when filtering OR when there are other projects */}
+                  {(showFavoritesOnly || otherProjects.length > 0) && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <Star className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+                      <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                        {showFavoritesOnly ? 'Favorite Projects' : 'Favorites'}
+                      </h2>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                        isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {favoriteProjects.length}
+                      </span>
+                    </div>
+                  )}
                   <div className={viewMode === "grid" 
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     : "space-y-3"
@@ -330,10 +344,10 @@ export default function ProjectsPage() {
                 </div>
               )}
 
-              {/* Other Projects */}
-              {otherProjects.length > 0 && (
+              {/* Other Projects Section - Only show when NOT filtering by favorites */}
+              {otherProjects.length > 0 && !showFavoritesOnly && (
                 <div>
-                  {favoriteProjects.length > 0 && !showFavorites && (
+                  {favoriteProjects.length > 0 && (
                     <h2 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       All Projects
                     </h2>

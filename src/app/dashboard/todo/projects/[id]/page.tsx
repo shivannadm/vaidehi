@@ -1,4 +1,7 @@
-// src/app/dashboard/todo/projects/[id]/page.tsx
+// ============================================
+// FILE: src/app/dashboard/todo/projects/[id]/page.tsx
+// COMPLETE FIXED VERSION - Theme + Edit Button
+// ============================================
 
 "use client";
 
@@ -14,7 +17,7 @@ import TimelineView from "../components/TimelineView";
 import KanbanBoard from "../components/KanbanBoard";
 import MilestoneSection from "../components/MilestoneSection";
 
-import { toggleProjectFavorite, deleteProject } from "@/lib/supabase/project-helpers";
+import { toggleProjectFavorite, deleteProject, updateProject } from "@/lib/supabase/project-helpers";
 import { calculateDaysRemaining, isProjectOverdue, PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/types/database";
 
 export default function ProjectDetailPage() {
@@ -26,12 +29,21 @@ export default function ProjectDetailPage() {
 
   const { project, loading, error, refetch } = useProjectDetail(projectId as string);
 
+  // Theme detection
   useEffect(() => {
-    const check = () => setIsDark(document.documentElement.classList.contains("dark"));
-    check();
-    const mo = new MutationObserver(check);
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => mo.disconnect();
+    const checkTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    };
+    
+    checkTheme();
+    
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { 
+      attributes: true, 
+      attributeFilter: ["class"] 
+    });
+    
+    return () => observer.disconnect();
   }, []);
 
   const handleToggleFavorite = async () => {
@@ -41,32 +53,78 @@ export default function ProjectDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (!project || !confirm(`Delete "${project.title}" permanently?`)) return;
-    await deleteProject(project.id);
-    router.push("/dashboard/todo/projects");
+    if (!project) return;
+    
+    if (!confirm(`Delete "${project.title}" permanently?\n\nTasks will be unlinked (not deleted).`)) {
+      return;
+    }
+    
+    const result = await deleteProject(project.id, false);
+    if (!result.error) {
+      router.push("/dashboard/todo/projects");
+    }
   };
 
-  // ─────── LOADING & ERROR STATES ───────
+  const handleSaveProject = async (projectData: any) => {
+    if (!project) {
+      return { success: false, error: "No project loaded" };
+    }
+
+    try {
+      console.log("Updating project:", project.id, projectData);
+      
+      const result = await updateProject(project.id, projectData);
+      
+      if (result.error) {
+        console.error("Update error:", result.error);
+        return { success: false, error: result.error.message };
+      }
+
+      console.log("Update successful, refreshing...");
+      await refetch();
+      
+      return { success: true, data: result.data };
+    } catch (error) {
+      console.error("Error in handleSaveProject:", error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : "Failed to update project" 
+      };
+    }
+  };
+
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+      <div className={`min-h-screen flex items-center justify-center ${
+        isDark ? 'bg-slate-900' : 'bg-slate-50'
+      }`}>
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <p className="mt-4 text-slate-400">Loading project...</p>
+          <p className={`mt-4 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            Loading project...
+          </p>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (!project || error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="text-center text-white">
+      <div className={`min-h-screen flex items-center justify-center ${
+        isDark ? 'bg-slate-900' : 'bg-slate-50'
+      }`}>
+        <div className="text-center">
           <p className="text-6xl mb-4">😔</p>
-          <h2 className="text-2xl font-bold mb-4">Project not found</h2>
+          <h2 className={`text-2xl font-bold mb-4 ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
+            Project not found
+          </h2>
           <button
             onClick={() => router.push("/dashboard/todo/projects")}
-            className="px-6 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-700"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
             Back to Projects
           </button>
@@ -75,7 +133,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  // ─────── SAFE ACCESS AFTER LOADING ───────
+  // Calculate stats
   const progress = project.total_tasks > 0
     ? Math.round((project.completed_tasks / project.total_tasks) * 100)
     : 0;
@@ -90,56 +148,154 @@ export default function ProjectDetailPage() {
       <div className="max-w-7xl mx-auto p-6 space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button onClick={() => router.back()} className="p-3 rounded-xl hover:bg-slate-800">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            {/* Back Button */}
+            <button 
+              onClick={() => router.back()} 
+              className={`p-3 rounded-xl transition flex-shrink-0 ${
+                isDark 
+                  ? 'hover:bg-slate-800 text-white' 
+                  : 'hover:bg-slate-200 text-slate-900'
+              }`}
+              title="Go back"
+            >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold text-white">{project.title}</h1>
-                <button onClick={handleToggleFavorite} className="p-2 rounded-lg hover:bg-slate-800">
-                  <Star className={`w-6 h-6 ${project.is_favorite ? "fill-yellow-500 text-yellow-500" : "text-slate-400"}`} />
+
+            {/* Title Section */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1">
+                {/* Project Title */}
+                <h1 className={`text-3xl font-bold truncate ${
+                  isDark ? 'text-white' : 'text-slate-900'
+                }`}>
+                  {project.title}
+                </h1>
+                
+                {/* Favorite Star */}
+                <button 
+                  onClick={handleToggleFavorite} 
+                  className={`p-2 rounded-lg transition flex-shrink-0 ${
+                    isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-200'
+                  }`}
+                  title={project.is_favorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Star className={`w-6 h-6 ${
+                    project.is_favorite 
+                      ? "fill-yellow-500 text-yellow-500" 
+                      : isDark ? "text-slate-400" : "text-slate-500"
+                  }`} />
                 </button>
               </div>
-              <p className="text-slate-400 mt-1">{project.description || "No description"}</p>
+              
+              {/* Description */}
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                {project.description || "No description"}
+              </p>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <button onClick={() => setIsEditorOpen(true)} className="px-5 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center gap-2">
-              <Edit2 className="w-5 h-5" /> Edit
+          {/* Action Buttons */}
+          <div className="flex gap-3 flex-shrink-0">
+            <button 
+              onClick={() => setIsEditorOpen(true)} 
+              className={`px-5 py-3 rounded-lg flex items-center gap-2 transition font-medium ${
+                isDark 
+                  ? 'bg-slate-800 hover:bg-slate-700 text-white' 
+                  : 'bg-slate-200 hover:bg-slate-300 text-slate-900'
+              }`}
+            >
+              <Edit2 className="w-5 h-5" /> 
+              Edit
             </button>
-            <button onClick={handleDelete} className="px-5 py-3 bg-red-600 hover:bg-red-700 rounded-lg flex items-center gap-2">
-              <Trash2 className="w-5 h-5" /> Delete
+            <button 
+              onClick={handleDelete} 
+              className="px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition font-medium"
+            >
+              <Trash2 className="w-5 h-5" /> 
+              Delete
             </button>
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <ProgressBar progress={progress} completedTasks={project.completed_tasks} totalTasks={project.total_tasks} isDark={isDark} />
-          <div className={`rounded-xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-            <p className="text-sm text-slate-400">Status</p>
-            <p className="text-2xl font-bold mt-2 flex items-center gap-2">{statusConfig.icon} {statusConfig.label}</p>
+          {/* Progress Card */}
+          <ProgressBar 
+            progress={progress} 
+            completedTasks={project.completed_tasks} 
+            totalTasks={project.total_tasks} 
+            isDark={isDark} 
+          />
+          
+          {/* Status Card */}
+          <div className={`rounded-xl p-6 border ${
+            isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}>
+            <p className={`text-sm font-medium ${
+              isDark ? 'text-slate-400' : 'text-slate-600'
+            }`}>
+              Status
+            </p>
+            <p className={`text-2xl font-bold mt-2 flex items-center gap-2 ${
+              isDark ? 'text-white' : 'text-slate-900'
+            }`}>
+              {statusConfig.icon} {statusConfig.label}
+            </p>
           </div>
-          <div className={`rounded-xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-            <p className="text-sm text-slate-400">Priority</p>
-            <p className="text-2xl font-bold mt-2 flex items-center gap-2">{priorityConfig.icon} {priorityConfig.label}</p>
+          
+          {/* Priority Card */}
+          <div className={`rounded-xl p-6 border ${
+            isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}>
+            <p className={`text-sm font-medium ${
+              isDark ? 'text-slate-400' : 'text-slate-600'
+            }`}>
+              Priority
+            </p>
+            <p className={`text-2xl font-bold mt-2 flex items-center gap-2 ${
+              isDark ? 'text-white' : 'text-slate-900'
+            }`}>
+              {priorityConfig.icon} {priorityConfig.label}
+            </p>
           </div>
+          
+          {/* Due Date Card */}
           {daysRemaining !== null && (
-            <div className={`rounded-xl p-6 border ${overdue ? "border-red-600 bg-red-900/20" : isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <p className="text-sm text-slate-400">Due in</p>
-              <p className={`text-2xl font-bold mt-2 ${overdue ? "text-red-500" : ""}`}>
+            <div className={`rounded-xl p-6 border ${
+              overdue 
+                ? isDark 
+                  ? "border-red-600 bg-red-900/20" 
+                  : "border-red-400 bg-red-50"
+                : isDark 
+                  ? "bg-slate-800 border-slate-700" 
+                  : "bg-white border-slate-200"
+            }`}>
+              <p className={`text-sm font-medium ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}>
+                Due in
+              </p>
+              <p className={`text-2xl font-bold mt-2 ${
+                overdue 
+                  ? "text-red-500" 
+                  : isDark ? 'text-white' : 'text-slate-900'
+              }`}>
                 {overdue ? `${Math.abs(daysRemaining)}d ago` : `${daysRemaining}d`}
               </p>
             </div>
           )}
         </div>
 
-        {/* Tabs */}
-        <div className={`rounded-2xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} overflow-hidden`}>
-          <div className="flex border-b border-slate-700">
+        {/* Tabs Section */}
+        <div className={`rounded-2xl border overflow-hidden ${
+          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+        }`}>
+          {/* Tab Navigation */}
+          <div className={`flex border-b ${
+            isDark ? 'border-slate-700' : 'border-slate-200'
+          }`}>
             {[
               { id: "tasks", label: "Tasks", icon: ListTodo },
               { id: "timeline", label: "Timeline", icon: Calendar },
@@ -149,7 +305,13 @@ export default function ProjectDetailPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 px-6 py-4 font-medium flex items-center justify-center gap-2 ${activeTab === tab.id ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-slate-400'}`}
+                className={`flex-1 px-6 py-4 font-medium flex items-center justify-center gap-2 transition ${
+                  activeTab === tab.id 
+                    ? 'text-indigo-500 border-b-2 border-indigo-500 bg-indigo-500/5' 
+                    : isDark 
+                      ? 'text-slate-400 hover:text-slate-300 hover:bg-slate-700/50' 
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
               >
                 <tab.icon className="w-5 h-5" />
                 {tab.label}
@@ -157,23 +319,47 @@ export default function ProjectDetailPage() {
             ))}
           </div>
 
-          <div className="p-6 min-h-96">
-            {activeTab === "tasks" && <ProjectTaskList projectId={projectId as string} tasks={project.tasks || []} onRefresh={refetch} isDark={isDark} />}
-            {activeTab === "timeline" && <TimelineView tasks={project.tasks || []} projectStartDate={project.start_date} projectEndDate={project.target_end_date} isDark={isDark} />}
-            {activeTab === "kanban" && <KanbanBoard tasks={project.tasks || []} onRefresh={refetch} isDark={isDark} />}
-            {activeTab === "milestones" && <MilestoneSection projectId={projectId as string} isDark={isDark} />}
+          {/* Tab Content */}
+          <div className="min-h-96">
+            {activeTab === "tasks" && (
+              <ProjectTaskList 
+                projectId={projectId as string} 
+                tasks={project.tasks || []} 
+                onRefresh={refetch} 
+                isDark={isDark} 
+              />
+            )}
+            {activeTab === "timeline" && (
+              <TimelineView 
+                tasks={project.tasks || []} 
+                projectStartDate={project.start_date} 
+                projectEndDate={project.target_end_date} 
+                isDark={isDark} 
+              />
+            )}
+            {activeTab === "kanban" && (
+              <KanbanBoard 
+                tasks={project.tasks || []} 
+                onRefresh={refetch} 
+                isDark={isDark} 
+              />
+            )}
+            {activeTab === "milestones" && (
+              <MilestoneSection 
+                projectId={projectId as string} 
+                isDark={isDark} 
+              />
+            )}
           </div>
         </div>
       </div>
 
+      {/* Project Editor Modal */}
       <ProjectEditor
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}
         project={project}
-        onSave={async () => {
-          await refetch();
-          return { success: true };
-        }}
+        onSave={handleSaveProject}
         isDark={isDark}
       />
     </div>
