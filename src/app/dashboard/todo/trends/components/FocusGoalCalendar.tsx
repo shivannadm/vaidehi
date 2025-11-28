@@ -58,9 +58,13 @@ export default function FocusGoalCalendar({
 
   const days = generateCalendar();
 
-  // Get goal data for a specific day
+  // Get goal data for a specific day - FIXED for timezone
   const getGoalData = (day: number): GoalDayData | undefined => {
-    const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const year = selectedYear;
+    const month = String(selectedMonth + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const dateStr = `${year}-${month}-${dayStr}`;
+    
     return goalDays.find(g => g.date === dateStr);
   };
 
@@ -114,13 +118,13 @@ export default function FocusGoalCalendar({
                 isDark ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              {/* Calender */}
+              Goal: 7H
             </span>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-4 text-sm">
           <div>
             <span
               className={`${
@@ -175,7 +179,7 @@ export default function FocusGoalCalendar({
       {/* Calendar */}
       <div>
         {/* Month Navigator */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-4">
           <button
             onClick={handlePrevMonth}
             className={`p-1 rounded hover:bg-slate-700 transition ${

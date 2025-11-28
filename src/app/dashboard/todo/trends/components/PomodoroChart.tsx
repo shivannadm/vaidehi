@@ -31,6 +31,7 @@ export default function PomodoroChart({
 }: PomodoroChartProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredSessionId, setHoveredSessionId] = useState<string | null>(null);
 
   // Fetch sessions directly from component
   useEffect(() => {
@@ -86,21 +87,31 @@ export default function PomodoroChart({
     fetchSessions();
   }, [startDate, endDate]);
 
-  // Get unique dates that have sessions
-  const getDatesWithSessions = () => {
-    const uniqueDates = Array.from(new Set(sessions.map(s => s.date)))
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()) // Newest first
-      .slice(0, 15); // Show max 15 days with data
+  // Get unique dates that have sessions - SHOW LAST 30 DAYS
+  const getLast30Days = () => {
+    const dates: Date[] = [];
+    const today = new Date();
     
-    return uniqueDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      dates.push(date);
+    }
+    
+    return dates;
   };
 
-  const dates = getDatesWithSessions();
+  const dates = getLast30Days();
   const timeLabels = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
 
-  // Get sessions for a specific date
+  // Get sessions for a specific date - FIXED for timezone
   const getSessionsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Use local date string, not UTC
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    
     return sessions.filter(s => s.date === dateStr);
   };
 
@@ -318,15 +329,37 @@ export default function PomodoroChart({
                       />
                     ))}
 
-                    {/* Session blocks */}
-                    {daySessions.map((session) => (
-                      <div
-                        key={session.id}
-                        className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:opacity-80 hover:shadow-lg hover:z-10"
-                        style={getBlockStyle(session)}
-                        title={`${session.task.title}${session.task.tag ? ` (#${session.task.tag.name})` : ''}\n${formatTime(session.start_time, session.duration)}\n${Math.round(session.duration / 60)}m`}
-                      />
-                    ))}
+                    {/* Session blocks - WITH HOVER TOOLTIP */}
+                    {daySessions.map((session) => {
+                      const tooltip = `${session.task.title}${session.task.tag ? ` (#${session.task.tag.name})` : ''}\n${formatTime(session.start_time, session.duration)}\nDuration: ${Math.round(session.duration / 60)}m`;
+                      
+                      return (
+                        <div
+                          key={session.id}
+                          className="absolute top-1 bottom-1 rounded cursor-pointer transition-all hover:opacity-80 hover:shadow-lg hover:z-10 hover:scale-105"
+                          style={getBlockStyle(session)}
+                          title={tooltip}
+                        >
+                          {/* Hover Label */}
+                          <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
+                            <div className={`px-3 py-2 rounded-lg shadow-xl text-xs ${
+                              isDark ? 'bg-slate-900 text-white border border-slate-700' : 'bg-white text-slate-900 border border-slate-200'
+                            }`}>
+                              <div className="font-bold">{session.task.title}</div>
+                              {session.task.tag && (
+                                <div className="text-xs opacity-75">#{session.task.tag.name}</div>
+                              )}
+                              <div className="text-xs opacity-75">
+                                {formatTime(session.start_time, session.duration)}
+                              </div>
+                              <div className="text-xs opacity-75">
+                                {Math.round(session.duration / 60)}m
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
