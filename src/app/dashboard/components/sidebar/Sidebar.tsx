@@ -241,7 +241,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Evening"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Evening'}
-                onClick={() => onItemClick('Evening', 'routine')}
+                onClick={() => handleNavigation('Evening', 'routine', '/dashboard/routine/evening')}
                 isLight={isLight}
               />
               <SidebarItem
