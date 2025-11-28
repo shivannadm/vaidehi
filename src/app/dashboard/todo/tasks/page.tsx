@@ -1,5 +1,4 @@
 // src/app/dashboard/todo/tasks/page.tsx
-// ✅ UPDATED: Use global timer context instead of local hook
 "use client";
 
 import { useState, useEffect } from "react";
@@ -29,9 +28,10 @@ import EditTaskModal from "./components/EditTaskModal";
 import TagManager from "./components/TagManager";
 import TaskItem from "./components/TaskItem";
 import Timeline from "./components/Timeline";
-import { useTimer } from "../../components/TimerContext"; // ✅ Use global timer
+import { useTimer } from "../../components/TimerContext";
 
 export default function TasksPage() {
+  // ✅ ALL HOOKS MUST BE AT THE TOP - BEFORE ANY CONDITIONAL LOGIC
   const [mounted, setMounted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -56,10 +56,10 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [savingNote, setSavingNote] = useState(false);
 
-  // ✅ Use global timer context
+  // ✅ CRITICAL: Timer hook MUST be called unconditionally
   const { timer, startTimer, pauseTimer, resumeTimer, stopTimer, formatTime } = useTimer();
 
-  // Initialize
+  // ✅ Initialize - Now safe because all hooks are declared
   useEffect(() => {
     setMounted(true);
 
@@ -99,12 +99,12 @@ export default function TasksPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Load data when date changes
+  // ✅ FIXED: Load data when date changes with proper dependency
   useEffect(() => {
-    if (userId) {
+    if (userId && mounted) {
       loadAllData(userId, formatDateToString(selectedDate));
     }
-  }, [selectedDate, userId]);
+  }, [selectedDate, userId, mounted]);
 
   // Auto-save day note
   useEffect(() => {
@@ -153,20 +153,30 @@ export default function TasksPage() {
     }
   };
 
+  // ✅ FIXED: Date navigation handlers with proper state updates
   const handlePrevDay = () => {
-    const prev = new Date(selectedDate);
-    prev.setDate(prev.getDate() - 1);
-    setSelectedDate(prev);
+    setSelectedDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() - 1);
+      return newDate;
+    });
   };
 
   const handleNextDay = () => {
-    const next = new Date(selectedDate);
-    next.setDate(next.getDate() + 1);
-    setSelectedDate(next);
+    setSelectedDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() + 1);
+      return newDate;
+    });
   };
 
   const handleToday = () => {
     setSelectedDate(new Date());
+  };
+
+  // ✅ FIXED: Week dates handler with proper date selection
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(new Date(date));
   };
 
   const handleEditTask = (task: TaskWithTag) => {
@@ -223,6 +233,7 @@ export default function TasksPage() {
   const weekDates = getWeekDates();
   const goalCardColors = getGoalCardColor(stats?.goalPercentage || 0);
 
+  // ✅ NOW SAFE: All hooks are declared before this return
   if (!mounted || loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
@@ -249,7 +260,7 @@ export default function TasksPage() {
             </svg>
           </button>
 
-          {/* Week dates display */}
+          {/* Week dates display - FIXED */}
           <div className="flex items-center gap-2">
             {weekDates.map((date, idx) => {
               const isSelected = formatDateToString(date) === formatDateToString(selectedDate);
@@ -257,8 +268,8 @@ export default function TasksPage() {
 
               return (
                 <button
-                  key={idx}
-                  onClick={() => setSelectedDate(date)}
+                  key={`${date.getTime()}-${idx}`}
+                  onClick={() => handleDateSelect(date)}
                   className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${isSelected
                     ? 'bg-cyan-500 text-white'
                     : isDark
@@ -333,7 +344,7 @@ export default function TasksPage() {
       </div>
 
       {/* Main Content - 3 Columns */}
-      <div className="p-5 lg:px-0  py-3">
+      <div className="p-5 lg:px-0 py-3">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 px-4 py-3 max-w-screen-1xl mx-auto">
 
           {/* LEFT COLUMN - Tasks */}

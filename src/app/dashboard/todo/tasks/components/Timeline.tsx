@@ -184,7 +184,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
 
             {/* Session Blocks */}
             {Array.isArray(sessions) && sessions
-              .filter(s => s && s.duration > 0) // Only show sessions with actual duration
+              .filter(s => s && s.duration >= 60) // Only show sessions >= 1 minute (60 seconds)
               .map((session, idx) => {
               const position = getSessionPosition(session);
               
