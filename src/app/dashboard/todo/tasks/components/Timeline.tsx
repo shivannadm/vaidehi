@@ -213,7 +213,7 @@ export default function Timeline({ sessions = [], currentTime, isDark }: Timelin
                 >
                   <div className="flex items-start justify-between h-full">
                     <div
-                      className="text-xs font-semibold truncate flex-1"
+                      className="text-xs  truncate flex-1"
                       style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
                     >
                       {session.task?.title || 'Untitled'}

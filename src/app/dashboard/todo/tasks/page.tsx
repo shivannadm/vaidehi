@@ -350,7 +350,7 @@ export default function TasksPage() {
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
-                  className={`w-full text-left px-50 py-3 rounded-lg border-1 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
+                  className={`w-full text-left px-4 py-3 rounded-lg border-1 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
                       ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
                       : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
                     }`}>
