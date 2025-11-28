@@ -260,10 +260,10 @@ export default function TasksPage() {
                   key={idx}
                   onClick={() => setSelectedDate(date)}
                   className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${isSelected
-                      ? 'bg-cyan-500 text-white'
-                      : isDark
-                        ? 'text-slate-400 hover:bg-slate-700'
-                        : 'text-slate-600 hover:bg-slate-100'
+                    ? 'bg-cyan-500 text-white'
+                    : isDark
+                      ? 'text-slate-400 hover:bg-slate-700'
+                      : 'text-slate-600 hover:bg-slate-100'
                     }`}
                 >
                   {dateNum}
@@ -302,10 +302,10 @@ export default function TasksPage() {
           <div className="flex items-center gap-2 ml-auto">
             <button
               className={`p-2 rounded-lg transition ${timer.isRunning
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : isDark
-                    ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-                    : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : isDark
+                  ? 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
                 }`}
               onClick={() => timer.isRunning ? pauseTimer() : resumeTimer()}
               disabled={!timer.taskId}
@@ -333,14 +333,13 @@ export default function TasksPage() {
       </div>
 
       {/* Main Content - 3 Columns */}
-      <div className="p-5 lg:px-0 py-5">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="p-5 lg:px-0  py-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 px-4 py-3 max-w-screen-1xl mx-auto">
 
           {/* LEFT COLUMN - Tasks */}
-          <div className="space-y-5">
+          <div className="lg:col-span-5 space-y-5">
             {/* Task to Complete */}
-            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-              }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Task to complete
               </h2>
@@ -350,9 +349,9 @@ export default function TasksPage() {
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
-                  className={`w-full text-left px-4 py-3 rounded-lg border-1 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
-                      ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
-                      : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
+                  className={`w-full text-left px-3 py-3 rounded-lg border-1 border-dashed transition text-sm disabled:opacity-50 disabled:cursor-not-allowed ${isDark
+                    ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
+                    : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
                     }`}>
                   + Add task
                 </button>
@@ -380,8 +379,7 @@ export default function TasksPage() {
             </div>
 
             {/* Completed Tasks */}
-            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-              }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Completed tasks
               </h2>
@@ -410,28 +408,21 @@ export default function TasksPage() {
           </div>
 
           {/* CENTER COLUMN - Timeline */}
-          <div className="h-full">
-            <div className={`rounded-xl border  p-5 h-198 flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-              }`}>
+          <div className="lg:col-span-4">
+            <div className={`rounded-xl border p-5 h-217 min-h-96 flex flex-col ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Today's Task time Record
               </h2>
-
               <div className="flex-1 min-h-0">
-                <Timeline
-                  sessions={sessions}
-                  currentTime={currentTime}
-                  isDark={isDark}
-                />
+                <Timeline sessions={sessions} currentTime={currentTime} isDark={isDark} />
               </div>
             </div>
           </div>
 
           {/* RIGHT COLUMN - Extras */}
-          <div className="space-y-5">
+          <div className="lg:col-span-3 space-y-5">
             {/* Tags */}
-            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-              }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Tags
               </h2>
@@ -448,8 +439,7 @@ export default function TasksPage() {
             </div>
 
             {/* Task Report */}
-            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-              }`}>
+            <div className={`rounded-xl border p-5 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
               <h2 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Task Report
               </h2>
@@ -493,8 +483,8 @@ export default function TasksPage() {
                     onChange={(e) => handleGoalChange(parseInt(e.target.value))}
                     disabled={isPast}
                     className={`px-3 py-1 rounded-lg font-bold border-2 text-center ${isDark
-                        ? 'bg-slate-700 border-lime-500 text-lime-400'
-                        : 'bg-lime-50 border-lime-400 text-lime-700'
+                      ? 'bg-slate-700 border-lime-500 text-lime-400'
+                      : 'bg-lime-50 border-lime-400 text-lime-700'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(h => (
@@ -535,8 +525,8 @@ export default function TasksPage() {
                 rows={5}
                 disabled={isPast}
                 className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                    ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
-                    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                  ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
                   } ${isPast ? 'opacity-60 cursor-not-allowed' : ''}`}
               />
             </div>

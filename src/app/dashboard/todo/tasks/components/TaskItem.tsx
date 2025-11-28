@@ -88,12 +88,12 @@ export default function TaskItem({
 
   return (
     <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border transition ${isCompleted
-        ? isDark
-          ? 'bg-slate-700/30 border-slate-600'
-          : 'bg-slate-50 border-slate-200'
-        : isDark
-          ? 'bg-slate-700/50 border-slate-600 hover:bg-slate-700'
-          : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+      ? isDark
+        ? 'bg-slate-700/30 border-slate-600'
+        : 'bg-slate-50 border-slate-200'
+      : isDark
+        ? 'bg-slate-700/50 border-slate-600 hover:bg-slate-700'
+        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
       }`}>
       {/* Checkbox */}
       <input
@@ -108,10 +108,10 @@ export default function TaskItem({
       {!isCompleted && !isPast && (
         <button
           className={`p-1 rounded-full transition relative flex-shrink-0 ${isRunning
-              ? 'bg-orange-500/20 shadow-md shadow-orange-500/50'
-              : isDark
-                ? 'hover:bg-slate-600'
-                : 'hover:bg-slate-200'
+            ? 'bg-orange-500/20 shadow-md shadow-orange-500/50'
+            : isDark
+              ? 'hover:bg-slate-600'
+              : 'hover:bg-slate-200'
             }`}
           onClick={() => onPlayClick(task.id, task.title)}
           title={isRunning ? "Already running" : "Start timer"}
@@ -129,8 +129,8 @@ export default function TaskItem({
       {/* Task Title - COMPACT & READABLE */}
       <div className="flex-1 min-w-0">
         <div className={`font-medium truncate text-sm ${isCompleted
-            ? isDark ? 'text-slate-400 line-through' : 'text-slate-500 line-through'
-            : isDark ? 'text-white' : 'text-slate-900'
+          ? isDark ? 'text-slate-400 line-through' : 'text-slate-500 line-through'
+          : isDark ? 'text-white' : 'text-slate-900'
           }`}>
           {task.title}
         </div>
@@ -152,8 +152,8 @@ export default function TaskItem({
       {/* Important Star - COMPACT */}
       {task.is_important && (
         <Star className={`w-3.5 h-3.5 flex-shrink-0 ${isCompleted
-            ? 'fill-slate-500 text-slate-500'
-            : 'fill-yellow-500 text-yellow-500'
+          ? 'fill-slate-500 text-slate-500'
+          : 'fill-yellow-500 text-yellow-500'
           }`} />
       )}
 
@@ -162,8 +162,8 @@ export default function TaskItem({
         <button
           onClick={() => onEditClick(task)}
           className={`p-1 rounded transition flex-shrink-0 ${isDark
-              ? 'hover:bg-slate-600 text-slate-400'
-              : 'hover:bg-slate-200 text-slate-500'
+            ? 'hover:bg-slate-600 text-slate-400'
+            : 'hover:bg-slate-200 text-slate-500'
             }`}
           title="Edit task"
         >
@@ -176,8 +176,8 @@ export default function TaskItem({
         onClick={handleDelete}
         disabled={isPast}
         className={`p-1 rounded transition flex-shrink-0 ${isDark
-            ? 'hover:bg-slate-600 text-slate-400'
-            : 'hover:bg-slate-200 text-slate-500'
+          ? 'hover:bg-slate-600 text-slate-400'
+          : 'hover:bg-slate-200 text-slate-500'
           } disabled:cursor-not-allowed disabled:opacity-30`}
         title="Delete task"
       >
@@ -185,16 +185,14 @@ export default function TaskItem({
       </button>
 
       {/* Time/Days Badge - COMPACT */}
-      {isCompleted ? (
-        <span className={`text-xs flex-shrink-0 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-          {formatDuration(task.total_time_spent)}
-        </span>
-      ) : (
-        <span className={`text-xs flex-shrink-0 px-1.5 py-0.5 rounded ${isDark ? 'bg-slate-600 text-slate-300' : 'bg-slate-200 text-slate-600'
-          }`}>
-          {daysSinceCreation(task.created_at)}d
-        </span>
-      )}
+      <span className={`text-xs flex-shrink-0 font-medium ${isCompleted
+          ? isDark ? 'text-slate-400' : 'text-slate-500'
+          : task.total_time_spent > 0
+            ? isDark ? 'text-cyan-400' : 'text-cyan-600'
+            : isDark ? 'text-slate-500' : 'text-slate-400'
+        }`}>
+        {task.total_time_spent > 0 ? formatDuration(task.total_time_spent) : '0m'}
+      </span>
     </div>
   );
 }
