@@ -1,3 +1,5 @@
+## Project file structure
+```
 vaidehi/
 ├── .gitignore (file)
 ├── README.md (file)
@@ -161,3 +163,4 @@ vaidehi/
 │       └── database.ts (file)
 └── tailwind.config.ts (file)
 └── tsconfig.json (file)
+```
