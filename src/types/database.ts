@@ -1312,3 +1312,299 @@ export interface HealthEntry {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================
+// HABITS TYPES
+// ============================================
+
+export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
+export type HabitCategory = 
+  | 'Health' 
+  | 'Fitness' 
+  | 'Mental Health' 
+  | 'Learning' 
+  | 'Productivity' 
+  | 'Social' 
+  | 'Finance'
+  | 'Spiritual'
+  | 'Digital Wellness'
+  | 'Custom';
+
+export interface Habit {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string | null;
+  category: HabitCategory;
+  frequency: HabitFrequency;
+  target_count: number; // e.g., 7 for daily weekly target
+  icon: string; // emoji
+  color: string; // hex color
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  completed: boolean;
+  notes?: string | null;
+  created_at: string;
+}
+
+// Habit with completion data
+export interface HabitWithStats extends Habit {
+  current_streak: number;
+  best_streak: number;
+  completion_rate: number; // percentage
+  total_completions: number;
+  today_completed: boolean;
+  this_week_count: number;
+  this_month_count: number;
+}
+
+// For creating new habits
+export type CreateHabit = Omit<Habit, 'id' | 'created_at' | 'updated_at'>;
+
+// For updating habits
+export type UpdateHabit = Partial<Omit<Habit, 'id' | 'user_id' | 'created_at'>>;
+
+// Habit analytics data
+export interface HabitAnalytics {
+  habitId: string;
+  habitName: string;
+  last30Days: {
+    date: string;
+    completed: boolean;
+  }[];
+  last7Days: {
+    date: string;
+    completed: boolean;
+  }[];
+  currentStreak: number;
+  bestStreak: number;
+  completionRate: number;
+  totalDays: number;
+  completedDays: number;
+}
+
+// Weekly habit summary
+export interface WeeklyHabitSummary {
+  weekStart: string;
+  weekEnd: string;
+  habits: {
+    habitId: string;
+    habitName: string;
+    completedDays: number;
+    targetDays: number;
+    percentage: number;
+  }[];
+  overallCompletionRate: number;
+}
+
+// ============================================
+// HABIT CATEGORIES CONFIG
+// ============================================
+
+export interface HabitCategoryConfig {
+  category: HabitCategory;
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+}
+
+export const HABIT_CATEGORIES: Record<HabitCategory, HabitCategoryConfig> = {
+  'Health': {
+    category: 'Health',
+    label: 'Health',
+    icon: '❤️',
+    color: '#EF4444',
+    description: 'Physical health and wellness'
+  },
+  'Fitness': {
+    category: 'Fitness',
+    label: 'Fitness',
+    icon: '💪',
+    color: '#F97316',
+    description: 'Exercise and physical activity'
+  },
+  'Mental Health': {
+    category: 'Mental Health',
+    label: 'Mental Health',
+    icon: '🧘',
+    color: '#8B5CF6',
+    description: 'Mindfulness and mental wellness'
+  },
+  'Learning': {
+    category: 'Learning',
+    label: 'Learning',
+    icon: '📚',
+    color: '#3B82F6',
+    description: 'Education and skill development'
+  },
+  'Productivity': {
+    category: 'Productivity',
+    label: 'Productivity',
+    icon: '⚡',
+    color: '#EAB308',
+    description: 'Work and productivity habits'
+  },
+  'Social': {
+    category: 'Social',
+    label: 'Social',
+    icon: '👥',
+    color: '#EC4899',
+    description: 'Relationships and social connections'
+  },
+  'Finance': {
+    category: 'Finance',
+    label: 'Finance',
+    icon: '💰',
+    color: '#10B981',
+    description: 'Money management and savings'
+  },
+  'Spiritual': {
+    category: 'Spiritual',
+    label: 'Spiritual',
+    icon: '🙏',
+    color: '#6366F1',
+    description: 'Spiritual practice and growth'
+  },
+  'Digital Wellness': {
+    category: 'Digital Wellness',
+    label: 'Digital Wellness',
+    icon: '📵',
+    color: '#14B8A6',
+    description: 'Screen time and digital health'
+  },
+  'Custom': {
+    category: 'Custom',
+    label: 'Custom',
+    icon: '⭐',
+    color: '#A855F7',
+    description: 'Custom habit category'
+  }
+};
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+// Calculate streak from completion history
+export function calculateStreak(
+  completions: { date: string; completed: boolean }[]
+): { current: number; best: number } {
+  if (!completions.length) return { current: 0, best: 0 };
+  
+  // Sort by date descending
+  const sorted = [...completions].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  
+  let currentStreak = 0;
+  let bestStreak = 0;
+  let tempStreak = 0;
+  
+  // Calculate current streak from today backwards
+  const today = new Date().toISOString().split('T')[0];
+  let checkDate = new Date(today);
+  
+  for (const completion of sorted) {
+    const compDate = new Date(completion.date);
+    const checkDateStr = checkDate.toISOString().split('T')[0];
+    
+    if (completion.date === checkDateStr && completion.completed) {
+      currentStreak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else if (completion.date === checkDateStr) {
+      break; // Streak broken
+    }
+  }
+  
+  // Calculate best streak
+  for (const completion of completions) {
+    if (completion.completed) {
+      tempStreak++;
+      bestStreak = Math.max(bestStreak, tempStreak);
+    } else {
+      tempStreak = 0;
+    }
+  }
+  
+  return { current: currentStreak, best: bestStreak };
+}
+
+// Calculate completion rate
+export function calculateCompletionRate(
+  completions: { date: string; completed: boolean }[]
+): number {
+  if (!completions.length) return 0;
+  
+  const completed = completions.filter(c => c.completed).length;
+  return Math.round((completed / completions.length) * 100);
+}
+
+// Get habit color by category
+export function getHabitCategoryColor(category: HabitCategory): string {
+  return HABIT_CATEGORIES[category]?.color || '#94A3B8';
+}
+
+// Format habit frequency for display
+export function formatHabitFrequency(frequency: HabitFrequency, target: number): string {
+  switch (frequency) {
+    case 'daily':
+      return `${target}x per week`;
+    case 'weekly':
+      return `${target}x per week`;
+    case 'monthly':
+      return `${target}x per month`;
+    default:
+      return frequency;
+  }
+}
+
+// ============================================
+// KEY NOTES TYPES
+// ============================================
+
+export type NoteType = 'insight' | 'lesson' | 'breakthrough' | 'idea' | 'quote' | 'reminder';
+export type NoteCategory = 'personal' | 'work' | 'health' | 'finance' | 'relationships' | 'learning';
+
+export interface KeyNote {
+  id: string;
+  user_id: string;
+  
+  // Core Content
+  title: string;
+  content: string;
+  type: NoteType;
+  category: NoteCategory;
+  
+  // Metadata
+  tags: string[];
+  is_pinned: boolean;
+  is_favorite: boolean;
+  is_archived: boolean;
+  
+  // Context
+  source?: string | null; // Book, person, event, etc.
+  linked_date?: string | null; // YYYY-MM-DD (link to routine day)
+  
+  // Action Items
+  action_required: boolean;
+  action_completed: boolean;
+  action_deadline?: string | null;
+  
+  // Knowledge Management
+  linked_notes: string[]; // IDs of related notes
+  review_count: number;
+  last_reviewed?: string | null;
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
