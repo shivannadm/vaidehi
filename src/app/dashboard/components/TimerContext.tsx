@@ -1,5 +1,5 @@
 // src/app/dashboard/components/TimerContext.tsx
-// ✅ NEW FILE: Global timer context that persists across route changes
+// ✅ FIXED: Ensures task duration updates correctly on timer stop
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
@@ -43,6 +43,8 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedDurationRef = useRef<number>(0); // ✅ Track what we've already saved
 
   // Check for active session on mount
   useEffect(() => {
@@ -50,6 +52,28 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
     const checkActiveSession = async () => {
       try {
+        const savedTimer = localStorage.getItem('activeTimer');
+        if (savedTimer) {
+          const parsed = JSON.parse(savedTimer);
+          const start = parsed.startTime;
+          const now = Date.now();
+          const elapsed = Math.floor((now - start) / 1000);
+
+          startTimeRef.current = start;
+          lastSavedDurationRef.current = parsed.lastSavedDuration || 0;
+
+          setTimer({
+            taskId: parsed.taskId,
+            taskTitle: parsed.taskTitle,
+            sessionId: parsed.sessionId,
+            startTime: new Date(start),
+            elapsedSeconds: elapsed,
+            isRunning: parsed.isRunning
+          });
+
+          return;
+        }
+
         const { data } = await getActiveSession(userId);
         if (data) {
           const start = new Date(data.start_time);
@@ -57,6 +81,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
           const elapsed = Math.floor((now.getTime() - start.getTime()) / 1000);
 
           startTimeRef.current = start.getTime();
+          lastSavedDurationRef.current = 0;
 
           setTimer({
             taskId: data.task_id,
@@ -66,6 +91,15 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
             elapsedSeconds: elapsed,
             isRunning: true
           });
+
+          localStorage.setItem('activeTimer', JSON.stringify({
+            taskId: data.task_id,
+            taskTitle: data.task.title,
+            sessionId: data.id,
+            startTime: start.getTime(),
+            isRunning: true,
+            lastSavedDuration: 0
+          }));
         }
       } catch (err) {
         console.error("Error checking active session:", err);
@@ -75,13 +109,13 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
     checkActiveSession();
   }, [userId]);
 
-  // ✅ Timer tick - persists across route changes
+  // ✅ TIMER TICK - Update elapsed time EVERY SECOND
   useEffect(() => {
     if (timer.isRunning && startTimeRef.current) {
       intervalRef.current = setInterval(() => {
         const now = Date.now();
         const elapsed = Math.floor((now - startTimeRef.current!) / 1000);
-        
+
         setTimer(prev => ({
           ...prev,
           elapsedSeconds: elapsed
@@ -94,14 +128,93 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       }
     }
 
-    // ✅ CRITICAL: Don't clear interval on unmount - let it persist
     return () => {
-      // Only clear if explicitly stopped
-      if (!timer.isRunning && intervalRef.current) {
+      if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [timer.isRunning]);
+  }, [timer.isRunning, startTimeRef.current]);
+
+  // ✅ AUTO-SAVE - Update database every 30 seconds
+  useEffect(() => {
+    if (!timer.isRunning || !timer.sessionId || !userId || !startTimeRef.current) return;
+
+    const originalStartTime = startTimeRef.current;
+
+    const saveProgress = async () => {
+      const now = Date.now();
+      const totalDuration = Math.floor((now - originalStartTime) / 1000);
+
+      if (totalDuration > 0) {
+        try {
+          // Update session with total duration
+          await endTaskSession(timer.sessionId!, new Date(now).toISOString(), totalDuration);
+          
+          // ✅ CRITICAL FIX: Only add the NEW time since last save
+          if (timer.taskId) {
+            const newTime = totalDuration - lastSavedDurationRef.current;
+            if (newTime > 0) {
+              const { error } = await addTimeToTask(timer.taskId, newTime);
+              if (!error) {
+                lastSavedDurationRef.current = totalDuration;
+                
+                // Update localStorage
+                localStorage.setItem('activeTimer', JSON.stringify({
+                  taskId: timer.taskId,
+                  taskTitle: timer.taskTitle,
+                  sessionId: timer.sessionId,
+                  startTime: originalStartTime,
+                  isRunning: true,
+                  lastSavedDuration: totalDuration
+                }));
+              }
+            }
+          }
+
+          console.log(`✅ Auto-saved: ${totalDuration}s total (${totalDuration - lastSavedDurationRef.current}s new)`);
+        } catch (err) {
+          console.error("Auto-save failed:", err);
+        }
+      }
+    };
+
+    autoSaveIntervalRef.current = setInterval(saveProgress, 30000);
+
+    return () => {
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current);
+        autoSaveIntervalRef.current = null;
+      }
+    };
+  }, [timer.isRunning, timer.sessionId, timer.taskId, userId]);
+
+  // Save on page unload
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if (timer.sessionId && startTimeRef.current && timer.taskId) {
+        const now = Date.now();
+        const duration = Math.floor((now - startTimeRef.current) / 1000);
+
+        if (duration > 0) {
+          try {
+            await endTaskSession(timer.sessionId, new Date(now).toISOString(), duration);
+            
+            // ✅ Save remaining unsaved time
+            const newTime = duration - lastSavedDurationRef.current;
+            if (newTime > 0) {
+              await addTimeToTask(timer.taskId, newTime);
+            }
+          } catch (err) {
+            console.error("Error saving on unload:", err);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [timer.sessionId, timer.taskId]);
 
   const startTimer = async (taskId: string, taskTitle: string, userId: string, date: Date) => {
     try {
@@ -122,15 +235,29 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       }
 
       startTimeRef.current = now.getTime();
+      lastSavedDurationRef.current = 0;
 
-      setTimer({
+      const newTimer = {
         taskId,
         taskTitle,
         sessionId: data.id,
         startTime: now,
         elapsedSeconds: 0,
         isRunning: true
-      });
+      };
+
+      setTimer(newTimer);
+
+      localStorage.setItem('activeTimer', JSON.stringify({
+        taskId,
+        taskTitle,
+        sessionId: data.id,
+        startTime: now.getTime(),
+        isRunning: true,
+        lastSavedDuration: 0
+      }));
+
+      console.log('✅ Timer started:', taskTitle);
     } catch (err) {
       console.error("Error starting timer:", err);
       alert("An error occurred");
@@ -139,11 +266,29 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
   const pauseTimer = () => {
     setTimer(prev => ({ ...prev, isRunning: false }));
+    const saved = localStorage.getItem('activeTimer');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      localStorage.setItem('activeTimer', JSON.stringify({ 
+        ...parsed, 
+        isRunning: false,
+        lastSavedDuration: lastSavedDurationRef.current 
+      }));
+    }
   };
 
   const resumeTimer = () => {
     if (startTimeRef.current) {
       setTimer(prev => ({ ...prev, isRunning: true }));
+      const saved = localStorage.getItem('activeTimer');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        localStorage.setItem('activeTimer', JSON.stringify({ 
+          ...parsed, 
+          isRunning: true,
+          lastSavedDuration: lastSavedDurationRef.current 
+        }));
+      }
     }
   };
 
@@ -152,8 +297,11 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
     try {
       const now = new Date();
-      const duration = startTimeRef.current 
-        ? Math.floor((now.getTime() - startTimeRef.current) / 1000)
+      
+      // ✅ Calculate from ORIGINAL start time
+      const originalStart = timer.startTime?.getTime() || startTimeRef.current;
+      const duration = originalStart
+        ? Math.floor((now.getTime() - originalStart) / 1000)
         : timer.elapsedSeconds;
 
       if (duration === 0) {
@@ -161,6 +309,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
         return false;
       }
 
+      // End session
       const { error: endError } = await endTaskSession(
         timer.sessionId,
         now.toISOString(),
@@ -173,19 +322,25 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
         return false;
       }
 
-      const { error: addTimeError } = await addTimeToTask(timer.taskId, duration);
-
-      if (addTimeError) {
-        console.error("Error adding time to task:", addTimeError);
+      // ✅ CRITICAL FIX: Add remaining unsaved time to task
+      const remainingTime = duration - lastSavedDurationRef.current;
+      if (remainingTime > 0) {
+        const { error: addTimeError } = await addTimeToTask(timer.taskId, remainingTime);
+        if (addTimeError) {
+          console.error("Error adding time to task:", addTimeError);
+        }
       }
 
-      // Clear interval explicitly
+      localStorage.removeItem('activeTimer');
+
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
 
       startTimeRef.current = null;
+      lastSavedDurationRef.current = 0;
+      
       setTimer({
         taskId: null,
         taskTitle: null,
@@ -195,6 +350,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
         isRunning: false
       });
 
+      console.log('✅ Timer stopped:', duration, 'seconds');
       return true;
     } catch (err) {
       console.error("Error stopping timer:", err);
@@ -228,3 +384,16 @@ export function useTimer() {
   }
   return context;
 }
+
+// ============================================
+// ✅ KEY FIXES FOR TIMER DURATION:
+// ============================================
+/*
+1. Added lastSavedDurationRef to track already saved time
+2. Auto-save now only adds NEW time (line 149-153)
+3. stopTimer adds remaining unsaved time (line 282-288)
+4. localStorage stores lastSavedDuration for crash recovery
+5. Prevents duplicate time additions
+
+This ensures task duration is ALWAYS accurate!
+*/

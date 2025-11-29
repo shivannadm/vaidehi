@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectTaskList.tsx
-// ENHANCED: Now includes timer functionality for tasks
+// ✅ COMPLETE FIX: Project tasks now fully integrate with main task system
 // ============================================
 
 "use client";
@@ -10,19 +10,13 @@ import { Plus, CheckCircle2, Circle, Star, Edit2, Trash2, X, Play, Pause, StopCi
 import { createTask, updateTask, deleteTask, completeTask, uncompleteTask } from "@/lib/supabase/task-helpers";
 import { createClient } from "@/lib/supabase/client";
 import { TAG_COLORS, formatDuration, type TaskWithTag } from "@/types/database";
+import { useTimer } from "../../../components/TimerContext";
 
 interface ProjectTaskListProps {
     projectId: string;
     tasks: TaskWithTag[];
     onRefresh: () => void;
     isDark: boolean;
-}
-
-interface TimerState {
-    taskId: string;
-    startTime: number;
-    elapsedSeconds: number;
-    sessionId: string | null;
 }
 
 export default function ProjectTaskList({
@@ -34,81 +28,73 @@ export default function ProjectTaskList({
     const [isAdding, setIsAdding] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const [adding, setAdding] = useState(false);
-    const [activeTimer, setActiveTimer] = useState<TimerState | null>(null);
-    const [timerDisplay, setTimerDisplay] = useState(0);
+    const [userId, setUserId] = useState<string | null>(null);
 
-    // Timer interval effect
+    const { timer, startTimer, stopTimer } = useTimer();
+
     useEffect(() => {
-        if (!activeTimer) return;
-
-        const interval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
-            setTimerDisplay(activeTimer.elapsedSeconds + elapsed);
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [activeTimer]);
-
-    // Load active timer from localStorage on mount
-    useEffect(() => {
-        const savedTimer = localStorage.getItem(`project_timer_${projectId}`);
-        if (savedTimer) {
-            try {
-                const parsed = JSON.parse(savedTimer);
-                // Check if task still exists
-                const taskExists = tasks.some(t => t.id === parsed.taskId);
-                if (taskExists) {
-                    setActiveTimer(parsed);
-                } else {
-                    localStorage.removeItem(`project_timer_${projectId}`);
-                }
-            } catch (e) {
-                localStorage.removeItem(`project_timer_${projectId}`);
-            }
-        }
-    }, [projectId, tasks]);
-
-    // Save active timer to localStorage whenever it changes
-    useEffect(() => {
-        if (activeTimer) {
-            localStorage.setItem(`project_timer_${projectId}`, JSON.stringify(activeTimer));
-        } else {
-            localStorage.removeItem(`project_timer_${projectId}`);
-        }
-    }, [activeTimer, projectId]);
+        const init = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) setUserId(user.id);
+        };
+        init();
+    }, []);
 
     const incompleteTasks = tasks.filter(t => !t.is_completed);
     const completedTasks = tasks.filter(t => t.is_completed);
 
+    // ✅ CRITICAL: Get TODAY's date in LOCAL timezone
     const getTodayDateString = () => {
         const today = new Date();
-        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     const handleAddTask = async () => {
-        if (!newTaskTitle.trim()) return;
+        if (!newTaskTitle.trim() || !userId) return;
 
         setAdding(true);
         try {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!user) return;
-
-            await createTask({
-                user_id: user.id,
+            const todayDate = getTodayDateString();
+            
+            console.log('✅ Creating project task:', {
                 title: newTaskTitle.trim(),
                 project_id: projectId,
-                date: getTodayDateString(),
+                date: todayDate, // ✅ TODAY's date
+                user_id: userId
+            });
+
+            // ✅ Create task with TODAY's date
+            const { data, error } = await createTask({
+                user_id: userId,
+                title: newTaskTitle.trim(),
+                project_id: projectId,
+                date: todayDate, // ✅ CRITICAL: Use today's date
                 is_completed: false,
                 is_important: false,
                 total_time_spent: 0,
                 tag_id: null,
             });
 
+            if (error) {
+                console.error('❌ Error creating task:', error);
+                alert('Failed to create task');
+                return;
+            }
+
+            console.log('✅ Task created successfully:', data);
+
             setNewTaskTitle("");
             setIsAdding(false);
             onRefresh();
+
+            // ✅ CRITICAL: Trigger a custom event to notify main task page
+            window.dispatchEvent(new CustomEvent('projectTaskCreated', { 
+                detail: { taskId: data?.id, date: todayDate } 
+            }));
         } catch (error) {
             console.error("Error creating task:", error);
         } finally {
@@ -117,9 +103,8 @@ export default function ProjectTaskList({
     };
 
     const handleToggleComplete = async (taskId: string, isCompleted: boolean) => {
-        // Stop timer if task is being completed
-        if (!isCompleted && activeTimer?.taskId === taskId) {
-            await handleStopTimer();
+        if (!isCompleted && timer.taskId === taskId) {
+            await stopTimer();
         }
 
         try {
@@ -129,6 +114,9 @@ export default function ProjectTaskList({
                 await completeTask(taskId);
             }
             onRefresh();
+            
+            // ✅ Notify main task page
+            window.dispatchEvent(new CustomEvent('projectTaskUpdated'));
         } catch (error) {
             console.error("Error toggling task:", error);
         }
@@ -136,124 +124,86 @@ export default function ProjectTaskList({
 
     const handleDeleteTask = async (taskId: string) => {
         if (confirm("Delete this task?")) {
-            // Stop timer if task being deleted
-            if (activeTimer?.taskId === taskId) {
-                await handleStopTimer();
+            if (timer.taskId === taskId) {
+                await stopTimer();
             }
 
             try {
                 await deleteTask(taskId);
                 onRefresh();
+                
+                // ✅ Notify main task page
+                window.dispatchEvent(new CustomEvent('projectTaskDeleted'));
             } catch (error) {
                 console.error("Error deleting task:", error);
             }
         }
     };
 
+    // ✅ CRITICAL FIX: Start timer with TODAY's date and update task date
     const handleStartTimer = async (task: TaskWithTag) => {
-        // Stop existing timer first
-        if (activeTimer && activeTimer.taskId !== task.id) {
-            await handleStopTimer();
-        }
+        if (!userId) return;
 
         try {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            const today = new Date();
+            const todayDateString = getTodayDateString();
 
-            const now = new Date();
-            const dateString = getTodayDateString();
+            // ✅ IMPORTANT: If task date is not today, update it to today
+            if (task.date !== todayDateString) {
+                console.log('⚠️  Task date mismatch, updating to today:', {
+                    old: task.date,
+                    new: todayDateString
+                });
 
-            // Create task session with TODAY's date
-            const { data: session, error } = await supabase
-                .from('task_sessions')
-                .insert({
-                    task_id: task.id,
-                    user_id: user.id,
-                    start_time: now.toISOString(),
-                    end_time: null,
-                    duration: 0,
-                    date: dateString, // Use today's date
-                })
-                .select()
-                .single();
+                const { error: updateError } = await updateTask(task.id, {
+                    date: todayDateString
+                });
 
-            if (error) {
-                console.error("Error starting timer:", error);
-                return;
-            }
-
-            setActiveTimer({
-                taskId: task.id,
-                startTime: Date.now(),
-                elapsedSeconds: 0,
-                sessionId: session.id,
-            });
-        } catch (error) {
-            console.error("Error starting timer:", error);
-        }
-    };
-
-    const handlePauseTimer = async () => {
-        if (!activeTimer) return;
-
-        try {
-            const supabase = createClient();
-            const totalElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
-            const finalDuration = activeTimer.elapsedSeconds + totalElapsed;
-
-            // Update session with end time
-            const { error: sessionError } = await supabase
-                .from('task_sessions')
-                .update({
-                    end_time: new Date().toISOString(),
-                    duration: finalDuration,
-                })
-                .eq('id', activeTimer.sessionId);
-
-            if (sessionError) {
-                console.error("Error updating session:", sessionError);
-                // Continue anyway to update task
-            }
-
-            // Update task total time
-            const task = tasks.find(t => t.id === activeTimer.taskId);
-            if (task) {
-                const newTotalTime = task.total_time_spent + finalDuration;
-                const { error: taskError } = await supabase
-                    .from('tasks')
-                    .update({ total_time_spent: newTotalTime })
-                    .eq('id', activeTimer.taskId);
-
-                if (taskError) {
-                    console.error("Error updating task time:", taskError);
+                if (updateError) {
+                    console.error('Error updating task date:', updateError);
                 }
             }
 
-            // Clear timer state
-            setActiveTimer(null);
-            setTimerDisplay(0);
-            localStorage.removeItem(`project_timer_${projectId}`);
+            // Stop existing timer if different task
+            if (timer.taskId && timer.taskId !== task.id) {
+                await stopTimer();
+            }
+
+            // ✅ Start timer with TODAY's date
+            await startTimer(task.id, task.title, userId, today);
             
-            // Refresh to show updated time
+            console.log('✅ Timer started for project task:', {
+                taskId: task.id,
+                title: task.title,
+                date: todayDateString
+            });
+            
+            // Refresh to show timer status
             onRefresh();
+            
+            // ✅ Notify main task page that timer started
+            window.dispatchEvent(new CustomEvent('projectTimerStarted', {
+                detail: { taskId: task.id, title: task.title }
+            }));
         } catch (error) {
-            console.error("Error stopping timer:", error);
-            // Still clear the timer even if there was an error
-            setActiveTimer(null);
-            setTimerDisplay(0);
-            localStorage.removeItem(`project_timer_${projectId}`);
+            console.error('Error starting timer:', error);
         }
     };
 
     const handleStopTimer = async () => {
-        await handlePauseTimer();
+        const success = await stopTimer();
+        if (success) {
+            onRefresh();
+            
+            // ✅ Notify main task page
+            window.dispatchEvent(new CustomEvent('projectTimerStopped'));
+        }
     };
 
     return (
         <div className="space-y-6 p-4">
             {/* Active Timer Display */}
-            {activeTimer && (
+            {timer.taskId && (
                 <div className={`rounded-xl border-2 p-4 ${
                     isDark 
                         ? 'bg-indigo-900/20 border-indigo-700' 
@@ -274,7 +224,7 @@ export default function ProjectTaskList({
                                 <p className={`font-bold text-lg ${
                                     isDark ? 'text-white' : 'text-slate-900'
                                 }`}>
-                                    {tasks.find(t => t.id === activeTimer.taskId)?.title || 'Unknown Task'}
+                                    {tasks.find(t => t.id === timer.taskId)?.title || timer.taskTitle || 'Unknown Task'}
                                 </p>
                             </div>
                         </div>
@@ -283,7 +233,7 @@ export default function ProjectTaskList({
                                 <p className={`text-3xl font-bold font-mono ${
                                     isDark ? 'text-indigo-400' : 'text-indigo-600'
                                 }`}>
-                                    {formatDuration(timerDisplay)}
+                                    {formatDuration(timer.elapsedSeconds)}
                                 </p>
                             </div>
                             <button
@@ -374,7 +324,7 @@ export default function ProjectTaskList({
                                 onDelete={handleDeleteTask}
                                 onStartTimer={handleStartTimer}
                                 isDark={isDark}
-                                isTimerActive={activeTimer?.taskId === task.id}
+                                isTimerActive={timer.taskId === task.id}
                             />
                         ))}
                     </div>
@@ -543,3 +493,16 @@ function TaskItem({
         </div>
     );
 }
+
+// ============================================
+// ✅ KEY CHANGES FOR PROJECT TASK INTEGRATION:
+// ============================================
+/*
+1. getTodayDateString() - Gets LOCAL timezone date (line 52-58)
+2. handleAddTask - Creates task with TODAY's date (line 69)
+3. Custom events dispatched to notify main task page (line 96)
+4. handleStartTimer - Updates task date to today if needed (line 137-148)
+5. All CRUD operations dispatch events for synchronization
+
+This ensures project tasks ALWAYS appear in main task list!
+*/

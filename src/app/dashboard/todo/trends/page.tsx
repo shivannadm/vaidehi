@@ -1,4 +1,8 @@
-// src/app/dashboard/todo/trends/page.tsx
+// ============================================
+// FILE: src/app/dashboard/todo/trends/page.tsx
+// ✅ FIXED: Unified filter system for all charts
+// ============================================
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -16,6 +20,9 @@ export default function TrendsPage() {
   const [mounted, setMounted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(true);
+
+  // ✅ UNIFIED FILTER STATE - single source of truth
+  const [globalTimeRange, setGlobalTimeRange] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
 
   // Initialize filters
   const {
@@ -38,7 +45,7 @@ export default function TrendsPage() {
     goalDays,
     loading,
     refreshData,
-  } = useTrendsData(userId, timeRange, startDate, endDate, selectedYear, selectedMonth);
+  } = useTrendsData(userId, globalTimeRange, startDate, endDate, selectedYear, selectedMonth);
 
   // Initialize
   useEffect(() => {
@@ -66,6 +73,11 @@ export default function TrendsPage() {
     return () => observer.disconnect();
   }, []);
 
+  // ✅ Sync global filter with local filter hook
+  useEffect(() => {
+    setTimeRange(globalTimeRange);
+  }, [globalTimeRange, setTimeRange]);
+
   if (!mounted || loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
@@ -80,7 +92,7 @@ export default function TrendsPage() {
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="h-full overflow-y-auto p-6">
-        <div className="max-w-7xl mx-auto space-y-5 ">
+        <div className="max-w-7xl mx-auto space-y-5">
 
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -93,10 +105,10 @@ export default function TrendsPage() {
               </p>
             </div>
 
-            {/* Time Range Selector */}
+            {/* ✅ GLOBAL Time Range Selector */}
             <TimeRangeSelector
-              selectedRange={timeRange}
-              onRangeChange={setTimeRange}
+              selectedRange={globalTimeRange}
+              onRangeChange={setGlobalTimeRange}
               isDark={isDark}
             />
           </div>
@@ -118,9 +130,10 @@ export default function TrendsPage() {
 
             {/* Right Column - Focus Time Chart */}
             <div className="h-[600px]">
+              {/* ✅ Pass global filter to chart */}
               <FocusTimeChart
                 data={focusData}
-                timeRange={timeRange}
+                timeRange={globalTimeRange}
                 isDark={isDark}
               />
             </div>
@@ -130,10 +143,10 @@ export default function TrendsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
             {/* Project Distribution */}
+            {/* ✅ Remove local time range selector, use global */}
             <ProjectDistribution
               data={projectDistribution}
-              timeRange={timeRange}
-              onTimeRangeChange={setTimeRange}
+              timeRange={globalTimeRange}
               isDark={isDark}
             />
 
@@ -153,3 +166,16 @@ export default function TrendsPage() {
     </div>
   );
 }
+
+// ============================================
+// ✅ KEY CHANGES:
+// ============================================
+/*
+1. Added globalTimeRange state (line 23)
+2. Removed local time range selector from header
+3. Global selector in top right (line 103-107)
+4. Passed globalTimeRange to both charts (lines 125, 135)
+5. Removed onTimeRangeChange from ProjectDistribution
+
+Now ONE filter controls BOTH charts!
+*/

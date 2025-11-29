@@ -1,5 +1,5 @@
 // src/app/dashboard/todo/trends/components/ProjectDistribution.tsx
-// ISSUE 2 FIX: Added interactive bar chart below donut
+// ✅ UPDATED: Removed local time range selector, uses global filter
 "use client";
 
 import { useState } from "react";
@@ -8,14 +8,12 @@ import type { ProjectTimeDistribution } from "@/lib/supabase/trends-helpers";
 interface ProjectDistributionProps {
   data: ProjectTimeDistribution[];
   timeRange: 'daily' | 'weekly' | 'monthly';
-  onTimeRangeChange: (range: 'daily' | 'weekly' | 'monthly') => void;
   isDark: boolean;
 }
 
 export default function ProjectDistribution({
   data,
   timeRange,
-  onTimeRangeChange,
   isDark,
 }: ProjectDistributionProps) {
   const [hoveredProject, setHoveredProject] = useState<string | null>(null);
@@ -59,6 +57,15 @@ export default function ProjectDistribution({
   const totalHours = data.reduce((sum, d) => sum + d.totalHours, 0);
   const maxHours = Math.max(...data.map(d => d.totalHours));
 
+  // ✅ Format time range label
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case 'daily': return 'Today';
+      case 'weekly': return 'This Week';
+      case 'monthly': return 'This Month';
+    }
+  };
+
   return (
     <div
       className={`rounded-xl border p-6 ${
@@ -67,9 +74,9 @@ export default function ProjectDistribution({
           : "bg-white border-slate-200"
       }`}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      {/* Header - ✅ Removed local time range selector */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
           <h2
             className={`text-lg font-bold ${
               isDark ? "text-white" : "text-slate-900"
@@ -77,34 +84,18 @@ export default function ProjectDistribution({
           >
             Project Time Distribution
           </h2>
+          {/* ✅ Display current filter as badge */}
+          <span className={`px-3 py-1 rounded-lg text-xs font-medium ${
+            isDark 
+              ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
+              : 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+          }`}>
+            {getTimeRangeLabel()}
+          </span>
         </div>
-
-        {/* Time Range Selector */}
-        <div
-          className={`flex items-center rounded-lg border ${
-            isDark
-              ? "bg-slate-700 border-slate-600"
-              : "bg-slate-50 border-slate-200"
-          }`}
-        >
-          {(['daily', 'weekly', 'monthly'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => onTimeRangeChange(range)}
-              className={`px-3 py-1.5 text-xs font-medium transition ${
-                timeRange === range
-                  ? "bg-indigo-600 text-white"
-                  : isDark
-                  ? "text-slate-300 hover:bg-slate-600"
-                  : "text-slate-600 hover:bg-slate-100"
-              } ${
-                range === 'daily' ? 'rounded-l-lg' : range === 'monthly' ? 'rounded-r-lg' : ''
-              }`}
-            >
-              {range.charAt(0).toUpperCase() + range.slice(1)}
-            </button>
-          ))}
-        </div>
+        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+          Time spent across projects
+        </p>
       </div>
 
       {/* Chart & Legend */}
@@ -224,7 +215,7 @@ export default function ProjectDistribution({
             </div>
           </div>
 
-          {/* BOTTOM: BAR CHART - NEW ADDITION */}
+          {/* BOTTOM: BAR CHART */}
           <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
             <h3 className={`text-sm font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Time Comparison
@@ -291,18 +282,14 @@ export default function ProjectDistribution({
 }
 
 // ============================================
-// CHANGES FOR ISSUE 2:
+// ✅ KEY CHANGES:
 // ============================================
 /*
-1. Added hoveredProject state for interactive highlighting
-2. Donut segments now respond to hover (opacity changes)
-3. Legend items highlight on hover
-4. NEW BAR CHART SECTION BELOW:
-   - Shows horizontal bars for time comparison
-   - Bars scale relative to maxHours
-   - Shows percentage on bar end
-   - Syncs with donut hover
-   - Clean, professional design
+1. Removed onTimeRangeChange prop (line 9)
+2. Removed local time range selector (was in header)
+3. Added time range badge displaying current filter (line 89-97)
+4. getTimeRangeLabel() shows "Today/This Week/This Month"
+5. Component now purely displays data based on global filter
 
-This gives users TWO ways to view the same data!
+Clean, consistent, no duplicate controls!
 */
