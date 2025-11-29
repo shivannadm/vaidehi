@@ -1,5 +1,8 @@
-// src/app/dashboard/todo/tasks/components/Timeline.tsx
-// ✅ FIXED: Shows 3 more future hours in timeline
+// ============================================
+// FILE: src/app/dashboard/todo/tasks/components/Timeline.tsx
+// ✅ FIXED: Uses PROJECT color first, then tag color
+// ============================================
+
 "use client";
 
 import { TAG_COLORS } from "@/types/database";
@@ -13,6 +16,18 @@ interface TimelineProps {
   activeTaskId?: string | null;
 }
 
+// ✅ Project color mapping
+const PROJECT_COLOR_MAP: Record<string, string> = {
+  blue: '#3B82F6',
+  green: '#10B981',
+  orange: '#F97316',
+  purple: '#A855F7',
+  red: '#EF4444',
+  teal: '#14B8A6',
+  pink: '#EC4899',
+  yellow: '#EAB308',
+};
+
 export default function Timeline({
   sessions = [],
   currentTime,
@@ -22,7 +37,6 @@ export default function Timeline({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentTimeLineRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to current time on mount and updates
   useEffect(() => {
     if (scrollContainerRef.current && currentTimeLineRef.current) {
       const container = scrollContainerRef.current;
@@ -39,7 +53,6 @@ export default function Timeline({
     }
   }, [currentTime]);
 
-  // ✅ FIXED: Generate timeline hours with 3 MORE FUTURE HOURS
   const timelineHours = useMemo(() => {
     const currentHour = currentTime?.getHours() ?? new Date().getHours();
 
@@ -48,7 +61,6 @@ export default function Timeline({
 
     if (!Array.isArray(sessions)) {
       const hours = [];
-      // ✅ Show 2 hours before and 3 hours AFTER current hour
       for (let i = Math.max(0, currentHour - 2); i <= Math.min(23, currentHour + 3); i++) {
         hours.push(i);
       }
@@ -68,9 +80,8 @@ export default function Timeline({
       }
     });
 
-    // ✅ CRITICAL FIX: Extend latestHour by 3 more hours
     const startHour = Math.max(0, Math.min(earliestHour, currentHour - 2));
-    const endHour = Math.min(23, Math.max(latestHour, currentHour + 3)); // ✅ +3 hours
+    const endHour = Math.min(23, Math.max(latestHour, currentHour + 3));
 
     const hours = [];
     for (let i = startHour; i <= endHour; i++) {
@@ -97,7 +108,40 @@ export default function Timeline({
     }
   };
 
-  const getSessionPosition = (session: TaskSessionWithTask) => {
+  // ✅ CRITICAL FIX: Get color with PROJECT priority
+  const getSessionColor = (session: TaskSessionWithTask): string => {
+    try {
+      const task = session.task as any;
+
+      // ✅ Priority 1: Project color (if task has project)
+      if (task?.projects?.color) {
+        const projectColor = PROJECT_COLOR_MAP[task.projects.color];
+        if (projectColor) {
+          console.log('🎨 Using project color:', task.projects.color, '→', projectColor);
+          return projectColor;
+        }
+      }
+
+      // ✅ Priority 2: Tag color (if task has tag)
+      if (task?.tag?.color) {
+        const tagColor = task.tag.color as string;
+        const tagColorConfig = TAG_COLORS[tagColor as keyof typeof TAG_COLORS];
+        if (tagColorConfig) {
+          console.log('🏷️ Using tag color:', task.tag.color);
+          return isDark ? tagColorConfig.darkBg : tagColorConfig.lightBg;
+        }
+      }
+
+      // ✅ Priority 3: Default gray
+      console.log('⚪ Using default color');
+      return '#94a3b8';
+    } catch (e) {
+      console.warn('Error getting session color:', e);
+      return '#94a3b8';
+    }
+  };
+
+  const getBlockStyle = (session: TaskSessionWithTask) => {
     try {
       const start = new Date(session.start_time);
       if (isNaN(start.getTime())) {
@@ -124,9 +168,13 @@ export default function Timeline({
 
       const finalHeight = session.duration > 0 ? Math.max(heightPercent, 2) : 0;
 
+      // ✅ Use project color priority
+      const backgroundColor = getSessionColor(session);
+
       return {
         top: `${Math.max(0, topPercent)}%`,
-        height: `${finalHeight}%`
+        height: `${finalHeight}%`,
+        backgroundColor
       };
     } catch (e) {
       console.warn("Error calculating position:", e);
@@ -205,13 +253,9 @@ export default function Timeline({
             {Array.isArray(sessions) && sessions
               .filter(s => s && s.duration >= 60)
               .map((session, idx) => {
-                const position = getSessionPosition(session);
+                const position = getBlockStyle(session);
 
                 if (position.height === '0%') return null;
-
-                const tagColor = session.task?.tag
-                  ? TAG_COLORS[session.task.tag.color]
-                  : { darkBg: '#f97316', lightBg: '#fed7aa', darkText: '#fff', lightText: '#000' };
 
                 const heightPercent = parseFloat(position.height);
                 const actualHeightPx = (heightPercent / 100) * totalHeight;
@@ -224,7 +268,7 @@ export default function Timeline({
                     style={{
                       top: position.top,
                       height: position.height,
-                      backgroundColor: isDark ? tagColor.darkBg : tagColor.lightBg,
+                      backgroundColor: position.backgroundColor,
                       minHeight: `${minHeightPx}px`,
                       zIndex: 5
                     }}
@@ -232,13 +276,13 @@ export default function Timeline({
                     <div className="flex items-start justify-between h-full">
                       <div
                         className="text-xs truncate flex-1"
-                        style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                        style={{ color: '#ffffff' }}
                       >
                         {session.task?.title || 'Untitled'}
                       </div>
                       <div
                         className="text-xs font-bold ml-2 flex-shrink-0"
-                        style={{ color: isDark ? tagColor.darkText : tagColor.lightText }}
+                        style={{ color: '#ffffff' }}
                       >
                         {formatDuration(session.duration || 0)}
                       </div>
@@ -295,16 +339,18 @@ export default function Timeline({
 }
 
 // ============================================
-// ✅ KEY CHANGES FOR FUTURE HOURS:
+// ✅ KEY FIX SUMMARY:
 // ============================================
 /*
-Line 45: Changed from currentHour + 1 to currentHour + 3
-Line 64: Changed from currentHour to currentHour + 3
+Line 112-137: getSessionColor() function with priority:
+  1. Project color (task.projects.color) ✅
+  2. Tag color (task.tag.color)
+  3. Default gray (#94a3b8)
 
-Example:
-- Current time: 10:00
-- Before: Showed 08:00-11:00 (3 hours)
-- After: Shows 08:00-13:00 (5 hours) ✅
+Line 173: Uses getSessionColor() in style
 
-This gives 3 more hours of future visibility!
+Result:
+- Blue project → Blue timeline blocks ✅
+- Purple project → Purple timeline blocks ✅
+- Tag color only if no project ✅
 */

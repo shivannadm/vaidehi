@@ -307,7 +307,11 @@ export async function getSessionsByDate(
       *,
       task:tasks(
         *,
-        tag:tags(*)
+        tag:tags(*),
+        projects(
+          title,
+          color
+        )
       )
     `)
     .eq("user_id", userId)

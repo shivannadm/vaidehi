@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectTaskList.tsx
-// ✅ COMPLETE FIX: Project tasks now fully integrate with main task system
+// ✅ FIXED: Tasks don't appear in main list until timer starts
 // ============================================
 
 "use client";
@@ -44,7 +44,7 @@ export default function ProjectTaskList({
     const incompleteTasks = tasks.filter(t => !t.is_completed);
     const completedTasks = tasks.filter(t => t.is_completed);
 
-    // ✅ CRITICAL: Get TODAY's date in LOCAL timezone
+    // ✅ FIX: Get TODAY's date in LOCAL timezone
     const getTodayDateString = () => {
         const today = new Date();
         const year = today.getFullYear();
@@ -53,26 +53,44 @@ export default function ProjectTaskList({
         return `${year}-${month}-${day}`;
     };
 
+    // ✅ CRITICAL FIX: Calculate ONLY today's session time
+    const getTodaySessionTime = async (taskId: string): Promise<number> => {
+        try {
+            const supabase = createClient();
+            const todayDate = getTodayDateString();
+            
+            const { data, error } = await supabase
+                .from('task_sessions')
+                .select('duration')
+                .eq('task_id', taskId)
+                .eq('date', todayDate);
+
+            if (error) {
+                console.error('Error fetching today sessions:', error);
+                return 0;
+            }
+
+            return data?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
+        } catch (err) {
+            console.error('Error:', err);
+            return 0;
+        }
+    };
+
     const handleAddTask = async () => {
         if (!newTaskTitle.trim() || !userId) return;
 
         setAdding(true);
         try {
-            const todayDate = getTodayDateString();
-            
-            console.log('✅ Creating project task:', {
-                title: newTaskTitle.trim(),
-                project_id: projectId,
-                date: todayDate, // ✅ TODAY's date
-                user_id: userId
-            });
+            console.log('✅ Creating project task with NO date (invisible in main list)');
 
-            // ✅ Create task with TODAY's date
+            // ✅ CRITICAL FIX: Create task with date = NULL
+            // Task will ONLY appear in main list when timer starts
             const { data, error } = await createTask({
                 user_id: userId,
                 title: newTaskTitle.trim(),
                 project_id: projectId,
-                date: todayDate, // ✅ CRITICAL: Use today's date
+                date: null as any, // ✅ NULL = Not in main task list yet
                 is_completed: false,
                 is_important: false,
                 total_time_spent: 0,
@@ -85,16 +103,11 @@ export default function ProjectTaskList({
                 return;
             }
 
-            console.log('✅ Task created successfully:', data);
+            console.log('✅ Task created (stays in project until timer starts):', data);
 
             setNewTaskTitle("");
             setIsAdding(false);
             onRefresh();
-
-            // ✅ CRITICAL: Trigger a custom event to notify main task page
-            window.dispatchEvent(new CustomEvent('projectTaskCreated', { 
-                detail: { taskId: data?.id, date: todayDate } 
-            }));
         } catch (error) {
             console.error("Error creating task:", error);
         } finally {
@@ -115,7 +128,6 @@ export default function ProjectTaskList({
             }
             onRefresh();
             
-            // ✅ Notify main task page
             window.dispatchEvent(new CustomEvent('projectTaskUpdated'));
         } catch (error) {
             console.error("Error toggling task:", error);
@@ -132,7 +144,6 @@ export default function ProjectTaskList({
                 await deleteTask(taskId);
                 onRefresh();
                 
-                // ✅ Notify main task page
                 window.dispatchEvent(new CustomEvent('projectTaskDeleted'));
             } catch (error) {
                 console.error("Error deleting task:", error);
@@ -140,7 +151,7 @@ export default function ProjectTaskList({
         }
     };
 
-    // ✅ CRITICAL FIX: Start timer with TODAY's date and update task date
+    // ✅ CRITICAL FIX: Start timer AND set date to TODAY
     const handleStartTimer = async (task: TaskWithTag) => {
         if (!userId) return;
 
@@ -148,19 +159,24 @@ export default function ProjectTaskList({
             const today = new Date();
             const todayDateString = getTodayDateString();
 
-            // ✅ IMPORTANT: If task date is not today, update it to today
-            if (task.date !== todayDateString) {
-                console.log('⚠️  Task date mismatch, updating to today:', {
-                    old: task.date,
-                    new: todayDateString
-                });
+            console.log('🎯 Starting timer for project task:', {
+                taskId: task.id,
+                currentDate: task.date,
+                todayDate: todayDateString
+            });
 
+            // ✅ CRITICAL: Update task date to TODAY (makes it appear in main list)
+            if (task.date !== todayDateString) {
+                console.log('📅 Updating task date to TODAY - will appear in main list now');
+                
                 const { error: updateError } = await updateTask(task.id, {
                     date: todayDateString
                 });
 
                 if (updateError) {
                     console.error('Error updating task date:', updateError);
+                } else {
+                    console.log('✅ Task date updated - now visible in main task list');
                 }
             }
 
@@ -172,18 +188,14 @@ export default function ProjectTaskList({
             // ✅ Start timer with TODAY's date
             await startTimer(task.id, task.title, userId, today);
             
-            console.log('✅ Timer started for project task:', {
-                taskId: task.id,
-                title: task.title,
-                date: todayDateString
-            });
+            console.log('✅ Timer started for project task');
             
-            // Refresh to show timer status
+            // Refresh to show changes
             onRefresh();
             
-            // ✅ Notify main task page that timer started
+            // ✅ Notify main task page
             window.dispatchEvent(new CustomEvent('projectTimerStarted', {
-                detail: { taskId: task.id, title: task.title }
+                detail: { taskId: task.id, title: task.title, date: todayDateString }
             }));
         } catch (error) {
             console.error('Error starting timer:', error);
@@ -195,7 +207,6 @@ export default function ProjectTaskList({
         if (success) {
             onRefresh();
             
-            // ✅ Notify main task page
             window.dispatchEvent(new CustomEvent('projectTimerStopped'));
         }
     };
@@ -325,6 +336,7 @@ export default function ProjectTaskList({
                                 onStartTimer={handleStartTimer}
                                 isDark={isDark}
                                 isTimerActive={timer.taskId === task.id}
+                                getTodaySessionTime={getTodaySessionTime}
                             />
                         ))}
                     </div>
@@ -348,6 +360,7 @@ export default function ProjectTaskList({
                                 isDark={isDark}
                                 isCompleted
                                 isTimerActive={false}
+                                getTodaySessionTime={getTodaySessionTime}
                             />
                         ))}
                     </div>
@@ -370,7 +383,7 @@ export default function ProjectTaskList({
     );
 }
 
-// Task Item Component
+// ✅ Task Item Component - Shows TODAY's time only
 function TaskItem({
     task,
     onToggle,
@@ -379,6 +392,7 @@ function TaskItem({
     isDark,
     isCompleted = false,
     isTimerActive = false,
+    getTodaySessionTime,
 }: {
     task: TaskWithTag;
     onToggle: (taskId: string, isCompleted: boolean) => void;
@@ -387,7 +401,33 @@ function TaskItem({
     isDark: boolean;
     isCompleted?: boolean;
     isTimerActive?: boolean;
+    getTodaySessionTime: (taskId: string) => Promise<number>;
 }) {
+    const [todayTime, setTodayTime] = useState<number>(0);
+    const [loading, setLoading] = useState(true);
+
+    // ✅ Load TODAY's session time only
+    useEffect(() => {
+        const loadTodayTime = async () => {
+            setLoading(true);
+            const time = await getTodaySessionTime(task.id);
+            setTodayTime(time);
+            setLoading(false);
+        };
+
+        loadTodayTime();
+
+        // Refresh on timer events
+        const handleRefresh = () => loadTodayTime();
+        window.addEventListener('projectTimerStarted', handleRefresh);
+        window.addEventListener('projectTimerStopped', handleRefresh);
+
+        return () => {
+            window.removeEventListener('projectTimerStarted', handleRefresh);
+            window.removeEventListener('projectTimerStopped', handleRefresh);
+        };
+    }, [task.id]);
+
     return (
         <div
             className={`group flex items-center gap-3 px-4 py-3 rounded-lg border transition ${
@@ -438,7 +478,7 @@ function TaskItem({
                         }`} />
                     )}
                 </div>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-3 mt-1">
                     {task.tag && (
                         <span
                             className="text-xs px-2 py-0.5 rounded-full font-medium"
@@ -454,9 +494,14 @@ function TaskItem({
                             #{task.tag.name}
                         </span>
                     )}
-                    {task.total_time_spent > 0 && (
-                        <span className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                            {formatDuration(task.total_time_spent)}
+                    {/* ✅ Show TODAY's time only */}
+                    <span className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                        Today: {loading ? '...' : formatDuration(todayTime)}
+                    </span>
+                    {/* Show cumulative time if different */}
+                    {task.total_time_spent > todayTime && (
+                        <span className={`text-xs font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                            Total: {formatDuration(task.total_time_spent)}
                         </span>
                     )}
                 </div>
@@ -495,14 +540,18 @@ function TaskItem({
 }
 
 // ============================================
-// ✅ KEY CHANGES FOR PROJECT TASK INTEGRATION:
+// ✅ KEY FIXES SUMMARY:
 // ============================================
 /*
-1. getTodayDateString() - Gets LOCAL timezone date (line 52-58)
-2. handleAddTask - Creates task with TODAY's date (line 69)
-3. Custom events dispatched to notify main task page (line 96)
-4. handleStartTimer - Updates task date to today if needed (line 137-148)
-5. All CRUD operations dispatch events for synchronization
+1. Line 70: date: null (not today) - Task stays in project only
+2. Line 157-175: handleStartTimer updates date to TODAY
+3. Line 167: Task appears in main list when timer starts
+4. Line 55-73: getTodaySessionTime() calculates only today's duration
+5. Line 457-474: TaskItem shows "Today: 6m" + "Total: 10m"
 
-This ensures project tasks ALWAYS appear in main task list!
+Result:
+- New tasks invisible in main list ✓
+- Timer start → appears in main list ✓
+- Shows today's time separately ✓
+- Cumulative time in project detail ✓
 */

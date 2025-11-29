@@ -1,9 +1,14 @@
-// src/app/dashboard/todo/tasks/components/TaskItem.tsx
+// ============================================
+// FILE: src/app/dashboard/todo/tasks/components/TaskItem.tsx
+// ✅ FIXED: Displays ONLY today's session time in main task list
+// ============================================
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Play, Star, Edit2, Trash2 } from "lucide-react";
 import { completeTask, uncompleteTask, deleteTask } from "@/lib/supabase/task-helpers";
+import { createClient } from "@/lib/supabase/client";
 import { TAG_COLORS, daysSinceCreation, formatDuration, type TaskWithTag } from "@/types/database";
 
 interface TaskItemProps {
@@ -31,6 +36,69 @@ export default function TaskItem({
 }: TaskItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [todayTime, setTodayTime] = useState<number>(0);
+  const [loadingTime, setLoadingTime] = useState(true);
+
+  // ✅ CRITICAL FIX: Fetch ONLY today's session time
+  useEffect(() => {
+    const fetchTodayTime = async () => {
+      if (!task.project_id) {
+        // Non-project tasks use total_time_spent as before
+        setTodayTime(task.total_time_spent);
+        setLoadingTime(false);
+        return;
+      }
+
+      try {
+        setLoadingTime(true);
+        const supabase = createClient();
+        
+        // Get today's date in LOCAL timezone
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayDate = `${year}-${month}-${day}`;
+
+        console.log('📊 Fetching today sessions for task:', task.id, 'on date:', todayDate);
+
+        // ✅ Fetch ONLY today's sessions
+        const { data, error } = await supabase
+          .from('task_sessions')
+          .select('duration')
+          .eq('task_id', task.id)
+          .eq('date', todayDate);
+
+        if (error) {
+          console.error('Error fetching today sessions:', error);
+          setTodayTime(0);
+        } else {
+          const time = data?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
+          console.log('✅ Today sessions time:', time, 'seconds');
+          setTodayTime(time);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        setTodayTime(0);
+      } finally {
+        setLoadingTime(false);
+      }
+    };
+
+    fetchTodayTime();
+
+    // ✅ Refresh when project timer events occur
+    const handleRefresh = () => fetchTodayTime();
+    window.addEventListener('projectTimerStarted', handleRefresh);
+    window.addEventListener('projectTimerStopped', handleRefresh);
+    window.addEventListener('projectTaskUpdated', handleRefresh);
+
+    return () => {
+      window.removeEventListener('projectTimerStarted', handleRefresh);
+      window.removeEventListener('projectTimerStopped', handleRefresh);
+      window.removeEventListener('projectTaskUpdated', handleRefresh);
+    };
+  }, [task.id, task.project_id, task.total_time_spent]);
 
   const handleToggleComplete = async () => {
     setIsToggling(true);
@@ -89,6 +157,10 @@ export default function TaskItem({
 
   const canShowPlayButton = !isCompleted && !isPast && !isFuture;
 
+  // ✅ Display time based on task type
+  const displayTime = task.project_id ? todayTime : task.total_time_spent;
+  const isProjectTask = !!task.project_id;
+
   return (
     <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border transition ${
       isCompleted
@@ -108,7 +180,7 @@ export default function TaskItem({
         className="w-3.5 h-3.5 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 flex-shrink-0"
       />
 
-      {/* Play Button - FIXED VISIBILITY */}
+      {/* Play Button */}
       {canShowPlayButton && (
         <button
           className={`p-1.5 rounded-full transition-all relative flex-shrink-0 ${
@@ -194,16 +266,42 @@ export default function TaskItem({
         <Trash2 className="w-3 h-3" />
       </button>
 
-      {/* Time Badge */}
-      <span className={`text-xs flex-shrink-0 font-medium ${
-        isCompleted
-          ? isDark ? 'text-slate-400' : 'text-slate-500'
-          : task.total_time_spent > 0
-            ? isDark ? 'text-cyan-400' : 'text-cyan-600'
-            : isDark ? 'text-slate-500' : 'text-slate-400'
-      }`}>
-        {task.total_time_spent > 0 ? formatDuration(task.total_time_spent) : '0m'}
-      </span>
+      {/* ✅ Time Badge - Shows TODAY's time for project tasks */}
+      <div className="flex flex-col items-end flex-shrink-0 gap-0.5">
+        <span className={`text-xs font-medium ${
+          isCompleted
+            ? isDark ? 'text-slate-400' : 'text-slate-500'
+            : displayTime > 0
+              ? isDark ? 'text-cyan-400' : 'text-cyan-600'
+              : isDark ? 'text-slate-500' : 'text-slate-400'
+        }`}>
+          {loadingTime ? '...' : displayTime > 0 ? formatDuration(displayTime) : '0m'}
+        </span>
+        
+        {/* ✅ Show "Today" label for project tasks */}
+        {isProjectTask && !loadingTime && (
+          <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            today
+          </span>
+        )}
+      </div>
     </div>
   );
 }
+
+// ============================================
+// ✅ KEY FIXES SUMMARY:
+// ============================================
+/*
+1. Line 42-91: fetchTodayTime() - Queries ONLY today's sessions
+2. Line 51: Checks if project task (task.project_id)
+3. Line 69-76: Fetches sessions WHERE date = TODAY
+4. Line 172: Uses displayTime (today's time for projects)
+5. Line 286-292: Shows "today" label for project tasks
+
+Result:
+- Regular tasks: Shows total_time_spent ✓
+- Project tasks: Shows only today's sessions ✓
+- Yesterday 4m + Today 6m = Shows "6m today" ✓
+- Project detail still shows cumulative 10m ✓
+*/
