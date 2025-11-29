@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectTaskList.tsx
-// ✅ FIXED: Tasks don't appear in main list until timer starts
+// ✅ FIXED: Task creation now works properly with better error handling
 // ============================================
 
 "use client";
@@ -28,6 +28,7 @@ export default function ProjectTaskList({
     const [isAdding, setIsAdding] = useState(false);
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const [adding, setAdding] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
 
     const { timer, startTimer, stopTimer } = useTimer();
@@ -53,7 +54,7 @@ export default function ProjectTaskList({
         return `${year}-${month}-${day}`;
     };
 
-    // ✅ CRITICAL FIX: Calculate ONLY today's session time
+    // Calculate ONLY today's session time
     const getTodaySessionTime = async (taskId: string): Promise<number> => {
         try {
             const supabase = createClient();
@@ -77,16 +78,38 @@ export default function ProjectTaskList({
         }
     };
 
+    // ✅ CRITICAL FIX: Better error handling and validation
     const handleAddTask = async () => {
-        if (!newTaskTitle.trim() || !userId) return;
+        // Clear previous errors
+        setError(null);
+
+        // Validation
+        if (!newTaskTitle.trim()) {
+            setError("Task title cannot be empty");
+            return;
+        }
+
+        if (!userId) {
+            setError("User not authenticated");
+            return;
+        }
+
+        if (!projectId) {
+            setError("Project ID missing");
+            return;
+        }
 
         setAdding(true);
-        try {
-            console.log('✅ Creating project task with NO date (invisible in main list)');
 
-            // ✅ CRITICAL FIX: Create task with date = NULL
-            // Task will ONLY appear in main list when timer starts
-            const { data, error } = await createTask({
+        try {
+            console.log('✅ Creating project task:', {
+                title: newTaskTitle.trim(),
+                projectId,
+                userId
+            });
+
+            // ✅ CRITICAL FIX: Create task with proper error handling
+            const { data, error: createError } = await createTask({
                 user_id: userId,
                 title: newTaskTitle.trim(),
                 project_id: projectId,
@@ -97,19 +120,38 @@ export default function ProjectTaskList({
                 tag_id: null,
             });
 
-            if (error) {
-                console.error('❌ Error creating task:', error);
-                alert('Failed to create task');
+            if (createError) {
+                console.error('❌ Error creating task:', createError);
+                
+                // ✅ Better error messages
+                if (createError.code === '23503') {
+                    setError('Invalid project or user reference');
+                } else if (createError.code === '23505') {
+                    setError('A task with this name already exists');
+                } else {
+                    setError(createError.message || 'Failed to create task');
+                }
                 return;
             }
 
-            console.log('✅ Task created (stays in project until timer starts):', data);
+            if (!data) {
+                setError('Task creation returned no data');
+                return;
+            }
 
+            console.log('✅ Task created successfully:', data);
+
+            // Success - reset form
             setNewTaskTitle("");
             setIsAdding(false);
+            setError(null);
+            
+            // Refresh task list
             onRefresh();
-        } catch (error) {
-            console.error("Error creating task:", error);
+
+        } catch (err) {
+            console.error("❌ Unexpected error creating task:", err);
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
             setAdding(false);
         }
@@ -131,27 +173,29 @@ export default function ProjectTaskList({
             window.dispatchEvent(new CustomEvent('projectTaskUpdated'));
         } catch (error) {
             console.error("Error toggling task:", error);
+            setError('Failed to update task status');
         }
     };
 
     const handleDeleteTask = async (taskId: string) => {
-        if (confirm("Delete this task?")) {
-            if (timer.taskId === taskId) {
-                await stopTimer();
-            }
+        if (!confirm("Delete this task?")) return;
 
-            try {
-                await deleteTask(taskId);
-                onRefresh();
-                
-                window.dispatchEvent(new CustomEvent('projectTaskDeleted'));
-            } catch (error) {
-                console.error("Error deleting task:", error);
-            }
+        if (timer.taskId === taskId) {
+            await stopTimer();
+        }
+
+        try {
+            await deleteTask(taskId);
+            onRefresh();
+            
+            window.dispatchEvent(new CustomEvent('projectTaskDeleted'));
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            setError('Failed to delete task');
         }
     };
 
-    // ✅ CRITICAL FIX: Start timer AND set date to TODAY
+    // ✅ Start timer AND set date to TODAY
     const handleStartTimer = async (task: TaskWithTag) => {
         if (!userId) return;
 
@@ -165,9 +209,9 @@ export default function ProjectTaskList({
                 todayDate: todayDateString
             });
 
-            // ✅ CRITICAL: Update task date to TODAY (makes it appear in main list)
+            // ✅ Update task date to TODAY if needed
             if (task.date !== todayDateString) {
-                console.log('📅 Updating task date to TODAY - will appear in main list now');
+                console.log('📅 Updating task date to TODAY');
                 
                 const { error: updateError } = await updateTask(task.id, {
                     date: todayDateString
@@ -175,8 +219,8 @@ export default function ProjectTaskList({
 
                 if (updateError) {
                     console.error('Error updating task date:', updateError);
-                } else {
-                    console.log('✅ Task date updated - now visible in main task list');
+                    setError('Failed to update task date');
+                    return;
                 }
             }
 
@@ -185,29 +229,34 @@ export default function ProjectTaskList({
                 await stopTimer();
             }
 
-            // ✅ Start timer with TODAY's date
+            // Start timer
             await startTimer(task.id, task.title, userId, today);
             
-            console.log('✅ Timer started for project task');
+            console.log('✅ Timer started');
             
-            // Refresh to show changes
             onRefresh();
             
-            // ✅ Notify main task page
             window.dispatchEvent(new CustomEvent('projectTimerStarted', {
                 detail: { taskId: task.id, title: task.title, date: todayDateString }
             }));
         } catch (error) {
             console.error('Error starting timer:', error);
+            setError('Failed to start timer');
         }
     };
 
     const handleStopTimer = async () => {
-        const success = await stopTimer();
-        if (success) {
-            onRefresh();
-            
-            window.dispatchEvent(new CustomEvent('projectTimerStopped'));
+        try {
+            const success = await stopTimer();
+            if (success) {
+                onRefresh();
+                window.dispatchEvent(new CustomEvent('projectTimerStopped'));
+            } else {
+                setError('Failed to stop timer');
+            }
+        } catch (error) {
+            console.error('Error stopping timer:', error);
+            setError('Failed to stop timer');
         }
     };
 
@@ -259,6 +308,23 @@ export default function ProjectTaskList({
                 </div>
             )}
 
+            {/* Error Display */}
+            {error && (
+                <div className={`rounded-lg border p-3 flex items-center justify-between ${
+                    isDark 
+                        ? 'bg-red-900/20 border-red-800 text-red-400' 
+                        : 'bg-red-50 border-red-200 text-red-700'
+                }`}>
+                    <span className="text-sm">{error}</span>
+                    <button
+                        onClick={() => setError(null)}
+                        className="text-sm underline"
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
+
             {/* Add Task Section */}
             <div>
                 {!isAdding ? (
@@ -283,24 +349,26 @@ export default function ProjectTaskList({
                                 value={newTaskTitle}
                                 onChange={(e) => setNewTaskTitle(e.target.value)}
                                 onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleAddTask();
+                                    if (e.key === 'Enter' && !adding) handleAddTask();
                                     if (e.key === 'Escape') {
                                         setIsAdding(false);
                                         setNewTaskTitle("");
+                                        setError(null);
                                     }
                                 }}
                                 placeholder="Task title..."
                                 autoFocus
+                                disabled={adding}
                                 className={`flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                                     isDark
                                         ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400'
                                         : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-                                }`}
+                                } disabled:opacity-50`}
                             />
                             <button
                                 onClick={handleAddTask}
                                 disabled={adding || !newTaskTitle.trim()}
-                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {adding ? "Adding..." : "Add"}
                             </button>
@@ -308,10 +376,12 @@ export default function ProjectTaskList({
                                 onClick={() => {
                                     setIsAdding(false);
                                     setNewTaskTitle("");
+                                    setError(null);
                                 }}
+                                disabled={adding}
                                 className={`p-2 rounded-lg transition ${
                                     isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
-                                }`}
+                                } disabled:opacity-50`}
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -383,7 +453,7 @@ export default function ProjectTaskList({
     );
 }
 
-// ✅ Task Item Component - Shows TODAY's time only
+// Task Item Component
 function TaskItem({
     task,
     onToggle,
@@ -406,7 +476,6 @@ function TaskItem({
     const [todayTime, setTodayTime] = useState<number>(0);
     const [loading, setLoading] = useState(true);
 
-    // ✅ Load TODAY's session time only
     useEffect(() => {
         const loadTodayTime = async () => {
             setLoading(true);
@@ -417,7 +486,6 @@ function TaskItem({
 
         loadTodayTime();
 
-        // Refresh on timer events
         const handleRefresh = () => loadTodayTime();
         window.addEventListener('projectTimerStarted', handleRefresh);
         window.addEventListener('projectTimerStopped', handleRefresh);
@@ -494,11 +562,9 @@ function TaskItem({
                             #{task.tag.name}
                         </span>
                     )}
-                    {/* ✅ Show TODAY's time only */}
                     <span className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         Today: {loading ? '...' : formatDuration(todayTime)}
                     </span>
-                    {/* Show cumulative time if different */}
                     {task.total_time_spent > todayTime && (
                         <span className={`text-xs font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>
                             Total: {formatDuration(task.total_time_spent)}
@@ -538,20 +604,3 @@ function TaskItem({
         </div>
     );
 }
-
-// ============================================
-// ✅ KEY FIXES SUMMARY:
-// ============================================
-/*
-1. Line 70: date: null (not today) - Task stays in project only
-2. Line 157-175: handleStartTimer updates date to TODAY
-3. Line 167: Task appears in main list when timer starts
-4. Line 55-73: getTodaySessionTime() calculates only today's duration
-5. Line 457-474: TaskItem shows "Today: 6m" + "Total: 10m"
-
-Result:
-- New tasks invisible in main list ✓
-- Timer start → appears in main list ✓
-- Shows today's time separately ✓
-- Cumulative time in project detail ✓
-*/
