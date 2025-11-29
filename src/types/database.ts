@@ -1225,3 +1225,26 @@ export interface MorningRoutineEntry {
   custom_fields?: Record<string, string | number | boolean>;
   morning_streak?: number;
 }
+
+// ============================================
+// EVENING ROUTINE TYPES
+// ============================================
+
+export interface EveningRoutineEntry {
+  id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  shutdown_time?: string | null; // HH:mm
+  screen_time: number; // minutes
+  reading_time: number; // minutes
+  reflection_rating: number; // 1-10
+  tomorrow_top_3?: string | null;
+  gratitude_1?: string | null;
+  gratitude_2?: string | null;
+  gratitude_3?: string | null;
+  notes?: string | null;
+  custom_fields?: Record<string, string | number | boolean>;
+  evening_streak?: number;
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}

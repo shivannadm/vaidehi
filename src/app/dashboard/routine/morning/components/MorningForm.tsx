@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Activity, Target, StickyNote, Heart, Plus, X } from "lucide-react";
+import { Clock, Activity, Target, StickyNote, Heart, Plus, X, Sunrise, CheckCircle } from "lucide-react";
 import type { MorningRoutineEntry } from "@/types/database";
 
 interface MorningFormProps {
@@ -185,6 +185,76 @@ export default function MorningForm({
                         <span className="text-green-500">Energized!</span>
                     </div>
                 </div>
+
+                {/* 3 Things This Day Started With */}
+                <div className={`p-5 rounded-xl border ${isDark ? "bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-700/50" : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"}`}>
+                    <h3 className={`font-bold text-lg mb-4 flex items-center gap-2 ${isDark ? "text-indigo-300" : "text-indigo-700"}`}>
+                        <Sunrise className="w-5 h-5" />
+                        3 Things This Day Started With
+                    </h3>
+
+                    <div className="space-y-3">
+                        <div className="relative">
+                            <div className="absolute left-3 top-3">
+                                <CheckCircle className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-500"}`} />
+                            </div>
+                            <input
+                                type="text"
+                                value={(entry.custom_fields as any)?.morning_intention_1 || ""}
+                                onChange={(e) => onUpdate("custom_fields", {
+                                    ...(entry.custom_fields || {}),
+                                    morning_intention_1: e.target.value
+                                })}
+                                placeholder="1. My main focus/intention for today is..."
+                                disabled={saving}
+                                className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
+                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    }`}
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <div className="absolute left-3 top-3">
+                                <Heart className={`w-5 h-5 ${isDark ? "text-pink-400" : "text-pink-500"}`} />
+                            </div>
+                            <input
+                                type="text"
+                                value={(entry.custom_fields as any)?.morning_intention_2 || ""}
+                                onChange={(e) => onUpdate("custom_fields", {
+                                    ...(entry.custom_fields || {}),
+                                    morning_intention_2: e.target.value
+                                })}
+                                placeholder="2. One person I want to connect with..."
+                                disabled={saving}
+                                className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
+                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    }`}
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <div className="absolute left-3 top-3">
+                                <Target className={`w-5 h-5 ${isDark ? "text-amber-400" : "text-amber-500"}`} />
+                            </div>
+                            <input
+                                type="text"
+                                value={(entry.custom_fields as any)?.morning_intention_3 || ""}
+                                onChange={(e) => onUpdate("custom_fields", {
+                                    ...(entry.custom_fields || {}),
+                                    morning_intention_3: e.target.value
+                                })}
+                                placeholder="3. Something that will make today great..."
+                                disabled={saving}
+                                className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
+                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    }`}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* ===== CUSTOM FIELDS SECTION ===== */}
@@ -193,60 +263,64 @@ export default function MorningForm({
                     Custom Habits
                 </h3>
 
-                {Object.entries(entry.custom_fields || {}).length === 0 ? (
+                {Object.entries(entry.custom_fields || {}).filter(([key]) => 
+                    !key.startsWith('morning_intention_')
+                ).length === 0 ? (
                     <p className={`text-center py-6 ${isDark ? "text-slate-500" : "text-slate-400"} italic`}>
                         No custom habits yet. Add one below
                     </p>
                 ) : (
                     <div className="space-y-3 mb-6">
-                        {Object.entries(entry.custom_fields || {}).map(([key, value]) => (
-                            <div
-                                key={key}
-                                className={`flex items-center justify-between p-4 rounded-xl ${isDark ? "bg-slate-700/60" : "bg-slate-100"
-                                    }`}
-                            >
-                                <span className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>
-                                    {key}
-                                </span>
+                        {Object.entries(entry.custom_fields || {})
+                            .filter(([key]) => !key.startsWith('morning_intention_'))
+                            .map(([key, value]) => (
+                                <div
+                                    key={key}
+                                    className={`flex items-center justify-between p-4 rounded-xl ${isDark ? "bg-slate-700/60" : "bg-slate-100"
+                                        }`}
+                                >
+                                    <span className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>
+                                        {key}
+                                    </span>
 
-                                <div className="flex items-center gap-3">
-                                    {typeof value === "boolean" ? (
+                                    <div className="flex items-center gap-3">
+                                        {typeof value === "boolean" ? (
+                                            <button
+                                                onClick={() => updateCustomField(key, !value)}
+                                                className={`px-5 py-2 rounded-full font-medium transition ${value
+                                                        ? "bg-green-600 text-white"
+                                                        : "bg-slate-600 text-slate-300"
+                                                    }`}
+                                            >
+                                                {value ? "Done" : "Not Yet"}
+                                            </button>
+                                        ) : (
+                                            <input
+                                                type={typeof value === "number" ? "number" : "text"}
+                                                value={value}
+                                                onChange={(e) => {
+                                                    const val =
+                                                        typeof value === "number"
+                                                            ? parseFloat(e.target.value) || 0
+                                                            : e.target.value;
+                                                    updateCustomField(key, val);
+                                                }}
+                                                className={`w-28 px-4 py-2 rounded-lg border text-center font-medium ${isDark
+                                                        ? "bg-slate-800 border-slate-600 text-white"
+                                                        : "bg-white border-slate-300 text-slate-900"
+                                                    }`}
+                                            />
+                                        )}
+
                                         <button
-                                            onClick={() => updateCustomField(key, !value)}
-                                            className={`px-5 py-2 rounded-full font-medium transition ${value
-                                                    ? "bg-green-600 text-white"
-                                                    : "bg-slate-600 text-slate-300"
-                                                }`}
+                                            onClick={() => removeCustomField(key)}
+                                            className="text-red-400 hover:text-red-300 transition"
                                         >
-                                            {value ? "Done" : "Not Yet"}
+                                            <X className="w-5 h-5" />
                                         </button>
-                                    ) : (
-                                        <input
-                                            type={typeof value === "number" ? "number" : "text"}
-                                            value={value}
-                                            onChange={(e) => {
-                                                const val =
-                                                    typeof value === "number"
-                                                        ? parseFloat(e.target.value) || 0
-                                                        : e.target.value;
-                                                updateCustomField(key, val);
-                                            }}
-                                            className={`w-28 px-4 py-2 rounded-lg border text-center font-medium ${isDark
-                                                    ? "bg-slate-800 border-slate-600 text-white"
-                                                    : "bg-white border-slate-300 text-slate-900"
-                                                }`}
-                                        />
-                                    )}
-
-                                    <button
-                                        onClick={() => removeCustomField(key)}
-                                        className="text-red-400 hover:text-red-300 transition"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 )}
 
