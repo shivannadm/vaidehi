@@ -265,7 +265,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Key Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Key Notes'}
-                onClick={() => onItemClick('Key Notes', 'routine')}
+                onClick={() => handleNavigation('Key Notes', 'routine', '/dashboard/routine/key-notes')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -273,7 +273,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Progress"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Progress'}
-                onClick={() => onItemClick('Progress', 'routine')}
+                onClick={() => handleNavigation('Progress', 'routine','/dashboard/routine/progress')}
                 isLight={isLight}
               />
             </div>
