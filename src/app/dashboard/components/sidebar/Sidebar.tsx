@@ -249,7 +249,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Health"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Health'}
-                onClick={() => onItemClick('Health', 'routine')}
+                onClick={() => handleNavigation('Health', 'routine', '/dashboard/routine/health')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -257,7 +257,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Habits"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Habits'}
-                onClick={() => onItemClick('Habits', 'routine')}
+                onClick={() => handleNavigation('Habits', 'routine', '/dashboard/routine/habits')}
                 isLight={isLight}
               />
               <SidebarItem

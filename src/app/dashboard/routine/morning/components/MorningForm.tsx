@@ -205,7 +205,7 @@ export default function MorningForm({
                                     ...(entry.custom_fields || {}),
                                     morning_intention_1: e.target.value
                                 })}
-                                placeholder="1. My main focus/intention for today is..."
+                                placeholder="1. My main focus/intention for today is... or you're own version"
                                 disabled={saving}
                                 className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
                                         ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
@@ -225,7 +225,7 @@ export default function MorningForm({
                                     ...(entry.custom_fields || {}),
                                     morning_intention_2: e.target.value
                                 })}
-                                placeholder="2. One person I want to connect with..."
+                                placeholder="2. One person I want to connect with... or you're own version"
                                 disabled={saving}
                                 className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
                                         ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
@@ -245,7 +245,7 @@ export default function MorningForm({
                                     ...(entry.custom_fields || {}),
                                     morning_intention_3: e.target.value
                                 })}
-                                placeholder="3. Something that will make today great..."
+                                placeholder="3. Something that will make today great... or you're own version"
                                 disabled={saving}
                                 className={`w-full pl-11 pr-4 py-3 rounded-lg border text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
                                         ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"

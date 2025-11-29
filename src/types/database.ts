@@ -1248,3 +1248,67 @@ export interface EveningRoutineEntry {
   created_at: string; // ISO timestamp
   updated_at: string; // ISO timestamp
 }
+
+// ============================================
+// HEALTH TRACKING TYPES
+// ============================================
+
+export interface HealthEntry {
+  id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  
+  // Sleep Tracking
+  sleep_start?: string | null; // HH:mm
+  sleep_end?: string | null; // HH:mm
+  sleep_quality: number; // 1-10
+  sleep_notes?: string | null;
+  
+  // Hydration
+  water_intake: number; // in ml
+  
+  // Nutrition
+  meals_logged: number; // 0-5 meals
+  protein_intake?: number | null; // grams
+  calories_intake?: number | null;
+  diet_quality: number; // 1-10 rating
+  
+  // Physical Activity
+  steps_count?: number | null;
+  active_minutes: number; // cardio/exercise minutes
+  workout_type?: string | null;
+  
+  // Vitals & Recovery
+  resting_heart_rate?: number | null; // BPM
+  heart_rate_variability?: number | null; // ms
+  recovery_score: number; // 1-10
+  stress_level: number; // 1-10
+  
+  // Mental Wellness
+  meditation_minutes: number;
+  mood_rating: number; // 1-10
+  anxiety_level: number; // 1-10
+  
+  // Body Metrics
+  weight?: number | null; // kg
+  body_temperature?: number | null; // celsius
+  blood_pressure_systolic?: number | null;
+  blood_pressure_diastolic?: number | null;
+  
+  // Habits & Lifestyle
+  screen_time_limit_met: boolean;
+  alcohol_units?: number | null;
+  caffeine_intake?: number | null; // mg
+  smoking_avoided: boolean;
+  
+  // Notes
+  symptoms?: string | null;
+  achievements?: string | null;
+  notes?: string | null;
+  
+  // Streak
+  health_streak?: number;
+  
+  created_at: string;
+  updated_at: string;
+}
