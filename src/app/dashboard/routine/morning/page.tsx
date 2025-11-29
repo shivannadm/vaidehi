@@ -103,7 +103,7 @@ export default function MorningPage() {
   }
 
   return (
-    <div className={`space-y-6 p-6 ${isDark ? 'text-white bg-slate-900 min-h-screen' : 'text-slate-900 bg-slate-50 min-h-screen'}`}>
+    <div className={`space-y-6 p-6 max-w-7xl mx-auto space-y-5 ${isDark ? 'text-white bg-slate-900 min-h-screen' : 'text-slate-900 bg-slate-50 min-h-screen'}`}>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           Morning Routine

@@ -207,7 +207,7 @@ export default function DailyHighlightsPage() {
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       {/* Optimized Container - Fits Working Area */}
       <div className="h-full overflow-y-auto p-4 md:p-6">
-        <div className="max-w-6xl mx-auto space-y-5">
+        <div className="max-w-7xl mx-auto space-y-5">
 
           {/* Compact Header */}
           <div className="flex items-center justify-between">
