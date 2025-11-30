@@ -103,7 +103,7 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
               </div>
 
               {/* Heatmap Grid - Last 30 days */}
-              <div className="grid grid-cols-30 gap-1">
+              <div className="grid grid-cols-20 gap-0">
                 {habit.completions.slice(-30).map((completion, index) => {
                   const opacity = completion.completed ? 1 : 0.15;
                   return (

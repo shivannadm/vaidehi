@@ -275,7 +275,7 @@ export default function FocusGoalCalendar({
                       cy="18"
                       r="16"
                       fill="none"
-                      stroke={goalMet ? "#ef4444" : "#f59e0b"}
+                      stroke={goalMet ? "#ef4444" : "#ff6900"}
                       strokeWidth="2.5"
                       strokeDasharray={`${percentage}, 100`}
                       strokeLinecap="round"
@@ -413,7 +413,7 @@ export default function FocusGoalCalendar({
                 <span
                   className={`font-bold ${
                     selectedDayData.goalMet
-                      ? "text-red-500"
+                      ? "text-green-500"
                       : "text-orange-500"
                   }`}
                 >

@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/lib/utils/exportUtils.ts
-// ✅ FINAL FIX: Remove ALL borders during capture
+// ✅ HIGH QUALITY: 2x resolution screenshot
 // ============================================
 
 import domtoimage from 'dom-to-image-more';
@@ -36,14 +36,14 @@ export interface ReportData {
 }
 
 // ============================================
-// SCREENSHOT - REMOVE ALL BORDERS
+// SCREENSHOT - HIGH QUALITY (2x Resolution)
 // ============================================
 
 export async function captureFullPageScreenshot(
   elementId: string,
   options: ScreenshotOptions
 ): Promise<void> {
-  console.log('📸 Starting clean screenshot (removing borders)...');
+  console.log('📸 Starting high-quality screenshot...');
   
   try {
     const element = document.getElementById(elementId);
@@ -51,7 +51,7 @@ export async function captureFullPageScreenshot(
       throw new Error(`Element "${elementId}" not found`);
     }
 
-    // ✅ CRITICAL FIX: Temporarily hide all borders
+    // ✅ Temporarily hide all borders
     const style = document.createElement('style');
     style.id = 'screenshot-border-fix';
     style.innerHTML = `
@@ -70,31 +70,37 @@ export async function captureFullPageScreenshot(
     document.head.appendChild(style);
 
     console.log('📸 Borders hidden, waiting for render...');
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 400));
 
-    console.log('📸 Capturing element...');
+    console.log('📸 Capturing with dom-to-image (high quality)...');
 
+    // ✅ INCREASED QUALITY: 2x resolution
     const dataUrl = await domtoimage.toPng(element, {
-      quality: 1,
+      quality: 1.0,
       bgcolor: '#0f172a',
       cacheBust: true,
+      width: element.scrollWidth * 2, // ✅ Double width
+      height: element.scrollHeight * 2, // ✅ Double height
       style: {
-        transform: 'scale(1)',
+        transform: 'scale(2)', // ✅ Scale up 2x
         transformOrigin: 'top left',
+        width: element.scrollWidth + 'px',
+        height: element.scrollHeight + 'px',
       }
     });
 
-    // ✅ Remove the temporary style
+    // Remove temporary style
     document.head.removeChild(style);
 
-    console.log('✅ Image captured, adding watermark...');
+    console.log('✅ High-quality image captured, adding watermark...');
 
-    // Create image and add watermark
+    // Add watermark
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement('canvas');
+      const watermarkHeight = 160; // ✅ Scaled for 2x
       canvas.width = img.width;
-      canvas.height = img.height + 80;
+      canvas.height = img.height + watermarkHeight;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {
@@ -106,25 +112,25 @@ export async function captureFullPageScreenshot(
 
       // Watermark background with gradient
       const watermarkY = img.height;
-      const gradient = ctx.createLinearGradient(0, watermarkY, 0, watermarkY + 80);
+      const gradient = ctx.createLinearGradient(0, watermarkY, 0, watermarkY + watermarkHeight);
       gradient.addColorStop(0, 'rgba(15, 23, 42, 0.98)');
       gradient.addColorStop(1, 'rgba(15, 23, 42, 1)');
       
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, watermarkY, canvas.width, 80);
+      ctx.fillRect(0, watermarkY, canvas.width, watermarkHeight);
 
-      // App name (larger, bold)
+      // App name (scaled for 2x)
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 24px system-ui, -apple-system, Arial, sans-serif';
+      ctx.font = 'bold 48px system-ui, -apple-system, Arial, sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(options.appName, 40, watermarkY + 32);
+      ctx.fillText(options.appName, 80, watermarkY + 64);
 
-      // Username (below app name)
-      ctx.font = '17px system-ui, -apple-system, Arial, sans-serif';
+      // Username (scaled for 2x)
+      ctx.font = '34px system-ui, -apple-system, Arial, sans-serif';
       ctx.fillStyle = '#94a3b8';
-      ctx.fillText(options.username, 40, watermarkY + 58);
+      ctx.fillText(options.username, 80, watermarkY + 116);
 
-      // Date (right side, top)
+      // Date (right side, scaled for 2x)
       const date = new Date().toLocaleDateString('en-US', {
         weekday: 'short',
         year: 'numeric',
@@ -133,17 +139,17 @@ export async function captureFullPageScreenshot(
       });
       ctx.textAlign = 'right';
       ctx.fillStyle = '#cbd5e1';
-      ctx.font = 'bold 17px system-ui, -apple-system, Arial, sans-serif';
-      ctx.fillText(date, canvas.width - 40, watermarkY + 32);
+      ctx.font = 'bold 34px system-ui, -apple-system, Arial, sans-serif';
+      ctx.fillText(date, canvas.width - 80, watermarkY + 64);
 
-      // Time (right side, below date)
+      // Time (right side, scaled for 2x)
       const time = new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit',
       });
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '15px system-ui, -apple-system, Arial, sans-serif';
-      ctx.fillText(time, canvas.width - 40, watermarkY + 58);
+      ctx.font = '30px system-ui, -apple-system, Arial, sans-serif';
+      ctx.fillText(time, canvas.width - 80, watermarkY + 116);
 
       // Download
       canvas.toBlob((blob) => {
@@ -161,7 +167,7 @@ export async function captureFullPageScreenshot(
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        console.log('✅ Clean screenshot downloaded!');
+        console.log('✅ High-quality screenshot downloaded!');
       }, 'image/png', 1.0);
     };
 
@@ -413,18 +419,18 @@ export async function generatePDFReport(data: ReportData): Promise<void> {
 }
 
 // ============================================
-// ✅ CRITICAL FIX EXPLANATION:
+// ✅ HIGH QUALITY UPGRADE:
 // ============================================
 /*
-The grid lines you saw were from Tailwind's border classes on your
-card components (border, border-slate-700, etc.).
+CHANGES MADE:
+1. Line 84-89: Doubled canvas dimensions (width/height * 2)
+2. Line 88: Added scale(2) transform for 2x resolution
+3. Line 119-154: Scaled all watermark text by 2x
+   - App name: 24px → 48px
+   - Username: 17px → 34px  
+   - Date: 17px → 34px
+   - Time: 15px → 30px
+4. Line 96: Watermark height: 80px → 160px
 
-SOLUTION:
-1. Inject temporary <style> tag that removes ALL borders
-2. Wait 300ms for browser to re-render
-3. Capture the clean image
-4. Remove the temporary style
-5. Page returns to normal with borders
-
-This gives you a clean screenshot without affecting the actual UI!
+RESULT: Crystal clear 2x resolution screenshots!
 */
