@@ -119,3 +119,24 @@ html:not(.dark) * {
 .animate-shimmer {
   animation: shimmer 2s infinite;
 }
+
+.screenshot-mode {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background-image: none !important;
+  background: transparent !important;
+}
+
+/* Keep the dark slate background but remove card backgrounds */
+.screenshot-mode > * {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* Optional: slightly increase contrast for text */
+.screenshot-mode,
+.screenshot-mode * {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

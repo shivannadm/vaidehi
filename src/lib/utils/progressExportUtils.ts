@@ -1,9 +1,9 @@
 // ============================================
 // FILE: src/lib/utils/progressExportUtils.ts
-// Purpose: Export utilities for Routine Progress Dashboard
+// ✅ FIXED: High quality + Dynamic username
 // ============================================
 
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import jsPDF from 'jspdf';
 
 // ============================================
@@ -44,89 +44,160 @@ export interface ProgressReportData {
 }
 
 // ============================================
-// SCREENSHOT - VISIBLE VIEWPORT ONLY
+// SCREENSHOT - HIGH QUALITY
 // ============================================
 
 export async function captureProgressScreenshot(
   elementId: string = 'progress-dashboard-content',
   options?: ProgressScreenshotOptions
 ): Promise<void> {
+  console.log('📸 Starting high-quality progress screenshot...');
+  
   try {
     const element = document.getElementById(elementId);
     if (!element) {
-      throw new Error(`Element with id "${elementId}" not found`);
+      throw new Error(`Element "${elementId}" not found`);
     }
 
-    console.log('📸 Capturing Progress Dashboard screenshot...');
+    // ✅ Temporarily hide all borders
+    const style = document.createElement('style');
+    style.id = 'screenshot-border-fix';
+    style.innerHTML = `
+      #${elementId} * {
+        border: none !important;
+        outline: none !important;
+      }
+      #${elementId} .border,
+      #${elementId} .border-t,
+      #${elementId} .border-b,
+      #${elementId} .border-l,
+      #${elementId} .border-r {
+        border: none !important;
+      }
+    `;
+    document.head.appendChild(style);
 
-    const canvas = await html2canvas(element, {
-      logging: false,
-      useCORS: true,
-      allowTaint: true,
-      scale: 1,
-      backgroundColor: document.documentElement.classList.contains('dark') 
-        ? '#0f172a' 
-        : '#f8fafc',
-      windowWidth: element.offsetWidth,
-      windowHeight: element.offsetHeight,
+    console.log('📸 Borders hidden, waiting for render...');
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    console.log('📸 Capturing with dom-to-image (high quality)...');
+
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // ✅ INCREASED QUALITY SETTINGS
+    const dataUrl = await domtoimage.toPng(element, {
+      quality: 1.0, // Maximum quality
+      bgcolor: isDark ? '#0f172a' : '#f8fafc',
+      cacheBust: true,
+      width: element.scrollWidth * 2, // ✅ Double width for higher resolution
+      height: element.scrollHeight * 2, // ✅ Double height
+      style: {
+        transform: 'scale(2)', // ✅ Scale up 2x
+        transformOrigin: 'top left',
+        width: element.scrollWidth + 'px',
+        height: element.scrollHeight + 'px',
+      }
     });
 
-    console.log('✅ Canvas captured successfully');
+    // Remove temporary style
+    document.head.removeChild(style);
 
-    // Add watermark (optional)
-    if (options) {
+    console.log('✅ High-quality image captured, adding watermark...');
+
+    // Add watermark
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const watermarkHeight = 160; // ✅ Scaled for 2x
+      canvas.width = img.width;
+      canvas.height = img.height + watermarkHeight;
+
       const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const watermarkHeight = 60;
-        
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-        ctx.fillRect(0, canvas.height - watermarkHeight, canvas.width, watermarkHeight);
+      if (!ctx) {
+        throw new Error('Canvas context not available');
+      }
 
+      // Draw original image
+      ctx.drawImage(img, 0, 0);
+
+      // Watermark background
+      const watermarkY = img.height;
+      const gradient = ctx.createLinearGradient(0, watermarkY, 0, watermarkY + watermarkHeight);
+      gradient.addColorStop(0, 'rgba(15, 23, 42, 0.98)');
+      gradient.addColorStop(1, 'rgba(15, 23, 42, 1)');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, watermarkY, canvas.width, watermarkHeight);
+
+      if (options) {
+        // App name (scaled for 2x)
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 20px Arial, sans-serif';
+        ctx.font = 'bold 48px system-ui, -apple-system, Arial, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(options.appName, 25, canvas.height - 35);
+        ctx.fillText(options.appName, 80, watermarkY + 64);
 
-        ctx.font = '15px Arial, sans-serif';
+        // Username (scaled for 2x)
+        ctx.font = '34px system-ui, -apple-system, Arial, sans-serif';
         ctx.fillStyle = '#94a3b8';
-        ctx.fillText(options.username, 25, canvas.height - 15);
+        ctx.fillText(options.username, 80, watermarkY + 116);
 
+        // Date (scaled for 2x)
         const date = new Date().toLocaleDateString('en-US', {
+          weekday: 'short',
           year: 'numeric',
-          month: 'long',
+          month: 'short',
           day: 'numeric',
         });
         ctx.textAlign = 'right';
         ctx.fillStyle = '#cbd5e1';
-        ctx.font = '14px Arial, sans-serif';
-        ctx.fillText(date, canvas.width - 25, canvas.height - 25);
+        ctx.font = 'bold 34px system-ui, -apple-system, Arial, sans-serif';
+        ctx.fillText(date, canvas.width - 80, watermarkY + 64);
+
+        // Time (scaled for 2x)
+        const time = new Date().toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '30px system-ui, -apple-system, Arial, sans-serif';
+        ctx.fillText(time, canvas.width - 80, watermarkY + 116);
       }
-    }
 
-    console.log('✅ Watermark added, downloading...');
+      // Download
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          throw new Error('Failed to create blob');
+        }
 
-    // Download
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        throw new Error('Failed to create image');
-      }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.download = `routine-progress-${timestamp}.png`;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const timestamp = new Date().toISOString().split('T')[0];
-      link.download = `routine-progress-${timestamp}.png`;
-      link.href = url;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-      
-      console.log('✅ Progress screenshot saved!');
-    }, 'image/png', 0.92);
+        console.log('✅ High-quality progress screenshot saved!');
+      }, 'image/png', 1.0);
+    };
+
+    img.onerror = () => {
+      // Remove style if error
+      const styleEl = document.getElementById('screenshot-border-fix');
+      if (styleEl) document.head.removeChild(styleEl);
+      throw new Error('Failed to load captured image');
+    };
+
+    img.src = dataUrl;
     
-  } catch (error) {
-    console.error('❌ Screenshot error:', error);
+  } catch (error: any) {
+    // Cleanup on error
+    const styleEl = document.getElementById('screenshot-border-fix');
+    if (styleEl) document.head.removeChild(styleEl);
+    
+    console.error('❌ Screenshot failed:', error);
     throw error;
   }
 }
@@ -144,10 +215,8 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
     const leftMargin = 15;
     const rightMargin = pageWidth - 15;
 
-    // ============================================
-    // HEADER
-    // ============================================
-    doc.setFillColor(139, 92, 246); // Purple theme for routine
+    // Header
+    doc.setFillColor(139, 92, 246);
     doc.rect(0, 0, pageWidth, 45, 'F');
 
     doc.setTextColor(255, 255, 255);
@@ -159,6 +228,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
     doc.setFont('helvetica', 'normal');
     doc.text('Routine Progress Report', leftMargin, 32);
 
+    // ✅ Username on right side
     doc.setFontSize(11);
     const date = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
@@ -173,9 +243,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
     yPos = 55;
     doc.setTextColor(0, 0, 0);
 
-    // ============================================
-    // OVERVIEW STATISTICS
-    // ============================================
+    // Overview Statistics
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(139, 92, 246);
@@ -214,9 +282,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
 
     yPos += 12;
 
-    // ============================================
-    // WELLNESS METRICS
-    // ============================================
+    // Wellness Metrics
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(139, 92, 246);
@@ -251,9 +317,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
 
     yPos += 12;
 
-    // ============================================
-    // WEEKLY SUMMARY
-    // ============================================
+    // Weekly Summary
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(139, 92, 246);
@@ -309,9 +373,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
 
     yPos += 15;
 
-    // ============================================
-    // INSIGHTS
-    // ============================================
+    // Key Insights
     if (yPos > pageHeight - 60) {
       doc.addPage();
       yPos = 20;
@@ -334,7 +396,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
       `Keep building these healthy habits for long-term success!`,
     ];
 
-    insights.forEach((insight, i) => {
+    insights.forEach((insight) => {
       const lines = doc.splitTextToSize(`- ${insight}`, pageWidth - 2 * leftMargin);
       lines.forEach((line: string) => {
         if (yPos > pageHeight - 20) {
@@ -347,9 +409,7 @@ export async function generateProgressPDF(data: ProgressReportData): Promise<voi
       yPos += 3;
     });
 
-    // ============================================
-    // FOOTER
-    // ============================================
+    // Footer
     const footerY = pageHeight - 12;
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);

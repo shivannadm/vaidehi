@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/trends/page.tsx
-// ✅ FIXED: Better error handling for exports
+// ✅ WITH DETAILED ERROR DIAGNOSTICS
 // ============================================
 
 "use client";
@@ -27,7 +27,6 @@ export default function TrendsPage() {
   const [isDark, setIsDark] = useState(true);
   const [exporting, setExporting] = useState(false);
   
-  // ✅ Toast notification state
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -83,23 +82,38 @@ export default function TrendsPage() {
     return () => observer.disconnect();
   }, []);
 
-  // ✅ Auto-hide notifications
   useEffect(() => {
     if (notification) {
-      const timer = setTimeout(() => setNotification(null), 4000);
+      const timer = setTimeout(() => setNotification(null), 5000);
       return () => clearTimeout(timer);
     }
   }, [notification]);
 
   // ============================================
-  // EXPORT HANDLERS (IMPROVED)
+  // SCREENSHOT HANDLER WITH DETAILED DIAGNOSTICS
   // ============================================
 
   const handleScreenshot = async () => {
+    console.log('🚀 Screenshot button clicked');
+    
     setExporting(true);
-    setNotification({ type: 'success', message: 'Capturing screenshot...' });
+    setNotification({ type: 'success', message: '📸 Starting screenshot capture...' });
     
     try {
+      // Check if element exists
+      const element = document.getElementById('trends-dashboard-content');
+      if (!element) {
+        throw new Error('Dashboard element not found! Check the ID.');
+      }
+      
+      console.log('✅ Element found:', element);
+      console.log('Element dimensions:', {
+        width: element.offsetWidth,
+        height: element.offsetHeight,
+        scrollHeight: element.scrollHeight,
+      });
+
+      // Call the screenshot function
       await captureFullPageScreenshot('trends-dashboard-content', {
         username: userName,
         appName: APP_NAME,
@@ -107,18 +121,38 @@ export default function TrendsPage() {
       
       setNotification({ 
         type: 'success', 
-        message: '✅ Screenshot saved successfully!' 
+        message: '✅ Screenshot saved! Check your downloads folder.' 
       });
-    } catch (error) {
-      console.error('Screenshot failed:', error);
+      
+    } catch (error: any) {
+      console.error('❌ Screenshot error:', error);
+      
+      // Detailed error message
+      const errorMsg = error?.message || 'Unknown error occurred';
+      
       setNotification({ 
         type: 'error', 
-        message: '❌ Screenshot failed. Please try again.' 
+        message: `❌ Screenshot failed: ${errorMsg}` 
       });
+      
+      // Show alert with more details
+      alert(
+        `Screenshot Failed\n\n` +
+        `Error: ${errorMsg}\n\n` +
+        `Please check:\n` +
+        `1. Browser console for detailed logs\n` +
+        `2. Browser allows downloads\n` +
+        `3. html2canvas is properly installed\n\n` +
+        `Try: npm install html2canvas@latest`
+      );
     } finally {
       setExporting(false);
     }
   };
+
+  // ============================================
+  // PDF HANDLER (UNCHANGED)
+  // ============================================
 
   const handleReport = async () => {
     if (!stats || !projectDistribution) {
@@ -130,7 +164,7 @@ export default function TrendsPage() {
     }
 
     setExporting(true);
-    setNotification({ type: 'success', message: 'Generating PDF report...' });
+    setNotification({ type: 'success', message: '📄 Generating PDF report...' });
     
     try {
       const projectsData = projectDistribution.map(p => ({
@@ -168,11 +202,11 @@ export default function TrendsPage() {
         type: 'success', 
         message: '✅ PDF report downloaded!' 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('PDF generation failed:', error);
       setNotification({ 
         type: 'error', 
-        message: '❌ PDF generation failed. Please try again.' 
+        message: `❌ PDF failed: ${error?.message || 'Unknown error'}` 
       });
     } finally {
       setExporting(false);
@@ -192,22 +226,22 @@ export default function TrendsPage() {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
-      {/* ✅ Toast Notification */}
+      {/* Toast Notification */}
       {notification && (
         <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2">
           <div
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl border ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-2xl border max-w-md ${
               notification.type === 'success'
                 ? 'bg-emerald-600 border-emerald-500 text-white'
                 : 'bg-red-600 border-red-500 text-white'
             }`}
           >
             {notification.type === 'success' ? (
-              <CheckCircle className="w-5 h-5" />
+              <CheckCircle className="w-5 h-5 flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-5 h-5" />
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
             )}
-            <span className="font-medium">{notification.message}</span>
+            <span className="font-medium text-sm">{notification.message}</span>
           </div>
         </div>
       )}

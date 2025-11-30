@@ -79,65 +79,61 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
             {/* Sleep Quality */}
             <polyline
               points={data
-                .map(
-                  (d, i) =>
-                    `${(i / (data.length - 1)) * 100}%,${
-                      100 - (d.sleepQuality / maxValue) * 100
-                    }%`
-                )
+                .map((d, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const y = 100 - (d.sleepQuality / maxValue) * 100;
+                  return `${x},${y}`;
+                })
                 .join(" ")}
               fill="none"
               stroke="#3B82F6"
               strokeWidth="2"
-              className="transition-all"
+              vectorEffect="non-scaling-stroke"
             />
 
             {/* Mood */}
             <polyline
               points={data
-                .map(
-                  (d, i) =>
-                    `${(i / (data.length - 1)) * 100}%,${
-                      100 - (d.moodRating / maxValue) * 100
-                    }%`
-                )
+                .map((d, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const y = 100 - (d.moodRating / maxValue) * 100;
+                  return `${x},${y}`;
+                })
                 .join(" ")}
               fill="none"
               stroke="#10B981"
               strokeWidth="2"
-              className="transition-all"
+              vectorEffect="non-scaling-stroke"
             />
 
             {/* Energy */}
             <polyline
               points={data
-                .map(
-                  (d, i) =>
-                    `${(i / (data.length - 1)) * 100}%,${
-                      100 - (d.energyLevel / maxValue) * 100
-                    }%`
-                )
+                .map((d, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const y = 100 - (d.energyLevel / maxValue) * 100;
+                  return `${x},${y}`;
+                })
                 .join(" ")}
               fill="none"
               stroke="#F59E0B"
               strokeWidth="2"
-              className="transition-all"
+              vectorEffect="non-scaling-stroke"
             />
 
             {/* Recovery */}
             <polyline
               points={data
-                .map(
-                  (d, i) =>
-                    `${(i / (data.length - 1)) * 100}%,${
-                      100 - (d.recoveryScore / maxValue) * 100
-                    }%`
-                )
+                .map((d, i) => {
+                  const x = (i / (data.length - 1)) * 100;
+                  const y = 100 - (d.recoveryScore / maxValue) * 100;
+                  return `${x},${y}`;
+                })
                 .join(" ")}
               fill="none"
               stroke="#8B5CF6"
               strokeWidth="2"
-              className="transition-all"
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
         </div>
