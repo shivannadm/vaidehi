@@ -2,166 +2,222 @@
 ## Project file structure
 ```
 vaidehi/
-├── .gitignore (file)
-├── README.md (file)
-├── eslint.config.mjs (file)
-├── middleware.ts (file)
-├── next.config.ts (file)
-├── package-lock.json (file)
-├── package.json (file)
-├── postcss.config.mjs (file)
+├── .gitignore
+├── README.md
+├── eslint.config.mjs
+├── middleware.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
 ├── public/
-│   ├── file.svg (file)
-│   ├── globe.svg (file)
+│   ├── file.svg
+│   ├── globe.svg
 │   ├── images/
-│   │   ├── l3.png (file)
+│   │   ├── l3.png
 │   │   └── testimony/
-│   │       ├── person1.jpg (file)
-│   │       ├── person2.jpg (file)
-│   │       ├── person3.jpg (file)
-│   │       └── person4.jpg (file)
-│   └── window.svg (file)
+│   │       ├── person1.jpg
+│   │       ├── person2.jpg
+│   │       ├── person3.jpg
+│   │       └── person4.jpg
+│   └── window.svg
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/
 │   │   │   ├── callback/
-│   │   │   │   └── route.ts (file)
+│   │   │   │   └── route.ts
 │   │   │   ├── forgot-password/
-│   │   │   │   └── page.tsx (file)
-│   │   │   ├── layout.tsx (file)
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
 │   │   │   ├── login/
-│   │   │   │   └── page.tsx (file)
+│   │   │   │   └── page.tsx
 │   │   │   ├── reset-password/
-│   │   │   │   └── page.tsx (file)
+│   │   │   │   └── page.tsx
 │   │   │   └── signup/
-│   │   │       └── page.tsx (file)
+│   │   │       └── page.tsx
 │   │   ├── (landing)/
 │   │   │   ├── components/
-│   │   │   │   ├── AnimatedBackground.tsx (file)
-│   │   │   │   ├── FinalCTA.tsx (file)
-│   │   │   │   ├── Footer.tsx (file)
-│   │   │   │   ├── Header.tsx (file)
-│   │   │   │   ├── Hero.tsx (file)
-│   │   │   │   ├── HeroMockup.tsx (file)
-│   │   │   │   ├── HowItWorks.tsx (file)
-│   │   │   │   ├── Pricing.tsx (file)
-│   │   │   │   └── TypeRotator.tsx (file)
-│   │   │   └── page.tsx (file)
+│   │   │   │   ├── AnimatedBackground.tsx
+│   │   │   │   ├── FinalCTA.tsx
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   ├── Header.tsx
+│   │   │   │   ├── Hero.tsx
+│   │   │   │   ├── HeroMockup.tsx
+│   │   │   │   ├── HowItWorks.tsx
+│   │   │   │   ├── Pricing.tsx
+│   │   │   │   └── TypeRotator.tsx
+│   │   │   └── page.tsx
 │   │   ├── auth/
 │   │   │   └── callback/
 │   │   │       └── route.ts
 │   │   ├── dashboard/
 │   │   │   ├── components/
-│   │   │   │   ├── DashboardShell.tsx (file)
+│   │   │   │   ├── DashboardShell.tsx
+│   │   │   │   ├── TimerContext.tsx
+│   │   │   │   ├── theme-script.tsx
 │   │   │   │   ├── header/
-│   │   │   │   │   ├── NotificationDropdown.tsx (file)
-│   │   │   │   │   ├── ProfileDropdown.tsx (file)
-│   │   │   │   │   ├── StreakCounter.tsx (file)
-│   │   │   │   │   └── TopHeader.tsx (file)
+│   │   │   │   │   ├── NotificationDropdown.tsx
+│   │   │   │   │   ├── ProfileDropdown.tsx
+│   │   │   │   │   ├── StreakCounter.tsx
+│   │   │   │   │   └── TopHeader.tsx
 │   │   │   │   ├── modals/
-│   │   │   │   │   ├── ProfileModal.tsx (file)
-│   │   │   │   │   └── SettingsModal.tsx (file)
-│   │   │   │   ├── sidebar/
-│   │   │   │   │   └── Sidebar.tsx (file)
-│   │   │   │   └── theme-script.tsx (file)
-│   │   │   ├── layout.tsx (file)
-│   │   │   ├── page.tsx (file)
+│   │   │   │   │   ├── ProfileModal.tsx
+│   │   │   │   │   └── SettingsModal.tsx
+│   │   │   │   └── sidebar/
+│   │   │   │       └── Sidebar.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
 │   │   │   ├── routine/
 │   │   │   │   ├── evening/
-│   │   │   │   │   └── page.tsx (file)
-│   │   │   │   └── morning/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   └── AddModal.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useEveningRoutine.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── habits/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── AddHabitModal.tsx
+│   │   │   │   │   │   ├── HabitCard.tsx
+│   │   │   │   │   │   └── WeeklyProgress.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useHabits.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── health/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   └── HealthForm.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useHealthTracking.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── keynotestests/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   └── NoteCard.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useKeyNotes.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── morning/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── HabitHeatmap.tsx
+│   │   │   │   │   │   ├── HealthTrend.tsx
+│   │   │   │   │   │   ├── InsightsPanel.tsx
+│   │   │   │   │   │   ├── MonthlySummary.tsx
+│   │   │   │   │   │   ├── OverviewStats.tsx
+│   │   │   │   │   │   ├── RoutineConsistency.tsx
+│   │   │   │   │   │   └── WeeklyActivityTrend.tsx
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   │   └── useProgressData.ts
+│   │   │   │   │   ├── types/
+│   │   │   │   │   │   └── activity.types.ts
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── progress/
 │   │   │   │       ├── components/
-│   │   │   │       │   └── MorningForm.tsx (file)
+│   │   │   │       │   ├── HabitHeatmap.tsx
+│   │   │   │       │   ├── HealthTrend.tsx
+│   │   │   │       │   ├── MonthlySummary.tsx
+│   │   │   │       │   ├── OverviewStats.tsx
+│   │   │   │       │   ├── RoutineConsistency.tsx
+│   │   │   │       │   └── WeeklyActivityTrend.tsx
 │   │   │   │       ├── hooks/
-│   │   │   │       │   └── useMorningRoutine.ts (file)
-│   │   │   │       └── page.tsx (file)
+│   │   │   │       │   └── useWeeklyActivity.ts
+│   │   │   │       ├── types/
+│   │   │   │       │   └── activity.types.ts
+│   │   │   │       └── page.tsx
 │   │   │   └── todo/
 │   │   │       ├── daily-highlights/
 │   │   │       │   ├── components/
-│   │   │       │   │   ├── HighlightInput.tsx (file)
-│   │   │       │   │   ├── ReasonSelector.tsx (file)
-│   │   │       │   │   ├── StatsCard.tsx (file)
-│   │   │       │   │   ├── TomorrowCard.tsx (file)
-│   │   │       │   │   └── YesterdayCard.tsx (file)
-│   │   │       │   └── page.tsx (file)
+│   │   │       │   │   ├── HighlightInput.tsx
+│   │   │       │   │   ├── ReasonSelector.tsx
+│   │   │       │   │   ├── StatsCard.tsx
+│   │   │       │   │   ├── TomorrowCard.tsx
+│   │   │       │   │   └── YesterdayCard.tsx
+│   │   │       │   └── page.tsx
 │   │   │       ├── notes/
 │   │   │       │   ├── components/
-│   │   │       │   │   ├── ColorPicker.tsx (file)
-│   │   │       │   │   ├── LabelManager.tsx (file)
-│   │   │       │   │   ├── NoteCard.tsx (file)
-│   │   │       │   │   ├── NoteEditor.tsx (file)
-│   │   │       │   │   ├── NoteGrid.tsx (file)
-│   │   │       │   │   └── SearchBar.tsx (file)
+│   │   │       │   │   ├── ColorPicker.tsx
+│   │   │       │   │   ├── LabelManager.tsx
+│   │   │       │   │   ├── NoteCard.tsx
+│   │   │       │   │   ├── NoteEditor.tsx
+│   │   │       │   │   ├── NoteGrid.tsx
+│   │   │       │   │   └── SearchBar.tsx
 │   │   │       │   ├── hooks/
-│   │   │       │   │   └── useNotes.ts (file)
-│   │   │       │   └── page.tsx (file)
+│   │   │       │   │   └── useNotes.ts
+│   │   │       │   └── page.tsx
 │   │   │       ├── projects/
 │   │   │       │   ├── [id]/
-│   │   │       │   │   └── page.tsx (file)
+│   │   │       │   │   └── page.tsx
 │   │   │       │   ├── components/
-│   │   │       │   │   ├── KanbanBoard.tsx (file)
-│   │   │       │   │   ├── MilestoneSection.tsx (file)
-│   │   │       │   │   ├── ProgressBar.tsx (file)
-│   │   │       │   │   ├── ProjectCard.tsx (file)
-│   │   │       │   │   ├── ProjectDetailView.tsx (file)
-│   │   │       │   │   ├── ProjectEditor.tsx (file)
-│   │   │       │   │   ├── ProjectTaskList.tsx (file)
-│   │   │       │   │   └── TimelineView.tsx (file)
+│   │   │       │   │   ├── KanbanBoard.tsx
+│   │   │       │   │   ├── MilestoneSection.tsx
+│   │   │       │   │   ├── ProgressBar.tsx
+│   │   │       │   │   ├── ProjectCard.tsx
+│   │   │       │   │   ├── ProjectDetailView.tsx
+│   │   │       │   │   ├── ProjectEditor.tsx
+│   │   │       │   │   ├── ProjectTaskList.tsx
+│   │   │       │   │   └── TimelineView.tsx
 │   │   │       │   ├── hooks/
-│   │   │       │   │   ├── useProjectProgress.ts (file)
-│   │   │       │   │   ├── useProjectTasks.ts (file)
-│   │   │       │   │   └── useProjects.ts (file)
-│   │   │       │   └── page.tsx (file)
+│   │   │       │   │   ├── useProjectProgress.ts
+│   │   │       │   │   ├── useProjectTasks.ts
+│   │   │       │   │   └── useProjects.ts
+│   │   │       │   └── page.tsx
 │   │   │       ├── schedule/
 │   │   │       │   ├── components/
-│   │   │       │   │   ├── AddEventModal.tsx (file)
-│   │   │       │   │   ├── DayEventsList.tsx (file)
-│   │   │       │   │   ├── EventCard.tsx (file)
-│   │   │       │   │   ├── ScheduleCalendar.tsx (file)
-│   │   │       │   │   └── UpcomingEvents.tsx (file)
+│   │   │       │   │   ├── AddEventModal.tsx
+│   │   │       │   │   ├── DayEventsList.tsx
+│   │   │       │   │   ├── EventCard.tsx
+│   │   │       │   │   ├── ScheduleCalendar.tsx
+│   │   │       │   │   └── UpcomingEvents.tsx
 │   │   │       │   ├── hooks/
-│   │   │       │   │   ├── useEventActions.ts (file)
-│   │   │       │   │   ├── useSchedule.ts (file)
-│   │   │       │   │   └── useScheduleNotifications.ts (file)
-│   │   │       │   └── page.tsx (file)
+│   │   │       │   │   ├── useEventActions.ts
+│   │   │       │   │   ├── useSchedule.ts
+│   │   │       │   │   └── useScheduleNotifications.ts
+│   │   │       │   └── page.tsx
 │   │   │       ├── tasks/
 │   │   │       │   ├── components/
-│   │   │       │   │   ├── AddTaskModal.tsx (file)
-│   │   │       │   │   ├── EditTaskModal.tsx (file)
-│   │   │       │   │   ├── TagManager.tsx (file)
-│   │   │       │   │   ├── TaskItem.tsx (file)
-│   │   │       │   │   └── Timeline.tsx (file)
+│   │   │       │   │   ├── AddTaskModal.tsx
+│   │   │       │   │   ├── EditTaskModal.tsx
+│   │   │       │   │   ├── TagManager.tsx
+│   │   │       │   │   ├── TaskItem.tsx
+│   │   │       │   │   └── Timeline.tsx
 │   │   │       │   ├── hooks/
-│   │   │       │   │   └── useTaskTimer.ts (file)
-│   │   │       │   └── page.tsx (file)
+│   │   │       │   │   └── useTaskTimer.ts
+│   │   │       │   └── page.tsx
 │   │   │       └── trends/
 │   │   │           ├── components/
-│   │   │           │   ├── FocusGoalCalendar.tsx (file)
-│   │   │           │   ├── FocusTimeChart.tsx (file)
-│   │   │           │   ├── PomodoroChart.tsx (file)
-│   │   │           │   ├── ProjectDistribution.tsx (file)
-│   │   │           │   ├── StatsCards.tsx (file)
-│   │   │           │   └── TimeRangeSelector.tsx (file)
+│   │   │           │   ├── FocusGoalCalendar.tsx
+│   │   │           │   ├── FocusTimeChart.tsx
+│   │   │           │   ├── PomodoroChart.tsx
+│   │   │           │   ├── ProjectDistribution.tsx
+│   │   │           │   ├── StatsCards.tsx
+│   │   │           │   └── TimeRangeSelector.tsx
 │   │   │           ├── hooks/
-│   │   │           │   ├── useTrendsData.ts (file)
-│   │   │           │   └── useTrendsFilters.ts (file)
-│   │   │           └── page.tsx (file)
-│   │   ├── favicon.ico (file)
-│   │   └── globals.css (file)
+│   │   │           │   ├── useTrendsData.ts
+│   │   │           │   └── useTrendsFilters.ts
+│   │   │           └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   └── layout.tsx
 │   ├── lib/
-│   │   └── supabase/
-│   │       ├── client.ts (file)
-│   │       ├── helpers.ts (file)
-│   │       ├── highlight-helpers.ts (file)
-│   │       ├── middleware.ts (file)
-│   │       ├── project-helpers.ts (file)
-│   │       ├── routine-helpers.ts (file)
-│   │       ├── schedule-helpers.ts (file)
-│   │       ├── server.ts (file)
-│   │       ├── task-helpers.ts (file)
-│   │       └── trends-helpers.ts (file)
+│   │   ├── supabase/
+│   │   │   ├── client.ts
+│   │   │   ├── evening-helpers.ts
+│   │   │   ├── habits-helpers.ts
+│   │   │   ├── health-helpers.ts
+│   │   │   ├── helpers.ts
+│   │   │   ├── highlight-helpers.ts
+│   │   │   ├── keynotes-helpers.ts
+│   │   │   ├── middleware.ts
+│   │   │   ├── progress-helpers.ts
+│   │   │   ├── project-helpers.ts
+│   │   │   ├── routine-helpers.ts
+│   │   │   ├── schedule-helpers.ts
+│   │   │   ├── server.ts
+│   │   │   ├── task-helpers.ts
+│   │   │   └── trends-helpers.ts
+│   │   └── utils/
+│   │       ├── exportUtils.ts (file-todo/trends)
+│   │       └── progressExportUtils.ts (file-routine/progress)
 │   └── types/
 │       └── database.ts (file)
-└── tailwind.config.ts (file)
+├── tailwind.config.ts (file)
 └── tsconfig.json (file)
+
 ```
