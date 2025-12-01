@@ -36,20 +36,36 @@ export default function Timeline({
 }: TimelineProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const currentTimeLineRef = useRef<HTMLDivElement>(null);
+  const lastUserScrollRef = useRef<number>(0);
 
   useEffect(() => {
     if (scrollContainerRef.current && currentTimeLineRef.current) {
       const container = scrollContainerRef.current;
-      const timeLine = currentTimeLineRef.current;
 
-      const linePosition = timeLine.offsetTop;
-      const containerHeight = container.clientHeight;
-      const scrollPosition = linePosition - (containerHeight / 2);
+      // Add scroll listener to detect user interaction
+      const handleUserScroll = () => {
+        lastUserScrollRef.current = Date.now();
+      };
 
-      container.scrollTo({
-        top: Math.max(0, scrollPosition),
-        behavior: 'smooth'
-      });
+      container.addEventListener('scroll', handleUserScroll, { passive: true });
+
+      // Only auto-scroll if user hasn't scrolled in last 10 seconds
+      const timeSinceUserScroll = Date.now() - lastUserScrollRef.current;
+      if (timeSinceUserScroll > 10000) {
+        const timeLine = currentTimeLineRef.current;
+        const linePosition = timeLine.offsetTop;
+        const containerHeight = container.clientHeight;
+        const scrollPosition = linePosition - (containerHeight / 2);
+
+        container.scrollTo({
+          top: Math.max(0, scrollPosition),
+          behavior: 'smooth'
+        });
+      }
+
+      return () => {
+        container.removeEventListener('scroll', handleUserScroll);
+      };
     }
   }, [currentTime]);
 

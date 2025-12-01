@@ -118,7 +118,7 @@ export default function ProjectDistribution({
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
-            Project Time Distribution
+            Time Distribution
           </h2>
           
           {/* ✅ Time Range Selector */}

@@ -116,7 +116,7 @@ export default function FocusGoalCalendar({
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
-            Focus Time Goal
+            Day's Focus Time
           </h2>
           <div className="flex items-center gap-2">
             <span
