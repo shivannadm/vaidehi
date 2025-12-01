@@ -37,38 +37,38 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-slate-50 relative overflow-hidden">
+    <section id="how-it-works" className="py-16 sm:py-20 md:py-24 bg-slate-50 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-white pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
+        <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 px-4">
             Everything you need to <span className="text-indigo-600">trade like a pro</span>
           </h2>
-          <p className="text-lg text-slate-600">
+          <p className="text-base sm:text-lg text-slate-600 px-4">
             Transform scattered notes and gut feelings into a structured system that actually improves your trading.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100 hover:border-indigo-200 group"
+              className="bg-white rounded-xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100 hover:border-indigo-200 group"
             >
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
-              <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg sm:text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-12 sm:mt-16 text-center">
           <a
             href="/signup"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-md shadow-lg hover:bg-indigo-700 transition-all hover:scale-105"
+            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-md shadow-lg hover:bg-indigo-700 transition-all hover:scale-105 text-sm sm:text-base"
           >
             Start your journey
           </a>
