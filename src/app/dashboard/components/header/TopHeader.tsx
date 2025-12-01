@@ -102,7 +102,7 @@ export default function TopHeader({
 
     return (
         <header className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-900 border-slate-700'
-            } border-b px-4 py-1 sticky top-0 z-20`}>
+            } border-b px-4 sm:py-0.5 sticky top-0 z-20`}>
             <div className="flex items-center justify-between">
 
                 {/* Left: Current Section */}
