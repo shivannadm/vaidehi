@@ -1,9 +1,10 @@
-
 // src/app/dashboard/todo/tasks/components/AddTaskModal.tsx
+// ✅ ADD recurring task option
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { X, Star } from "lucide-react";
+import { X, Star, Repeat } from "lucide-react"; // ✅ Add Repeat icon
 import { createTask } from "@/lib/supabase/task-helpers";
 import { TAG_COLORS, type Tag, type TagColor } from "@/types/database";
 
@@ -29,6 +30,7 @@ export default function AddTaskModal({
     const [title, setTitle] = useState("");
     const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
     const [isImportant, setIsImportant] = useState(false);
+    const [isRecurring, setIsRecurring] = useState(false); // ✅ NEW
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
@@ -41,8 +43,8 @@ export default function AddTaskModal({
             setTitle("");
             setSelectedTagId(null);
             setIsImportant(false);
+            setIsRecurring(false); // ✅ Reset
             setError("");
-            // Focus title input
             setTimeout(() => titleInputRef.current?.focus(), 100);
         }
     }, [isOpen]);
@@ -93,6 +95,7 @@ export default function AddTaskModal({
                 tag_id: selectedTagId,
                 is_important: isImportant,
                 is_completed: false,
+                is_recurring: isRecurring, // ✅ NEW
                 total_time_spent: 0,
                 date: selectedDate
             });
@@ -268,6 +271,37 @@ export default function AddTaskModal({
                         >
                             <Star
                                 className={`w-5 h-5 ${isImportant ? "fill-yellow-500" : ""
+                                    }`}
+                            />
+                        </button>
+                    </div>
+
+                    {/* ✅ NEW: Recurring Toggle */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                            <label
+                                className={`text-sm font-medium block ${isDark ? "text-slate-300" : "text-slate-700"
+                                    }`}
+                            >
+                                Daily Recurring Task
+                            </label>
+                            <p className={`text-xs mt-0.5 ${isDark ? "text-slate-500" : "text-slate-600"}`}>
+                                Task will appear every day until completed
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsRecurring(!isRecurring)}
+                            className={`p-2 rounded-lg transition ${isRecurring
+                                    ? "bg-indigo-500/20 text-indigo-500"
+                                    : isDark
+                                        ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                }`}
+                            disabled={saving}
+                        >
+                            <Repeat
+                                className={`w-5 h-5 ${isRecurring ? "animate-pulse" : ""
                                     }`}
                             />
                         </button>

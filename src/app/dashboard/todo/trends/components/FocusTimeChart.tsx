@@ -145,7 +145,7 @@ useEffect(() => {
             className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"
               }`}
           >
-            Focus Time Chart
+            Focused Time
           </h2>
           <p
             className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"

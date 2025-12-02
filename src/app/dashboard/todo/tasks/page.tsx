@@ -12,7 +12,8 @@ import {
   getDayNote,
   getDailyGoal,
   upsertDayNote,
-  upsertDailyGoal
+  upsertDailyGoal,
+  ensureRecurringTasks
 } from "@/lib/supabase/task-helpers";
 import {
   formatDateToString,
@@ -230,36 +231,40 @@ export default function TasksPage() {
   }, [userId, mounted, selectedDate]);
 
   const loadAllData = async (uid: string, date: string) => {
-    try {
-      const [
-        tasksRes,
-        tagsRes,
-        sessionsRes,
-        statsRes,
-        noteRes,
-        goalRes,
-      ] = await Promise.all([
-        getTasksByDate(uid, date),
-        getTags(uid),
-        getSessionsByDate(uid, date),
-        getDailyReportStats(uid, date),
-        getDayNote(uid, date),
-        getDailyGoal(uid, date),
-      ]);
+  try {
+    // ✅ STEP 1: Ensure recurring tasks exist for this date
+    await ensureRecurringTasks(uid, date);
+    
+    // ✅ STEP 2: Then load all data as normal
+    const [
+      tasksRes,
+      tagsRes,
+      sessionsRes,
+      statsRes,
+      noteRes,
+      goalRes,
+    ] = await Promise.all([
+      getTasksByDate(uid, date),
+      getTags(uid),
+      getSessionsByDate(uid, date),
+      getDailyReportStats(uid, date),
+      getDayNote(uid, date),
+      getDailyGoal(uid, date),
+    ]);
 
-      if (tasksRes.data) {
-        setIncompleteTasks(tasksRes.data.incompleteTasks);
-        setCompletedTasks(tasksRes.data.completedTasks);
-      }
-      if (tagsRes.data) setTags(tagsRes.data);
-      if (sessionsRes.data) setSessions(sessionsRes.data);
-      if (statsRes.data) setStats(statsRes.data);
-      if (noteRes.data) setDayNote(noteRes.data.note_text || "");
-      if (goalRes.data) setGoalHours(goalRes.data.goal_hours);
-    } catch (error) {
-      console.error("Error loading data:", error);
+    if (tasksRes.data) {
+      setIncompleteTasks(tasksRes.data.incompleteTasks);
+      setCompletedTasks(tasksRes.data.completedTasks);
     }
-  };
+    if (tagsRes.data) setTags(tagsRes.data);
+    if (sessionsRes.data) setSessions(sessionsRes.data);
+    if (statsRes.data) setStats(statsRes.data);
+    if (noteRes.data) setDayNote(noteRes.data.note_text || "");
+    if (goalRes.data) setGoalHours(goalRes.data.goal_hours);
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
 
   // Date helpers
   const handlePrevDay = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() - 1); return n; });
