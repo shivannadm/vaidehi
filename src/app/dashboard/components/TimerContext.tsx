@@ -3,11 +3,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
-import { 
-  createTaskSession, 
-  endTaskSession, 
+import {
+  createTaskSession,
+  endTaskSession,
   addTimeToTask,
-  getActiveSession 
+  getActiveSession
 } from "@/lib/supabase/task-helpers";
 import { formatDateToString } from "@/types/database";
 
@@ -149,14 +149,14 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       if (totalDuration > 0) {
         try {
           await endTaskSession(timer.sessionId!, new Date(now).toISOString(), totalDuration);
-          
+
           if (timer.taskId) {
             const newTime = totalDuration - lastSavedDurationRef.current;
             if (newTime > 0) {
               const { error } = await addTimeToTask(timer.taskId, newTime);
               if (!error) {
                 lastSavedDurationRef.current = totalDuration;
-                
+
                 localStorage.setItem('activeTimer', JSON.stringify({
                   taskId: timer.taskId,
                   taskTitle: timer.taskTitle,
@@ -196,7 +196,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
         if (duration > 0) {
           try {
             await endTaskSession(timer.sessionId, new Date(now).toISOString(), duration);
-            
+
             const newTime = duration - lastSavedDurationRef.current;
             if (newTime > 0) {
               await addTimeToTask(timer.taskId, newTime);
@@ -265,10 +265,10 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
     const saved = localStorage.getItem('activeTimer');
     if (saved) {
       const parsed = JSON.parse(saved);
-      localStorage.setItem('activeTimer', JSON.stringify({ 
-        ...parsed, 
+      localStorage.setItem('activeTimer', JSON.stringify({
+        ...parsed,
         isRunning: false,
-        lastSavedDuration: lastSavedDurationRef.current 
+        lastSavedDuration: lastSavedDurationRef.current
       }));
     }
   };
@@ -279,10 +279,10 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       const saved = localStorage.getItem('activeTimer');
       if (saved) {
         const parsed = JSON.parse(saved);
-        localStorage.setItem('activeTimer', JSON.stringify({ 
-          ...parsed, 
+        localStorage.setItem('activeTimer', JSON.stringify({
+          ...parsed,
           isRunning: true,
-          lastSavedDuration: lastSavedDurationRef.current 
+          lastSavedDuration: lastSavedDurationRef.current
         }));
       }
     }
@@ -291,7 +291,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
   // ============================================
   // 🔥 NEW: Midnight Crossing Handler
   // ============================================
-  
+
   /**
    * Splits a session that crosses midnight into multiple sessions
    * Example: 11 PM (Day 1) → 1 AM (Day 2)
@@ -312,7 +312,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       // Set to midnight for comparison
       const startDay = new Date(startDate);
       startDay.setHours(0, 0, 0, 0);
-      
+
       const endDay = new Date(endDate);
       endDay.setHours(0, 0, 0, 0);
 
@@ -329,7 +329,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       // Calculate all days involved
       const days: Date[] = [];
       let currentDay = new Date(startDay);
-      
+
       while (currentDay <= endDay) {
         days.push(new Date(currentDay));
         currentDay.setDate(currentDay.getDate() + 1);
@@ -340,7 +340,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       // Create session for each day
       for (let i = 0; i < days.length; i++) {
         const dayDate = days[i];
-        
+
         // Calculate segment start and end
         let segmentStart: Date;
         let segmentEnd: Date;
@@ -395,9 +395,17 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
         // Add time to task for this day
         const { error: timeError } = await addTimeToTask(taskId, segmentDuration);
-        
+
         if (timeError) {
           console.error(`Error adding time for ${dateString}:`, timeError);
+        }
+
+        // ✅ NEW: For days AFTER the first day, ensure task appears in task list
+        if (i > 0) {
+          console.log(`✅ Session created for continuation day: ${dateString}`);
+          window.dispatchEvent(new CustomEvent('taskCrossedMidnight', {
+            detail: { date: dateString, taskId }
+          }));
         }
 
         console.log(`  ✅ Session created: ${segmentDuration}s on ${dateString}`);
@@ -418,7 +426,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
     try {
       const now = new Date();
       const originalStart = timer.startTime?.getTime() || startTimeRef.current;
-      
+
       if (!originalStart) {
         console.error("No start time found");
         return false;
@@ -493,7 +501,7 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
 
       startTimeRef.current = null;
       lastSavedDurationRef.current = 0;
-      
+
       setTimer({
         taskId: null,
         taskTitle: null,

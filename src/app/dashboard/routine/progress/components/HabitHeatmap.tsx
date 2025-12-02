@@ -266,7 +266,7 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
             </div>
           )}
 
-          {/* Quick Stats Grid
+          {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 gap-3">
             <div
               className={`p-3 rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-100"}`}
@@ -295,7 +295,7 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                 {data.length}
               </div>
             </div>
-          </div> */}
+          </div>
 
           {/* Completion Rate Bars */}
           <div
