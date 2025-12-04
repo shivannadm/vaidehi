@@ -2,9 +2,10 @@
 "use client";
 
 import { 
-  Target, Flame, TrendingUp, TrendingDown, Award, 
-  Zap, Calendar, BarChart3, Star, AlertCircle 
+  Target, Flame, TrendingUp, AlertCircle, 
+  Zap, BarChart3 
 } from "lucide-react";
+import { useState } from "react";
 import type { HabitHeatmapData } from "@/lib/supabase/progress-helpers";
 
 interface HabitHeatmapProps {
@@ -13,6 +14,8 @@ interface HabitHeatmapProps {
 }
 
 export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
+  const [hoveredCell, setHoveredCell] = useState<{ habitId: string; index: number; x: number; y: number } | null>(null);
+
   // Calculate analytics
   const bestHabit = [...data].sort((a, b) => b.completionRate - a.completionRate)[0];
   const longestStreak = [...data].sort((a, b) => b.currentStreak - a.currentStreak)[0];
@@ -58,10 +61,10 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
       {/* TWO-COLUMN LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* LEFT: Simple Heatmap List - 7 cols */}
-        <div className="lg:col-span-7 space-y-4">
+        {/* LEFT: Scrollable Heatmap List - 7 cols */}
+        <div className="lg:col-span-7 space-y-4 max-h-[650px] overflow-y-auto pr-2 custom-scrollbar">
           {data.map((habit) => (
-            <div key={habit.habitId}>
+            <div key={habit.habitId} className="relative">
               {/* Habit Header */}
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -102,38 +105,61 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                 </div>
               </div>
 
-              {/* Heatmap Grid - Last 30 days */}
-              <div className="grid grid-cols-20 gap-0">
+              {/* ✅ FIXED: Heatmap Grid with gaps and proper opacity */}
+              <div className="grid grid-cols-30 gap-1">
                 {habit.completions.slice(-30).map((completion, index) => {
+                  // ✅ FIX: Use proper opacity based on actual completion state
                   const opacity = completion.completed ? 1 : 0.15;
+                  
                   return (
                     <div
                       key={`${habit.habitId}-${completion.date}-${index}`}
-                      className="aspect-square rounded-sm group relative cursor-pointer transition-all hover:scale-150 hover:z-10"
+                      className="aspect-square rounded-sm cursor-pointer transition-all hover:scale-125 hover:ring-2 hover:ring-white/50"
                       style={{
                         backgroundColor: habit.habitColor,
-                        opacity,
+                        opacity, // ✅ Always reflects current state from DB
                       }}
-                      title={`${completion.date}: ${
-                        completion.completed ? "Completed" : "Missed"
-                      }`}
-                    >
-                      {/* Tooltip */}
-                      <div
-                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 rounded text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10 ${
-                          isDark
-                            ? "bg-slate-900 text-white border border-slate-700"
-                            : "bg-white text-slate-900 border border-slate-200 shadow-lg"
-                        }`}
-                      >
-                        {completion.date}
-                        <br />
-                        {completion.completed ? "✓ Done" : "✗ Missed"}
-                      </div>
-                    </div>
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setHoveredCell({
+                          habitId: habit.habitId,
+                          index,
+                          x: rect.left + rect.width / 2,
+                          y: rect.top - 10
+                        });
+                      }}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    />
                   );
                 })}
               </div>
+
+              {/* ✅ FIXED: Tooltip with fixed positioning to prevent overflow hidden */}
+              {hoveredCell?.habitId === habit.habitId && (
+                <div
+                  className={`fixed z-[9999] px-3 py-2 rounded-lg text-xs whitespace-nowrap pointer-events-none shadow-xl transform -translate-x-1/2 -translate-y-full ${
+                    isDark
+                      ? "bg-slate-900 text-white border border-slate-700"
+                      : "bg-white text-slate-900 border border-slate-300"
+                  }`}
+                  style={{
+                    left: `${hoveredCell.x}px`,
+                    top: `${hoveredCell.y}px`,
+                  }}
+                >
+                  {(() => {
+                    const completion = habit.completions.slice(-30)[hoveredCell.index];
+                    return (
+                      <>
+                        <div className="font-semibold">{completion.date}</div>
+                        <div className={completion.completed ? "text-green-400" : "text-red-400"}>
+                          {completion.completed ? "✓ Completed" : "✗ Missed"}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
           ))}
 
@@ -155,85 +181,8 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
         {/* RIGHT: Rich Insights Panel - 5 cols */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Top Performer Card
-          <div
-            className={`p-4 rounded-xl border ${
-              isDark
-                ? "bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-700/50"
-                : "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 rounded-lg bg-green-500/20">
-                <Star className="w-4 h-4 text-green-500" />
-              </div>
-              <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                🏆 Top Performer
-              </h4>
-            </div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-4xl">{bestHabit.habitIcon}</span>
-              <div>
-                <div className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {bestHabit.habitName}
-                </div>
-                <div className="text-lg font-bold text-green-500">
-                  {bestHabit.completionRate}%
-                </div>
-                <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                  {bestHabit.currentStreak} day streak
-                </div>
-              </div>
-            </div>
-            <p className={`text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-              Outstanding consistency! You're mastering this habit.
-            </p>
-          </div> */}
-
-          {/* Longest Streak
-          <div
-            className={`p-4 rounded-xl border ${
-              isDark
-                ? "bg-gradient-to-br from-orange-900/20 to-red-900/20 border-orange-700/50"
-                : "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <div className="p-2 rounded-lg bg-orange-500/20">
-                <Flame className="w-4 h-4 text-orange-500" />
-              </div>
-              <h4 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                🔥 Longest Streak
-              </h4>
-            </div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">{longestStreak.habitIcon}</span>
-              <div>
-                <div className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {longestStreak.habitName}
-                </div>
-                <div className="text-2xl font-bold text-orange-500">
-                  {longestStreak.currentStreak} days
-                </div>
-              </div>
-            </div>
-            <div
-              className={`h-2 rounded-full overflow-hidden ${
-                isDark ? "bg-slate-700" : "bg-slate-200"
-              }`}
-            >
-              <div
-                className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all"
-                style={{ width: `${Math.min((longestStreak.currentStreak / 30) * 100, 100)}%` }}
-              />
-            </div>
-            <div className={`text-xs mt-2 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Keep the fire burning! 🔥
-            </div>
-          </div> */}
-
           {/* Needs Attention */}
-          {needsAttention.completionRate < 50 && (
+          {needsAttention && needsAttention.completionRate < 50 && (
             <div
               className={`p-4 rounded-xl border ${
                 isDark
@@ -373,6 +322,24 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
           </div>
         </div>
       </div>
+
+      {/* ✅ CUSTOM SCROLLBAR STYLES */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: ${isDark ? '#1e293b' : '#f1f5f9'};
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: ${isDark ? '#475569' : '#cbd5e1'};
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: ${isDark ? '#64748b' : '#94a3b8'};
+        }
+      `}</style>
     </div>
   );
 }

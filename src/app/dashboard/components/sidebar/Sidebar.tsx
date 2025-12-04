@@ -309,7 +309,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Rules"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Rules'}
-                onClick={() => onItemClick('Rules', 'trading')}
+                onClick={() => handleNavigation('Rules', 'trading' , '/dashboard/trading/rules')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -317,7 +317,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Journal"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Journal'}
-                onClick={() => onItemClick('Journal', 'trading')}
+                onClick={() => handleNavigation('Journal', 'trading', '/dashboard/trading/journal')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -325,7 +325,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Backtest"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Backtest'}
-                onClick={() => onItemClick('Backtest', 'trading')}
+                onClick={() => handleNavigation('Backtest', 'trading' , '/dashboard/trading/backtest')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -333,7 +333,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Strategies"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Strategies'}
-                onClick={() => onItemClick('Strategies', 'trading')}
+                onClick={() => handleNavigation('Strategies', 'trading', '/dashboard/trading/strategies')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -341,7 +341,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Quick Notes"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Quick Notes'}
-                onClick={() => onItemClick('Quick Notes', 'trading')}
+                onClick={() => handleNavigation('Quick Notes', 'trading', '/dashboard/trading/quick-notes')}
                 isLight={isLight}
               />
               <SidebarItem

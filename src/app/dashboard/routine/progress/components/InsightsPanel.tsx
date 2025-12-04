@@ -240,7 +240,7 @@ function generateInsights(overview: ProgressOverview, weekly: WeeklySummary) {
     });
   }
 
-  return insights.slice(0, 5); // Show top 5 insights
+  return insights.slice(0, 3); // Show top 5 insights
 }
 
 function getScoreColor(score: number): string {
