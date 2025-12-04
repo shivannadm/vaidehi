@@ -3,26 +3,27 @@
 // No breaking changes - all existing functions remain the same
 
 import { createClient } from "./client";
-import type {
-  Tag,
-  Task,
-  TaskWithTag,
-  TaskSession,
-  TaskSessionWithTask,
-  DayNote,
-  DailyGoal,
-  CreateTag,
-  CreateTask,
-  CreateTaskSession,
-  CreateDayNote,
-  CreateDailyGoal,
-  UpdateTag,
-  UpdateTask,
-  UpdateDayNote,
-  UpdateDailyGoal,
-  DailyReportStats,
-  SupabaseResponse,
-  TasksResponse,
+import {
+  type Tag,
+  type Task,
+  type TaskWithTag,
+  type TaskSession,
+  type TaskSessionWithTask,
+  type DayNote,
+  type DailyGoal,
+  type CreateTag,
+  type CreateTask,
+  type CreateTaskSession,
+  type CreateDayNote,
+  type CreateDailyGoal,
+  type UpdateTag,
+  type UpdateTask,
+  type UpdateDayNote,
+  type UpdateDailyGoal,
+  type DailyReportStats,
+  type SupabaseResponse,
+  type TasksResponse,
+  formatDateToString,
 } from "@/types/database";
 
 // =====================================================
@@ -137,6 +138,7 @@ export async function createTask(taskData: {
   tag_id: string | null;
   is_important: boolean;
   is_completed: boolean;
+  is_recurring: boolean
   total_time_spent: number;
   date: string;
   project_id?: string | null;
@@ -151,6 +153,7 @@ export async function createTask(taskData: {
       tag_id: taskData.tag_id,
       is_important: taskData.is_important,
       is_completed: taskData.is_completed,
+      is_recurring: taskData.is_recurring,
       total_time_spent: taskData.total_time_spent,
       date: taskData.date,
       project_id: taskData.project_id || null,
@@ -159,6 +162,80 @@ export async function createTask(taskData: {
     .single();
 
   return { data, error };
+}
+
+export async function ensureRecurringTasks(
+  userId: string,
+  date: string
+): Promise<SupabaseResponse<Task[]>> {
+  const supabase = createClient();
+
+  try {
+    // Get yesterday's date
+    const dateObj = new Date(date);
+    dateObj.setDate(dateObj.getDate() - 1);
+    const yesterday = formatDateToString(dateObj);
+
+    // Find incomplete recurring tasks from yesterday
+    const { data: yesterdayTasks, error: fetchError } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("date", yesterday)
+      .eq("is_recurring", true)
+      .eq("is_completed", false);
+
+    if (fetchError || !yesterdayTasks || yesterdayTasks.length === 0) {
+      return { data: [], error: fetchError };
+    }
+
+    console.log(`📋 Found ${yesterdayTasks.length} recurring tasks from ${yesterday}`);
+
+    // Check if these tasks already exist today
+    const { data: existingToday } = await supabase
+      .from("tasks")
+      .select("title")
+      .eq("user_id", userId)
+      .eq("date", date);
+
+    const existingTitles = new Set(existingToday?.map(t => t.title) || []);
+
+    // Create tasks for today (only if they don't exist)
+    const tasksToCreate = yesterdayTasks
+      .filter(task => !existingTitles.has(task.title))
+      .map(task => ({
+        user_id: userId,
+        title: task.title,
+        tag_id: task.tag_id,
+        is_important: task.is_important,
+        is_completed: false, // ✅ Fresh start
+        is_recurring: true,
+        total_time_spent: 0, // ✅ Fresh time count
+        date: date,
+        project_id: task.project_id,
+      }));
+
+    if (tasksToCreate.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const { data: newTasks, error: createError } = await supabase
+      .from("tasks")
+      .insert(tasksToCreate)
+      .select();
+
+    if (createError) {
+      console.error("Error creating recurring tasks:", createError);
+      return { data: null, error: createError };
+    }
+
+    console.log(`✅ Created ${newTasks?.length || 0} recurring tasks for ${date}`);
+    return { data: newTasks || [], error: null };
+
+  } catch (err) {
+    console.error("Error in ensureRecurringTasks:", err);
+    return { data: null, error: err as any };
+  }
 }
 
 export async function updateTask(
@@ -543,6 +620,7 @@ export async function getDailyReportStats(
 ): Promise<SupabaseResponse<DailyReportStats>> {
   const supabase = createClient();
 
+  // Get tasks for this date
   const { data: tasks, error: tasksError } = await supabase
     .from("tasks")
     .select("is_completed, total_time_spent")
@@ -553,12 +631,25 @@ export async function getDailyReportStats(
     return { data: null, error: tasksError };
   }
 
+  // ✅ CRITICAL FIX: Get ALL sessions for this date (including midnight-crossing ones)
+  const { data: sessions, error: sessionsError } = await supabase
+    .from("task_sessions")
+    .select("duration")
+    .eq("user_id", userId)
+    .eq("date", date);
+
+  if (sessionsError) {
+    console.error("Error fetching sessions:", sessionsError);
+  }
+
   const { data: goal } = await getDailyGoal(userId, date);
   const goalHours = goal?.goal_hours || 7;
 
   const completedCount = tasks?.filter((t) => t.is_completed).length || 0;
   const inProgressCount = tasks?.filter((t) => !t.is_completed).length || 0;
-  const totalFocusedTime = tasks?.reduce((sum, t) => sum + (t.total_time_spent || 0), 0) || 0;
+  
+  // ✅ Use sessions data (more accurate than task total_time_spent)
+  const totalFocusedTime = sessions?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
 
   const goalSeconds = goalHours * 3600;
   const goalPercentage = goalSeconds > 0
@@ -576,7 +667,6 @@ export async function getDailyReportStats(
     error: null,
   };
 }
-
 export async function getTotalTimeByDate(
   userId: string,
   date: string

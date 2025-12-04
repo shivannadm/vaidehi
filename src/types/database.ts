@@ -87,6 +87,7 @@ export interface Task {
   tag_id: string | null;
   is_important: boolean;
   is_completed: boolean;
+  is_recurring: boolean;
   total_time_spent: number; // in seconds
   date: string; // YYYY-MM-DD format
   created_at: string;
@@ -1608,3 +1609,494 @@ export interface KeyNote {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================
+// ADD TO: src/types/database.ts
+// Trading Section - Type Definitions
+// Place this at the END of your database.ts file
+// ============================================
+
+// ============================================
+// TRADING ENUMS
+// ============================================
+
+export type InstrumentType = 'stock' | 'futures' | 'options' | 'forex';
+export type CountryCode = 'US' | 'IN' | 'UK' | 'EU' | 'JP' | 'OTHER';
+export type TradeSide = 'long' | 'short';
+export type MarketCondition = 'trending' | 'ranging' | 'volatile' | 'quiet';
+export type RuleCategory = 'entry' | 'exit' | 'risk_management' | 'psychology' | 'time_management';
+export type TradingNoteType = 'pre_market' | 'post_market' | 'idea' | 'general';
+export type StrategyStatus = 'active' | 'testing' | 'archived';
+export type EmotionalState = 'calm' | 'confident' | 'anxious' | 'fearful' | 'greedy' | 'frustrated' | 'neutral';
+
+// ============================================
+// TRADING RULES
+// ============================================
+
+export interface TradingRule {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: RuleCategory;
+  is_active: boolean;
+  violation_count: number;
+  adherence_rate: number;
+  cost_of_violations: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreateTradingRule = Omit<TradingRule, 'id' | 'violation_count' | 'adherence_rate' | 'cost_of_violations' | 'created_at' | 'updated_at'>;
+export type UpdateTradingRule = Partial<Omit<TradingRule, 'id' | 'user_id' | 'created_at'>>;
+
+// ============================================
+// STRATEGIES
+// ============================================
+
+export interface Strategy {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  market_type: MarketCondition | null;
+  timeframe: string | null;
+  entry_criteria: any; // JSON
+  exit_criteria: any; // JSON
+  risk_management: string | null;
+  status: StrategyStatus;
+  total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  avg_pnl: number;
+  total_pnl: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreateStrategy = Omit<Strategy, 'id' | 'total_trades' | 'winning_trades' | 'losing_trades' | 'win_rate' | 'avg_pnl' | 'total_pnl' | 'created_at' | 'updated_at'>;
+export type UpdateStrategy = Partial<Omit<Strategy, 'id' | 'user_id' | 'created_at'>>;
+
+// ============================================
+// TRADES
+// ============================================
+
+export interface Trade {
+  id: string;
+  user_id: string;
+  
+  // Instrument
+  symbol: string;
+  instrument_type: InstrumentType;
+  country: CountryCode;
+  
+  // Trade Details
+  side: TradeSide;
+  quantity: number;
+  
+  // Entry
+  entry_date: string;
+  entry_time: string | null;
+  entry_price: number;
+  
+  // Exit
+  exit_date: string | null;
+  exit_time: string | null;
+  exit_price: number | null;
+  
+  // Risk
+  stop_loss: number | null;
+  take_profit: number | null;
+  risk_reward_ratio: number | null;
+  
+  // Costs
+  commission: number;
+  fees: number;
+  
+  // P&L (auto-calculated)
+  pnl: number | null;
+  pnl_percentage: number | null;
+  
+  // Strategy & Rules
+  strategy_id: string | null;
+  setup_name: string | null;
+  market_condition: MarketCondition | null;
+  
+  // Psychology
+  emotional_state: EmotionalState | null;
+  confidence_level: number | null;
+  discipline_score: number | null;
+  
+  // Rule Tracking
+  rules_followed: any; // JSON array
+  rules_broken: any; // JSON array
+  
+  // Tags
+  mistakes_tags: string[] | null;
+  
+  // Notes
+  pre_trade_notes: string | null;
+  post_trade_notes: string | null;
+  lessons_learned: string | null;
+  
+  // Media
+  screenshots: string[] | null;
+  
+  // Status
+  is_closed: boolean;
+  
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TradeWithStrategy extends Trade {
+  strategy: Strategy | null;
+}
+
+export type CreateTrade = Omit<Trade, 'id' | 'pnl' | 'pnl_percentage' | 'is_closed' | 'created_at' | 'updated_at'>;
+export type UpdateTrade = Partial<Omit<Trade, 'id' | 'user_id' | 'created_at'>>;
+
+// ============================================
+// QUICK NOTES
+// ============================================
+
+export interface QuickNote {
+  id: string;
+  user_id: string;
+  date: string;
+  note_type: TradingNoteType;
+  content: string;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreateQuickNote = Omit<QuickNote, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateQuickNote = Partial<Omit<QuickNote, 'id' | 'user_id' | 'created_at'>>;
+
+// ============================================
+// BACKTEST RESULTS
+// ============================================
+
+export interface BacktestResult {
+  id: string;
+  user_id: string;
+  strategy_id: string | null;
+  strategy_name: string;
+  date_range_start: string;
+  date_range_end: string;
+  initial_capital: number;
+  final_capital: number;
+  total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  max_drawdown: number;
+  profit_factor: number;
+  expectancy: number;
+  sharpe_ratio: number | null;
+  trades_data: any; // JSON
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreateBacktestResult = Omit<BacktestResult, 'id' | 'created_at' | 'updated_at'>;
+export type UpdateBacktestResult = Partial<Omit<BacktestResult, 'id' | 'user_id' | 'created_at'>>;
+
+// ============================================
+// TRADING SESSIONS
+// ============================================
+
+export interface TradingSession {
+  id: string;
+  user_id: string;
+  trade_id: string | null;
+  start_time: string;
+  end_time: string | null;
+  duration: number | null;
+  activity_type: string | null;
+  created_at: string;
+}
+
+export type CreateTradingSession = Omit<TradingSession, 'id' | 'created_at'>;
+
+// ============================================
+// PERFORMANCE SNAPSHOTS
+// ============================================
+
+export interface PerformanceSnapshot {
+  id: string;
+  user_id: string;
+  snapshot_date: string;
+  total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  total_pnl: number;
+  avg_win: number;
+  avg_loss: number;
+  expectancy: number;
+  profit_factor: number;
+  max_drawdown: number;
+  sharpe_ratio: number | null;
+  rules_adherence_rate: number;
+  created_at: string;
+}
+
+// ============================================
+// TRADING STATISTICS (Calculated)
+// ============================================
+
+export interface TradingStats {
+  total_trades: number;
+  closed_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  total_pnl: number;
+  avg_win: number;
+  avg_loss: number;
+  expectancy: number;
+  profit_factor: number;
+  max_drawdown: number;
+  sharpe_ratio: number | null;
+  best_trade: number;
+  worst_trade: number;
+  avg_trade_duration: number; // in days
+  total_commission: number;
+  net_pnl: number;
+}
+
+// ============================================
+// DASHBOARD DATA
+// ============================================
+
+export interface TradingDashboard {
+  stats: TradingStats;
+  recent_trades: TradeWithStrategy[];
+  active_strategies: Strategy[];
+  rule_adherence: {
+    followed: number;
+    broken: number;
+    rate: number;
+  };
+  equity_curve: {
+    date: string;
+    balance: number;
+  }[];
+  days_active: number;
+}
+
+// ============================================
+// HELPER FUNCTIONS FOR CALCULATIONS
+// ============================================
+
+/**
+ * Calculate P&L for a trade
+ */
+export function calculatePnL(
+  side: TradeSide,
+  entryPrice: number,
+  exitPrice: number,
+  quantity: number,
+  commission: number = 0,
+  fees: number = 0
+): { pnl: number; pnl_percentage: number } {
+  let pnl = 0;
+  
+  if (side === 'long') {
+    pnl = (exitPrice - entryPrice) * quantity - commission - fees;
+  } else {
+    pnl = (entryPrice - exitPrice) * quantity - commission - fees;
+  }
+  
+  const pnl_percentage = (pnl / (entryPrice * quantity)) * 100;
+  
+  return { pnl, pnl_percentage };
+}
+
+/**
+ * Calculate win rate
+ */
+export function calculateWinRate(wins: number, total: number): number {
+  if (total === 0) return 0;
+  return Math.round((wins / total) * 100 * 100) / 100; // 2 decimal places
+}
+
+/**
+ * Calculate expectancy (average expected profit per trade)
+ */
+export function calculateExpectancy(
+  avgWin: number,
+  avgLoss: number,
+  winRate: number
+): number {
+  const lossRate = 100 - winRate;
+  return (avgWin * (winRate / 100)) + (avgLoss * (lossRate / 100));
+}
+
+/**
+ * Calculate profit factor (gross profit / gross loss)
+ */
+export function calculateProfitFactor(
+  totalWins: number,
+  totalLosses: number
+): number {
+  if (totalLosses === 0) return totalWins > 0 ? Infinity : 0;
+  return Math.abs(totalWins / totalLosses);
+}
+
+/**
+ * Calculate Risk/Reward Ratio
+ */
+export function calculateRiskRewardRatio(
+  entryPrice: number,
+  stopLoss: number,
+  takeProfit: number,
+  side: TradeSide
+): number {
+  let risk = 0;
+  let reward = 0;
+  
+  if (side === 'long') {
+    risk = Math.abs(entryPrice - stopLoss);
+    reward = Math.abs(takeProfit - entryPrice);
+  } else {
+    risk = Math.abs(stopLoss - entryPrice);
+    reward = Math.abs(entryPrice - takeProfit);
+  }
+  
+  if (risk === 0) return 0;
+  return Math.round((reward / risk) * 100) / 100;
+}
+
+/**
+ * Format currency based on locale
+ */
+export function formatCurrency(
+  amount: number,
+  currency: 'USD' | 'INR' | 'EUR' = 'USD'
+): string {
+  const formatters = {
+    USD: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }),
+    INR: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }),
+    EUR: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }),
+  };
+  
+  return formatters[currency].format(amount);
+}
+
+/**
+ * Format percentage
+ */
+export function formatPercentage(value: number): string {
+  return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+}
+
+/**
+ * Get color for P&L display
+ */
+export function getPnLColor(pnl: number): string {
+  if (pnl > 0) return 'text-green-500';
+  if (pnl < 0) return 'text-red-500';
+  return 'text-gray-500';
+}
+
+/**
+ * Get icon for instrument type
+ */
+export function getInstrumentIcon(type: InstrumentType): string {
+  const icons = {
+    stock: '📈',
+    futures: '⏳',
+    options: '📊',
+    forex: '💱',
+  };
+  return icons[type] || '📊';
+}
+
+/**
+ * Get flag emoji for country
+ */
+export function getCountryFlag(country: CountryCode): string {
+  const flags = {
+    US: '🇺🇸',
+    IN: '🇮🇳',
+    UK: '🇬🇧',
+    EU: '🇪🇺',
+    JP: '🇯🇵',
+    OTHER: '🌍',
+  };
+  return flags[country] || '🌍';
+}
+
+/**
+ * Get color for rule category
+ */
+export function getRuleCategoryColor(category: RuleCategory): string {
+  const colors = {
+    entry: 'bg-blue-500/20 text-blue-500 border-blue-500/30',
+    exit: 'bg-orange-500/20 text-orange-500 border-orange-500/30',
+    risk_management: 'bg-red-500/20 text-red-500 border-red-500/30',
+    psychology: 'bg-purple-500/20 text-purple-500 border-purple-500/30',
+    time_management: 'bg-green-500/20 text-green-500 border-green-500/30',
+  };
+  return colors[category] || 'bg-gray-500/20 text-gray-500 border-gray-500/30';
+}
+
+/**
+ * Get label for rule category
+ */
+export function getRuleCategoryLabel(category: RuleCategory): string {
+  const labels = {
+    entry: 'Entry Rules',
+    exit: 'Exit Rules',
+    risk_management: 'Risk Management',
+    psychology: 'Psychology',
+    time_management: 'Time Management',
+  };
+  return labels[category] || category;
+}
+
+/**
+ * Get icon for emotional state
+ */
+export function getEmotionalIcon(state: EmotionalState): string {
+  const icons = {
+    calm: '😌',
+    confident: '😎',
+    anxious: '😰',
+    fearful: '😨',
+    greedy: '🤑',
+    frustrated: '😤',
+    neutral: '😐',
+  };
+  return icons[state] || '😐';
+}
+
+/**
+ * Calculate trade duration in days
+ */
+export function calculateTradeDuration(entryDate: string, exitDate: string | null): number {
+  if (!exitDate) return 0;
+  const entry = new Date(entryDate);
+  const exit = new Date(exitDate);
+  const diffTime = Math.abs(exit.getTime() - entry.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// ============================================
+// RESPONSE TYPES (for helper functions)
+// ============================================
+
+export interface TradingResponse<T> {
+  data: T | null;
+  error: Error | null;
+}
+
+// ============================================
+// END OF TRADING TYPES
+// ============================================
