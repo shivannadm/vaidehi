@@ -1,4 +1,4 @@
-// CREATE: src/app/dashboard/routine/habits/page.tsx
+// UPDATE: src/app/dashboard/routine/habits/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,6 +7,7 @@ import { useHabits } from "./hooks/useHabits";
 import HabitCard from "./components/HabitCard";
 import AddHabitModal from "./components/AddHabitModal";
 import HabitDetailsModal from "./components/HabitDetailsModal";
+import HabitInsightsModal from "./components/HabitInsightsModal";
 import WeeklyProgress from "./components/WeeklyProgress";
 import { 
   Target, 
@@ -16,7 +17,8 @@ import {
   Flame, 
   Award,
   Calendar,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from "lucide-react";
 
 export default function HabitsPage() {
@@ -24,6 +26,7 @@ export default function HabitsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
 
   const {
@@ -119,13 +122,23 @@ export default function HabitsPage() {
             </p>
           </div>
           
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95"
-          >
-            <Plus className="w-5 h-5" />
-            Add Habit
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowInsightsModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95"
+            >
+              <Sparkles className="w-5 h-5" />
+              Life-Changing Insights
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-5 h-5" />
+              Add Habit
+            </button>
+          </div>
         </div>
 
         {/* Error Display */}
@@ -187,12 +200,21 @@ export default function HabitsPage() {
               <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 Start building better habits by adding your first one
               </p>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
-              >
-                Add Your First Habit
-              </button>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setShowInsightsModal(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg transition font-medium"
+                >
+                  <Sparkles className="w-4 h-4 inline mr-2" />
+                  Get Ideas
+                </button>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                >
+                  Add Your First Habit
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
@@ -277,6 +299,20 @@ export default function HabitsPage() {
         />
       )}
 
+      {showInsightsModal && (
+        <HabitInsightsModal
+          onClose={() => setShowInsightsModal(false)}
+          onAddHabit={async (habitData) => {
+            const result = await addHabit(habitData);
+            if (result) {
+              // Optionally keep modal open or close it
+              // setShowInsightsModal(false);
+            }
+          }}
+          isDark={isDark}
+        />
+      )}
+
       {selectedHabitId && (
         <HabitDetailsModal
           habitId={selectedHabitId}
@@ -299,7 +335,7 @@ export default function HabitsPage() {
 // Stat Card Component
 function StatCard({ icon, label, value, color, isDark }: any) {
   return (
-    <div className={`rounded-xl border p-4 transition hover:scale-105 ${
+    <div className={`rounded-xl border p-4 transition-all hover:scale-105 ${
       isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
     }`}>
       <div className="flex items-center gap-3">
