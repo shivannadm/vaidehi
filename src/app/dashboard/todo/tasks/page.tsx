@@ -1,5 +1,5 @@
 // src/app/dashboard/todo/tasks/page.tsx
-// COMPLETE OPTIMIZED VERSION with Custom Dropdown
+// ✅ MOBILE RESPONSIVE VERSION
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -34,7 +34,6 @@ import { useTimer } from "../../components/TimerContext";
 
 // ============================================
 // CUSTOM DROPDOWN COMPONENT
-// Shows only ~7 items with smooth scrolling
 // ============================================
 function FocusGoalDropdown({ 
   value, 
@@ -52,7 +51,6 @@ function FocusGoalDropdown({
 
   const hours = Array.from({ length: 24 }, (_, i) => i + 1);
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -71,7 +69,7 @@ function FocusGoalDropdown({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`px-3 py-1 rounded-lg font-bold border-2 text-center flex items-center gap-1 min-w-[60px] justify-between transition ${
+        className={`px-2 sm:px-3 py-1 rounded-lg font-bold border-2 text-center flex items-center gap-1 min-w-[50px] sm:min-w-[60px] justify-between transition text-xs sm:text-sm ${
           isDark
             ? "bg-slate-700 border-lime-500 text-lime-400 hover:bg-slate-600"
             : "bg-lime-50 border-lime-400 text-lime-700 hover:bg-lime-100"
@@ -231,40 +229,38 @@ export default function TasksPage() {
   }, [userId, mounted, selectedDate]);
 
   const loadAllData = async (uid: string, date: string) => {
-  try {
-    // ✅ STEP 1: Ensure recurring tasks exist for this date
-    await ensureRecurringTasks(uid, date);
-    
-    // ✅ STEP 2: Then load all data as normal
-    const [
-      tasksRes,
-      tagsRes,
-      sessionsRes,
-      statsRes,
-      noteRes,
-      goalRes,
-    ] = await Promise.all([
-      getTasksByDate(uid, date),
-      getTags(uid),
-      getSessionsByDate(uid, date),
-      getDailyReportStats(uid, date),
-      getDayNote(uid, date),
-      getDailyGoal(uid, date),
-    ]);
+    try {
+      await ensureRecurringTasks(uid, date);
+      
+      const [
+        tasksRes,
+        tagsRes,
+        sessionsRes,
+        statsRes,
+        noteRes,
+        goalRes,
+      ] = await Promise.all([
+        getTasksByDate(uid, date),
+        getTags(uid),
+        getSessionsByDate(uid, date),
+        getDailyReportStats(uid, date),
+        getDayNote(uid, date),
+        getDailyGoal(uid, date),
+      ]);
 
-    if (tasksRes.data) {
-      setIncompleteTasks(tasksRes.data.incompleteTasks);
-      setCompletedTasks(tasksRes.data.completedTasks);
+      if (tasksRes.data) {
+        setIncompleteTasks(tasksRes.data.incompleteTasks);
+        setCompletedTasks(tasksRes.data.completedTasks);
+      }
+      if (tagsRes.data) setTags(tagsRes.data);
+      if (sessionsRes.data) setSessions(sessionsRes.data);
+      if (statsRes.data) setStats(statsRes.data);
+      if (noteRes.data) setDayNote(noteRes.data.note_text || "");
+      if (goalRes.data) setGoalHours(goalRes.data.goal_hours);
+    } catch (error) {
+      console.error("Error loading data:", error);
     }
-    if (tagsRes.data) setTags(tagsRes.data);
-    if (sessionsRes.data) setSessions(sessionsRes.data);
-    if (statsRes.data) setStats(statsRes.data);
-    if (noteRes.data) setDayNote(noteRes.data.note_text || "");
-    if (goalRes.data) setGoalHours(goalRes.data.goal_hours);
-  } catch (error) {
-    console.error("Error loading data:", error);
-  }
-};
+  };
 
   // Date helpers
   const handlePrevDay = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() - 1); return n; });
@@ -318,7 +314,7 @@ export default function TasksPage() {
       <div className={`min-h-screen flex items-center justify-center ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
-          <p className={`mt-4 ${isDark ? "text-slate-300" : "text-slate-600"}`}>Loading...</p>
+          <p className={`mt-4 text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Loading...</p>
         </div>
       </div>
     );
@@ -327,86 +323,96 @@ export default function TasksPage() {
   return (
     <div className={`min-h-screen ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
       {/* Header - Date roller + Timer */}
-      <div className={`rounded-xl border p-5 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <button onClick={handlePrevDay} className={`p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          </button>
+      <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          {/* Date Navigation */}
+          <div className="flex items-center justify-between lg:justify-start gap-2 flex-1">
+            <button onClick={handlePrevDay} className={`p-1.5 sm:p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}>
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
 
-          <div className="flex items-center gap-2">
-            {weekDates.map((date, i) => {
-              const selected = formatDateToString(date) === formatDateToString(selectedDate);
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleDateSelect(date)}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-semibold transition ${
-                    selected ? "bg-cyan-500 text-white" : isDark ? "text-slate-400 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  {date.getDate()}
-                </button>
-              );
-            })}
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide">
+              {weekDates.map((date, i) => {
+                const selected = formatDateToString(date) === formatDateToString(selectedDate);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => handleDateSelect(date)}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-semibold transition text-xs sm:text-sm flex-shrink-0 ${
+                      selected ? "bg-cyan-500 text-white" : isDark ? "text-slate-400 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button onClick={handleNextDay} className={`p-1.5 sm:p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}>
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+
+            {!isToday && (
+              <button onClick={handleToday} className="hidden lg:block ml-4 px-3 py-1.5 sm:px-4 sm:py-2 bg-indigo-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap">
+                Today
+              </button>
+            )}
           </div>
 
-          <button onClick={handleNextDay} className={`p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-300" : "hover:bg-slate-100 text-slate-600"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          </button>
-
-          {!isToday && (
-            <button onClick={handleToday} className="ml-4 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
-              Today
-            </button>
-          )}
-
-          {/* Timer */}
-          <div className="flex items-center gap-3 ml-auto">
+          {/* Timer - Right side on desktop, below on mobile */}
+          <div className="flex items-center gap-2 sm:gap-3 lg:ml-auto">
             {timer.taskId && (
-              <div className={`text-sm font-medium px-4 py-2 rounded-lg truncate max-w-xs ${isDark ? "bg-slate-700 text-slate-200" : "bg-slate-100 text-slate-700"}`}>
+              <div className={`text-xs sm:text-sm font-medium px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg truncate max-w-xs ${isDark ? "bg-slate-700 text-slate-200" : "bg-slate-100 text-slate-700"}`}>
                 {timer.taskTitle}
               </div>
             )}
-            <div className={`flex items-center gap-2 rounded-lg px-3 py-2 ${isDark ? "bg-slate-700/50" : "bg-slate-200/50"}`}>
+            <div className={`flex items-center gap-1.5 sm:gap-2 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 ${isDark ? "bg-slate-700/50" : "bg-slate-200/50"}`}>
               <button
                 onClick={() => timer.isRunning ? pauseTimer() : resumeTimer()}
                 disabled={!timer.taskId}
-                className={`p-2 rounded-lg transition ${timer.isRunning ? "bg-blue-600 hover:bg-blue-700 text-white" : isDark ? "bg-slate-600 hover:bg-slate-500 text-slate-200" : "bg-slate-300 hover:bg-slate-400 text-slate-700"} disabled:opacity-50`}
+                className={`p-1.5 sm:p-2 rounded-lg transition ${timer.isRunning ? "bg-blue-600 hover:bg-blue-700 text-white" : isDark ? "bg-slate-600 hover:bg-slate-500 text-slate-200" : "bg-slate-300 hover:bg-slate-400 text-slate-700"} disabled:opacity-50`}
                 title={timer.isRunning ? "Pause" : "Resume"}
               >
-                {timer.isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {timer.isRunning ? <Pause className="w-3 h-3 sm:w-4 sm:h-4" /> : <Play className="w-3 h-3 sm:w-4 sm:h-4" />}
               </button>
-              <button onClick={handleStopTimer} disabled={!timer.taskId} className="p-2 rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-50" title="Stop">
-                <Square className="w-4 h-4" />
+              <button onClick={handleStopTimer} disabled={!timer.taskId} className="p-1.5 sm:p-2 rounded-lg bg-red-600 hover:bg-red-700 text-white disabled:opacity-50" title="Stop">
+                <Square className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
-              <div className={`text-2xl font-mono font-bold tabular-nums min-w-[90px] text-center ${isDark ? "text-white" : "text-slate-900"}`}>
+              <div className={`text-lg sm:text-2xl font-mono font-bold tabular-nums min-w-[70px] sm:min-w-[90px] text-center ${isDark ? "text-white" : "text-slate-900"}`}>
                 {formatTime(timer.elapsedSeconds)}
               </div>
             </div>
           </div>
+
+          {/* Today button for mobile */}
+          {!isToday && (
+            <button onClick={handleToday} className="lg:hidden w-full px-3 py-2 bg-indigo-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
+              Today
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="p-5 lg:px-0 py-5">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-screen-1xl mx-auto">
+      {/* Main Grid - Stack on Mobile */}
+      <div className="p-3 sm:p-5 lg:px-0 py-3 sm:py-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5 max-w-screen-1xl mx-auto">
 
           {/* LEFT - Tasks */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-3 sm:space-y-5">
             {/* Incomplete */}
-            <div className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task to complete</h2>
+            <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task to complete</h2>
               <div className="space-y-2">
                 <button
                   onClick={() => setIsAddTaskModalOpen(true)}
                   disabled={isPast}
-                  className={`w-full text-left px-3 py-3 rounded-lg border border-dashed text-sm transition disabled:opacity-50 ${isDark ? "border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30" : "border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50"}`}
+                  className={`w-full text-left px-3 py-2.5 sm:py-3 rounded-lg border border-dashed text-xs sm:text-sm transition disabled:opacity-50 ${isDark ? "border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30" : "border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50"}`}
                 >
                   + Add task
                 </button>
 
                 {incompleteTasks.length === 0 ? (
-                  <p className={`text-center py-8 text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No tasks yet. Add one to get started!</p>
+                  <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No tasks yet. Add one to get started!</p>
                 ) : (
                   incompleteTasks.map(task => (
                     <TaskItem
@@ -426,10 +432,10 @@ export default function TasksPage() {
             </div>
 
             {/* Completed */}
-            <div className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Completed tasks</h2>
+            <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Completed tasks</h2>
               {completedTasks.length === 0 ? (
-                <p className={`text-center py-8 text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No completed tasks yet</p>
+                <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No completed tasks yet</p>
               ) : (
                 <div className="space-y-2">
                   {completedTasks.map(task => (
@@ -452,8 +458,8 @@ export default function TasksPage() {
 
           {/* CENTER - Timeline */}
           <div className="lg:col-span-4">
-            <div className={`rounded-xl border p-5 h-230 min-h-96 flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Today's Task time Record</h2>
+            <div className={`rounded-xl border p-3 sm:p-5 h-64 sm:h-96 lg:h-230 min-h-64 flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Today's Task time Record</h2>
               <div className="flex-1 min-h-0">
                 <Timeline sessions={sessions} currentTime={currentTime} isDark={isDark} activeTaskId={timer.taskId} />
               </div>
@@ -461,45 +467,45 @@ export default function TasksPage() {
           </div>
 
           {/* RIGHT - Tags, Report, Note */}
-          <div className="lg:col-span-3 space-y-5">
+          <div className="lg:col-span-3 space-y-3 sm:space-y-5">
             {/* Tags */}
-            <div className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Tags</h2>
+            <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Tags</h2>
               <TagManager userId={userId || ""} tags={tags} onTagsChanged={() => userId && loadAllData(userId, formatDateToString(selectedDate))} isDark={isDark} />
             </div>
 
             {/* Report */}
-            <div className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task Report</h2>
-              <div className="space-y-3">
+            <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task Report</h2>
+              <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Task Completed:</span>
-                  <span className={`px-3 py-1 rounded-lg font-bold ${isDark ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-900"}`}>
+                  <span className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Task Completed:</span>
+                  <span className={`px-2 sm:px-3 py-1 rounded-lg font-bold text-xs sm:text-sm ${isDark ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-900"}`}>
                     {stats?.completedCount || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Task in progress:</span>
-                  <span className={`px-3 py-1 rounded-lg font-bold ${isDark ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-900"}`}>
+                  <span className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Task in progress:</span>
+                  <span className={`px-2 sm:px-3 py-1 rounded-lg font-bold text-xs sm:text-sm ${isDark ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-900"}`}>
                     {stats?.inProgressCount || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Total focused time:</span>
-                  <span className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  <span className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Total focused time:</span>
+                  <span className={`font-bold text-xs sm:text-sm ${isDark ? "text-white" : "text-slate-900"}`}>
                     {formatDuration(stats?.totalFocusedTime || 0)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Day focus goal:</span>
+                  <span className={`text-xs sm:text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>Day focus goal:</span>
                   <FocusGoalDropdown value={goalHours} onChange={handleGoalChange} disabled={isPast} isDark={isDark} />
                 </div>
 
-                <div className={`mt-4 p-4 rounded-xl border-2 ${goalCardColors.bg} ${goalCardColors.border}`}>
+                <div className={`mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl border-2 ${goalCardColors.bg} ${goalCardColors.border}`}>
                   <div className="text-center">
-                    <div className={`text-sm font-medium mb-1 ${goalCardColors.text}`}>Goal achieved</div>
-                    <div className={`text-3xl font-bold ${goalCardColors.text}`}>
+                    <div className={`text-xs sm:text-sm font-medium mb-1 ${goalCardColors.text}`}>Goal achieved</div>
+                    <div className={`text-2xl sm:text-3xl font-bold ${goalCardColors.text}`}>
                       {stats?.goalPercentage || 0}%
                     </div>
                   </div>
@@ -508,18 +514,18 @@ export default function TasksPage() {
             </div>
 
             {/* Day Note */}
-            <div className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>Day Note</h2>
+            <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>Day Note</h2>
                 {savingNote && <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>Saving...</span>}
               </div>
               <textarea
                 value={dayNote}
                 onChange={e => setDayNote(e.target.value)}
                 placeholder="Add your day key insights here..."
-                rows={5}
+                rows={4}
                 disabled={isPast}
-                className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"} ${isPast ? "opacity-60 cursor-not-allowed" : ""}`}
+                className={`w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm ${isDark ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"} ${isPast ? "opacity-60 cursor-not-allowed" : ""}`}
               />
             </div>
           </div>
