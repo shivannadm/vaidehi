@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectEditor.tsx
-// Create this new file
+// ✅ MOBILE RESPONSIVE VERSION
 // ============================================
 
 "use client";
@@ -57,7 +57,6 @@ export default function ProjectEditor({
         setTargetDate(project.target_end_date || "");
         setTags(project.tags || []);
       } else {
-        // Reset for new project
         setTitle("");
         setDescription("");
         setStatus("planning");
@@ -162,25 +161,25 @@ export default function ProjectEditor({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
       <div
         ref={modalRef}
-        className={`w-full max-w-3xl rounded-xl shadow-2xl border-2 overflow-hidden ${
+        className={`w-full max-w-3xl rounded-t-2xl sm:rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] sm:max-h-[85vh] flex flex-col ${
           isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
         }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-5 border-b-2 ${
+          className={`flex items-center justify-between p-4 md:p-5 border-b-2 flex-shrink-0 ${
             isDark ? "border-slate-700" : "border-slate-200"
           }`}
         >
-          <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+          <h2 className={`text-lg md:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             {project ? "Edit Project" : "Create New Project"}
           </h2>
           <button
             onClick={handleClose}
-            className={`p-2 rounded-lg transition ${
+            className={`p-1.5 md:p-2 rounded-lg transition ${
               isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"
             }`}
           >
@@ -188,12 +187,12 @@ export default function ProjectEditor({
           </button>
         </div>
 
-        {/* Form */}
-        <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto scrollbar-custom">
+        {/* Form - Scrollable */}
+        <div className="p-4 md:p-6 space-y-4 md:space-y-5 overflow-y-auto flex-1 scrollbar-custom">
           {/* Error Message */}
           {error && (
             <div
-              className={`p-3 rounded-lg border text-sm ${
+              className={`p-3 rounded-lg border text-xs md:text-sm ${
                 isDark
                   ? "bg-red-900/20 border-red-800 text-red-400"
                   : "bg-red-50 border-red-200 text-red-700"
@@ -205,7 +204,7 @@ export default function ProjectEditor({
 
           {/* Title */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
               Project Title *
             </label>
             <input
@@ -213,8 +212,8 @@ export default function ProjectEditor({
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Website Redesign, Mobile App Launch"
-              className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              placeholder="e.g., Website Redesign"
+              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
@@ -225,7 +224,7 @@ export default function ProjectEditor({
 
           {/* Description */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+            <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
               Description
             </label>
             <textarea
@@ -233,7 +232,7 @@ export default function ProjectEditor({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What is this project about?"
               rows={3}
-              className={`w-full px-4 py-2.5 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border resize-none text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
@@ -242,10 +241,10 @@ export default function ProjectEditor({
           </div>
 
           {/* Status & Priority Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             {/* Status */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Status
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -257,7 +256,7 @@ export default function ProjectEditor({
                       key={s}
                       type="button"
                       onClick={() => setStatus(s)}
-                      className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${
+                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${
                         isSelected
                           ? "border-indigo-500"
                           : isDark
@@ -282,7 +281,7 @@ export default function ProjectEditor({
 
             {/* Priority */}
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Priority
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -294,7 +293,7 @@ export default function ProjectEditor({
                       key={p}
                       type="button"
                       onClick={() => setPriority(p)}
-                      className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${
+                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${
                         isSelected
                           ? "border-indigo-500"
                           : isDark
@@ -319,17 +318,17 @@ export default function ProjectEditor({
           </div>
 
           {/* Timeline Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                <Calendar className="w-4 h-4 inline mr-1" />
+              <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                <Calendar className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                 Start Date
               </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -337,8 +336,8 @@ export default function ProjectEditor({
               />
             </div>
             <div>
-              <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                <Calendar className="w-4 h-4 inline mr-1" />
+              <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                <Calendar className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
                 Target End Date
               </label>
               <input
@@ -346,7 +345,7 @@ export default function ProjectEditor({
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
                 min={startDate || undefined}
-                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -357,11 +356,11 @@ export default function ProjectEditor({
 
           {/* Color Theme */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-              <Palette className="w-4 h-4 inline mr-1" />
+            <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <Palette className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
               Color Theme
             </label>
-            <div className="grid grid-cols-8 gap-2">
+            <div className="grid grid-cols-8 gap-1.5 md:gap-2">
               {availableColors.map((c) => {
                 const theme = PROJECT_COLORS[c];
                 const isSelected = color === c;
@@ -370,7 +369,7 @@ export default function ProjectEditor({
                     key={c}
                     type="button"
                     onClick={() => setColor(c)}
-                    className={`h-10 rounded-lg transition hover:scale-110 ${
+                    className={`h-8 md:h-10 rounded-lg transition hover:scale-110 ${
                       isSelected ? "ring-2 ring-offset-2 ring-indigo-500" : ""
                     }`}
                     style={{
@@ -385,17 +384,17 @@ export default function ProjectEditor({
 
           {/* Tags */}
           <div>
-            <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-              <Tag className="w-4 h-4 inline mr-1" />
+            <label className={`block text-xs md:text-sm font-medium mb-1.5 md:mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+              <Tag className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
               Tags
             </label>
             
             {/* Existing Tags */}
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
+                  className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1 ${
                     isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-700"
                   }`}
                 >
@@ -404,7 +403,7 @@ export default function ProjectEditor({
                     onClick={() => handleRemoveTag(tag)}
                     className="hover:opacity-70"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-2.5 h-2.5 md:w-3 md:h-3" />
                   </button>
                 </span>
               ))}
@@ -418,7 +417,7 @@ export default function ProjectEditor({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
                 placeholder="Add tag..."
-                className={`flex-1 px-3 py-1.5 rounded-lg text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                     : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
@@ -427,7 +426,7 @@ export default function ProjectEditor({
               />
               <button
                 onClick={handleAddTag}
-                className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+                className="px-3 py-1.5 md:px-4 md:py-1.5 bg-indigo-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-indigo-700 transition"
               >
                 Add
               </button>
@@ -437,13 +436,13 @@ export default function ProjectEditor({
 
         {/* Footer */}
         <div
-          className={`flex items-center justify-end gap-3 p-5 border-t-2 ${
+          className={`flex items-center justify-end gap-2 md:gap-3 p-4 md:p-5 border-t-2 flex-shrink-0 ${
             isDark ? "border-slate-700" : "border-slate-200"
           }`}
         >
           <button
             onClick={handleClose}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition ${
               isDark
                 ? "bg-slate-700 hover:bg-slate-600 text-white"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-900"
@@ -454,9 +453,9 @@ export default function ProjectEditor({
           <button
             onClick={handleSave}
             disabled={saving || !title.trim()}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 sm:flex-initial px-5 py-2 md:px-6 md:py-2 bg-indigo-600 text-white rounded-lg font-medium text-xs md:text-sm hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? "Saving..." : project ? "Update Project" : "Create Project"}
+            {saving ? "Saving..." : project ? "Update" : "Create"}
           </button>
         </div>
       </div>

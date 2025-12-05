@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectTaskList.tsx
-// ✅ FIXED: Task creation now works properly with better error handling
+// ✅ MOBILE RESPONSIVE - FIXED TIMER & LAYOUT ISSUES
 // ============================================
 
 "use client";
@@ -45,7 +45,6 @@ export default function ProjectTaskList({
     const incompleteTasks = tasks.filter(t => !t.is_completed);
     const completedTasks = tasks.filter(t => t.is_completed);
 
-    // ✅ FIX: Get TODAY's date in LOCAL timezone
     const getTodayDateString = () => {
         const today = new Date();
         const year = today.getFullYear();
@@ -54,7 +53,6 @@ export default function ProjectTaskList({
         return `${year}-${month}-${day}`;
     };
 
-    // Calculate ONLY today's session time
     const getTodaySessionTime = async (taskId: string): Promise<number> => {
         try {
             const supabase = createClient();
@@ -78,12 +76,9 @@ export default function ProjectTaskList({
         }
     };
 
-    // ✅ CRITICAL FIX: Better error handling and validation
     const handleAddTask = async () => {
-        // Clear previous errors
         setError(null);
 
-        // Validation
         if (!newTaskTitle.trim()) {
             setError("Task title cannot be empty");
             return;
@@ -102,18 +97,11 @@ export default function ProjectTaskList({
         setAdding(true);
 
         try {
-            console.log('✅ Creating project task:', {
-                title: newTaskTitle.trim(),
-                projectId,
-                userId
-            });
-
-            // ✅ CRITICAL FIX: Create task with proper error handling
             const { data, error: createError } = await createTask({
                 user_id: userId,
                 title: newTaskTitle.trim(),
                 project_id: projectId,
-                date: null as any, // ✅ NULL = Not in main task list yet
+                date: null as any,
                 is_completed: false,
                 is_important: false,
                 total_time_spent: 0,
@@ -121,9 +109,6 @@ export default function ProjectTaskList({
             });
 
             if (createError) {
-                console.error('❌ Error creating task:', createError);
-                
-                // ✅ Better error messages
                 if (createError.code === '23503') {
                     setError('Invalid project or user reference');
                 } else if (createError.code === '23505') {
@@ -139,18 +124,13 @@ export default function ProjectTaskList({
                 return;
             }
 
-            console.log('✅ Task created successfully:', data);
-
-            // Success - reset form
             setNewTaskTitle("");
             setIsAdding(false);
             setError(null);
-            
-            // Refresh task list
             onRefresh();
 
         } catch (err) {
-            console.error("❌ Unexpected error creating task:", err);
+            console.error("Unexpected error creating task:", err);
             setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
             setAdding(false);
@@ -169,7 +149,6 @@ export default function ProjectTaskList({
                 await completeTask(taskId);
             }
             onRefresh();
-            
             window.dispatchEvent(new CustomEvent('projectTaskUpdated'));
         } catch (error) {
             console.error("Error toggling task:", error);
@@ -187,7 +166,6 @@ export default function ProjectTaskList({
         try {
             await deleteTask(taskId);
             onRefresh();
-            
             window.dispatchEvent(new CustomEvent('projectTaskDeleted'));
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -195,7 +173,6 @@ export default function ProjectTaskList({
         }
     };
 
-    // ✅ Start timer AND set date to TODAY
     const handleStartTimer = async (task: TaskWithTag) => {
         if (!userId) return;
 
@@ -203,16 +180,7 @@ export default function ProjectTaskList({
             const today = new Date();
             const todayDateString = getTodayDateString();
 
-            console.log('🎯 Starting timer for project task:', {
-                taskId: task.id,
-                currentDate: task.date,
-                todayDate: todayDateString
-            });
-
-            // ✅ Update task date to TODAY if needed
             if (task.date !== todayDateString) {
-                console.log('📅 Updating task date to TODAY');
-                
                 const { error: updateError } = await updateTask(task.id, {
                     date: todayDateString
                 });
@@ -224,16 +192,11 @@ export default function ProjectTaskList({
                 }
             }
 
-            // Stop existing timer if different task
             if (timer.taskId && timer.taskId !== task.id) {
                 await stopTimer();
             }
 
-            // Start timer
             await startTimer(task.id, task.title, userId, today);
-            
-            console.log('✅ Timer started');
-            
             onRefresh();
             
             window.dispatchEvent(new CustomEvent('projectTimerStarted', {
@@ -261,36 +224,36 @@ export default function ProjectTaskList({
     };
 
     return (
-        <div className="space-y-6 p-4">
-            {/* Active Timer Display */}
+        <div className="space-y-4 md:space-y-6 p-3 md:p-4">
+            {/* Active Timer Display - Mobile Optimized */}
             {timer.taskId && (
-                <div className={`rounded-xl border-2 p-4 ${
+                <div className={`rounded-xl border-2 p-3 md:p-4 ${
                     isDark 
                         ? 'bg-indigo-900/20 border-indigo-700' 
                         : 'bg-indigo-50 border-indigo-300'
                 }`}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                                <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                            <div className="relative flex-shrink-0">
+                                <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full animate-pulse" />
+                                <div className="absolute inset-0 w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full animate-ping" />
                             </div>
-                            <div>
-                                <p className={`text-sm font-medium ${
+                            <div className="flex-1 min-w-0">
+                                <p className={`text-[10px] md:text-sm font-medium ${
                                     isDark ? 'text-slate-400' : 'text-slate-600'
                                 }`}>
                                     Timer Running
                                 </p>
-                                <p className={`font-bold text-lg ${
+                                <p className={`font-bold text-sm md:text-lg truncate ${
                                     isDark ? 'text-white' : 'text-slate-900'
                                 }`}>
                                     {tasks.find(t => t.id === timer.taskId)?.title || timer.taskTitle || 'Unknown Task'}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="text-right">
-                                <p className={`text-3xl font-bold font-mono ${
+                        <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
+                            <div className="text-right flex-1 sm:flex-initial">
+                                <p className={`text-2xl md:text-3xl font-bold font-mono ${
                                     isDark ? 'text-indigo-400' : 'text-indigo-600'
                                 }`}>
                                     {formatDuration(timer.elapsedSeconds)}
@@ -298,9 +261,9 @@ export default function ProjectTaskList({
                             </div>
                             <button
                                 onClick={handleStopTimer}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition flex items-center gap-2"
+                                className="px-3 py-2 md:px-4 md:py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-xs md:text-sm transition flex items-center gap-1.5 md:gap-2"
                             >
-                                <StopCircle className="w-4 h-4" />
+                                <StopCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 Stop
                             </button>
                         </div>
@@ -310,15 +273,15 @@ export default function ProjectTaskList({
 
             {/* Error Display */}
             {error && (
-                <div className={`rounded-lg border p-3 flex items-center justify-between ${
+                <div className={`rounded-lg border p-2.5 md:p-3 flex items-center justify-between text-xs md:text-sm ${
                     isDark 
                         ? 'bg-red-900/20 border-red-800 text-red-400' 
                         : 'bg-red-50 border-red-200 text-red-700'
                 }`}>
-                    <span className="text-sm">{error}</span>
+                    <span>{error}</span>
                     <button
                         onClick={() => setError(null)}
-                        className="text-sm underline"
+                        className="text-xs md:text-sm underline"
                     >
                         Dismiss
                     </button>
@@ -330,17 +293,17 @@ export default function ProjectTaskList({
                 {!isAdding ? (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className={`w-full px-4 py-3 rounded-lg border-2 border-dashed transition text-sm font-medium flex items-center justify-center gap-2 ${
+                        className={`w-full px-3 py-2.5 md:px-4 md:py-3 rounded-lg border-2 border-dashed transition text-xs md:text-sm font-medium flex items-center justify-center gap-2 ${
                             isDark
                                 ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
                                 : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
                         }`}
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         Add Task to Project
                     </button>
                 ) : (
-                    <div className={`rounded-lg border p-3 ${
+                    <div className={`rounded-lg border p-2.5 md:p-3 ${
                         isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-50 border-slate-200'
                     }`}>
                         <div className="flex items-center gap-2">
@@ -359,7 +322,7 @@ export default function ProjectTaskList({
                                 placeholder="Task title..."
                                 autoFocus
                                 disabled={adding}
-                                className={`flex-1 px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                                     isDark
                                         ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400'
                                         : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
@@ -368,9 +331,9 @@ export default function ProjectTaskList({
                             <button
                                 onClick={handleAddTask}
                                 disabled={adding || !newTaskTitle.trim()}
-                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-3 py-1.5 md:px-4 md:py-2 bg-indigo-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {adding ? "Adding..." : "Add"}
+                                {adding ? "..." : "Add"}
                             </button>
                             <button
                                 onClick={() => {
@@ -379,11 +342,11 @@ export default function ProjectTaskList({
                                     setError(null);
                                 }}
                                 disabled={adding}
-                                className={`p-2 rounded-lg transition ${
+                                className={`p-1.5 md:p-2 rounded-lg transition ${
                                     isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
                                 } disabled:opacity-50`}
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             </button>
                         </div>
                     </div>
@@ -393,7 +356,7 @@ export default function ProjectTaskList({
             {/* Tasks to Complete */}
             {incompleteTasks.length > 0 && (
                 <div>
-                    <h3 className={`text-sm font-semibold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <h3 className={`text-xs md:text-sm font-semibold mb-2 md:mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         To Complete ({incompleteTasks.length})
                     </h3>
                     <div className="space-y-2">
@@ -416,7 +379,7 @@ export default function ProjectTaskList({
             {/* Completed Tasks */}
             {completedTasks.length > 0 && (
                 <div>
-                    <h3 className={`text-sm font-semibold mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <h3 className={`text-xs md:text-sm font-semibold mb-2 md:mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                         Completed ({completedTasks.length})
                     </h3>
                     <div className="space-y-2">
@@ -439,12 +402,12 @@ export default function ProjectTaskList({
 
             {/* Empty State */}
             {tasks.length === 0 && !isAdding && (
-                <div className="text-center py-12">
-                    <div className="text-6xl mb-4">📋</div>
-                    <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <div className="text-center py-8 md:py-12 px-4">
+                    <div className="text-4xl md:text-6xl mb-3 md:mb-4">📋</div>
+                    <h3 className={`text-base md:text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         No tasks yet
                     </h3>
-                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    <p className={`text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                         Add your first task to get started!
                     </p>
                 </div>
@@ -453,7 +416,7 @@ export default function ProjectTaskList({
     );
 }
 
-// Task Item Component
+// Task Item Component - Mobile Optimized
 function TaskItem({
     task,
     onToggle,
@@ -498,7 +461,7 @@ function TaskItem({
 
     return (
         <div
-            className={`group flex items-center gap-3 px-4 py-3 rounded-lg border transition ${
+            className={`group flex items-center gap-2 md:gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition ${
                 isCompleted
                     ? isDark
                         ? 'bg-slate-700/30 border-slate-700'
@@ -518,17 +481,17 @@ function TaskItem({
                 className="flex-shrink-0"
             >
                 {isCompleted ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 fill-green-500" />
+                    <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-500 fill-green-500" />
                 ) : (
-                    <Circle className={`w-5 h-5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
+                    <Circle className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
                 )}
             </button>
 
             {/* Task Info */}
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 md:gap-2">
                     <span
-                        className={`font-medium text-sm truncate ${
+                        className={`font-medium text-xs md:text-sm truncate ${
                             isCompleted
                                 ? isDark
                                     ? 'text-slate-400 line-through'
@@ -541,15 +504,15 @@ function TaskItem({
                         {task.title}
                     </span>
                     {task.is_important && (
-                        <Star className={`w-3.5 h-3.5 flex-shrink-0 ${
+                        <Star className={`w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 ${
                             isCompleted ? 'fill-slate-500 text-slate-500' : 'fill-yellow-500 text-yellow-500'
                         }`} />
                     )}
                 </div>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-2 md:gap-3 mt-0.5 md:mt-1">
                     {task.tag && (
                         <span
-                            className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 rounded-full font-medium"
                             style={{
                                 backgroundColor: isDark
                                     ? TAG_COLORS[task.tag.color].darkBg
@@ -562,24 +525,24 @@ function TaskItem({
                             #{task.tag.name}
                         </span>
                     )}
-                    <span className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] md:text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         Today: {loading ? '...' : formatDuration(todayTime)}
                     </span>
                     {task.total_time_spent > todayTime && (
-                        <span className={`text-xs font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                        <span className={`text-[10px] md:text-xs font-medium ${isDark ? 'text-cyan-400' : 'text-cyan-600'}`}>
                             Total: {formatDuration(task.total_time_spent)}
                         </span>
                     )}
                 </div>
             </div>
 
-            {/* Timer Button & Actions */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Timer Button & Actions - Always visible on mobile */}
+            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
                 {!isCompleted && (
                     <button
                         onClick={() => onStartTimer(task)}
                         disabled={isTimerActive}
-                        className={`p-2 rounded-lg transition ${
+                        className={`p-1.5 md:p-2 rounded-lg transition ${
                             isTimerActive
                                 ? 'bg-indigo-600 text-white'
                                 : isDark
@@ -588,17 +551,17 @@ function TaskItem({
                         }`}
                         title={isTimerActive ? "Timer running" : "Start timer"}
                     >
-                        <Play className="w-4 h-4" />
+                        <Play className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </button>
                 )}
 
                 <button
                     onClick={() => onDelete(task.id)}
-                    className={`p-1.5 rounded transition opacity-0 group-hover:opacity-100 ${
+                    className={`p-1 md:p-1.5 rounded transition md:opacity-0 md:group-hover:opacity-100 ${
                         isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
                     }`}
                 >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
             </div>
         </div>

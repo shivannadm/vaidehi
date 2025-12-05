@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectCard.tsx
-// Create this new file
+// ✅ MOBILE RESPONSIVE VERSION
 // ============================================
 
 "use client";
@@ -77,16 +77,16 @@ export default function ProjectCard({
     return (
       <div
         onClick={() => onClick(project.id)}
-        className={`group cursor-pointer rounded-lg p-4 border-2 transition-all hover:shadow-md ${
+        className={`group cursor-pointer rounded-lg p-3 md:p-4 border-2 transition-all hover:shadow-md ${
           isDark
             ? "bg-slate-800 border-slate-700 hover:border-slate-600"
             : "bg-white border-slate-200 hover:border-slate-300"
         }`}
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-start md:items-center gap-3 md:gap-4">
           {/* Color Indicator */}
           <div
-            className="w-1 h-16 rounded-full flex-shrink-0"
+            className="w-0.5 md:w-1 h-12 md:h-16 rounded-full flex-shrink-0"
             style={{
               backgroundColor: isDark ? colorTheme.darkBorder : colorTheme.lightBorder,
             }}
@@ -94,24 +94,24 @@ export default function ProjectCard({
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className="flex items-start justify-between mb-1.5 md:mb-2">
+              <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
                 <h3
-                  className={`font-bold text-lg truncate ${
+                  className={`font-bold text-sm md:text-lg truncate ${
                     isDark ? "text-white" : "text-slate-900"
                   }`}
                 >
                   {project.title}
                 </h3>
                 {project.is_favorite && (
-                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500 flex-shrink-0" />
+                  <Star className="w-3 h-3 md:w-4 md:h-4 fill-yellow-500 text-yellow-500 flex-shrink-0" />
                 )}
               </div>
 
               {/* Priority Badge */}
-              <div className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium flex-shrink-0">
-                <span>{priorityConfig.icon}</span>
-                <span style={{ color: priorityConfig.color }}>
+              <div className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium flex-shrink-0">
+                <span className="text-xs md:text-sm">{priorityConfig.icon}</span>
+                <span className="hidden sm:inline text-xs md:text-sm" style={{ color: priorityConfig.color }}>
                   {priorityConfig.label}
                 </span>
               </div>
@@ -120,7 +120,7 @@ export default function ProjectCard({
             {/* Description */}
             {project.description && (
               <p
-                className={`text-sm line-clamp-1 mb-2 ${
+                className={`text-xs md:text-sm line-clamp-1 mb-1.5 md:mb-2 ${
                   isDark ? "text-slate-400" : "text-slate-600"
                 }`}
               >
@@ -129,34 +129,34 @@ export default function ProjectCard({
             )}
 
             {/* Stats Row */}
-            <div className="flex items-center gap-4 text-sm">
+            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm">
               {/* Status */}
               <div
-                className="flex items-center gap-1 px-2 py-1 rounded-lg"
+                className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs"
                 style={{
                   backgroundColor: isDark ? statusConfig.darkBg : statusConfig.lightBg,
                   color: isDark ? statusConfig.darkText : statusConfig.lightText,
                 }}
               >
-                <span>{statusConfig.icon}</span>
-                <span className="font-medium">{statusConfig.label}</span>
+                <span className="text-xs md:text-sm">{statusConfig.icon}</span>
+                <span className="font-medium hidden sm:inline">{statusConfig.label}</span>
               </div>
 
               {/* Progress */}
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                <span className={isDark ? "text-slate-300" : "text-slate-700"}>
-                  {project.completed_tasks}/{project.total_tasks} tasks
+              <div className="flex items-center gap-1 md:gap-1.5">
+                <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
+                <span className={`text-[10px] md:text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  {project.completed_tasks}/{project.total_tasks}
                 </span>
-                <span className="font-bold text-green-500">{project.progress}%</span>
+                <span className="font-bold text-green-500 text-[10px] md:text-sm">{project.progress}%</span>
               </div>
 
               {/* Timeline */}
               {project.target_end_date && (
-                <div className="flex items-center gap-2">
-                  <Clock className={`w-4 h-4 ${overdue ? "text-red-500" : "text-blue-500"}`} />
+                <div className="flex items-center gap-1 md:gap-1.5">
+                  <Clock className={`w-3 h-3 md:w-4 md:h-4 ${overdue ? "text-red-500" : "text-blue-500"}`} />
                   <span
-                    className={`font-medium ${
+                    className={`font-medium text-[10px] md:text-xs ${
                       overdue
                         ? "text-red-500"
                         : isDark
@@ -165,26 +165,26 @@ export default function ProjectCard({
                     }`}
                   >
                     {overdue
-                      ? `${Math.abs(daysRemaining!)} days overdue`
+                      ? `${Math.abs(daysRemaining!)}d`
                       : daysRemaining === 0
-                      ? "Due today"
-                      : `${daysRemaining} days left`}
+                      ? "Today"
+                      : `${daysRemaining}d`}
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          {/* Actions - Always visible on mobile, hover on desktop */}
+          <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0">
             <button
               onClick={handleToggleFavorite}
-              className={`p-2 rounded-lg transition ${
+              className={`p-1 md:p-2 rounded-lg transition ${
                 isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
               }`}
             >
               <Star
-                className={`w-4 h-4 ${
+                className={`w-3.5 h-3.5 md:w-4 md:h-4 ${
                   project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
                 }`}
                 style={{
@@ -198,30 +198,30 @@ export default function ProjectCard({
             </button>
             <button
               onClick={handleEdit}
-              className={`p-2 rounded-lg transition ${
+              className={`p-1 md:p-2 rounded-lg transition ${
                 isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
               }`}
             >
               <Edit2
-                className="w-4 h-4"
+                className="w-3.5 h-3.5 md:w-4 md:h-4"
                 style={{ color: isDark ? "#94a3b8" : "#64748b" }}
               />
             </button>
             <button
               onClick={handleDelete}
-              className={`p-2 rounded-lg transition ${
+              className={`p-1 md:p-2 rounded-lg transition ${
                 isDark ? "hover:bg-red-900/30" : "hover:bg-red-50"
               }`}
             >
-              <Trash2 className="w-4 h-4 text-red-500" />
+              <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
             </button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="mt-3">
+        <div className="mt-2 md:mt-3">
           <div
-            className={`h-2 rounded-full overflow-hidden ${
+            className={`h-1.5 md:h-2 rounded-full overflow-hidden ${
               isDark ? "bg-slate-700" : "bg-slate-200"
             }`}
           >
@@ -235,29 +235,29 @@ export default function ProjectCard({
     );
   }
 
-  // GRID VIEW
+  // GRID VIEW - Mobile Optimized
   return (
     <div
       onClick={() => onClick(project.id)}
-      className="group cursor-pointer rounded-xl p-5 border-2 transition-all hover:shadow-lg relative"
+      className="group cursor-pointer rounded-xl p-3 md:p-5 border-2 transition-all hover:shadow-lg relative"
       style={{
         backgroundColor: isDark 
-          ? `${colorTheme.darkBg}40`  // 40 = 25% opacity for dark mode
-          : `${colorTheme.lightBg}80`, // 80 = 50% opacity for light mode
+          ? `${colorTheme.darkBg}40`
+          : `${colorTheme.lightBg}80`,
         borderColor: isDark ? colorTheme.darkBorder : colorTheme.lightBorder,
       }}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
+      <div className="flex items-start justify-between mb-2 md:mb-3">
+        <div className="flex-1 min-w-0 pr-2">
           <h3
-            className="font-bold text-lg mb-1 truncate"
+            className="font-bold text-sm md:text-lg mb-1 truncate"
             style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
           >
             {project.title}
           </h3>
           <div
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium"
+            className="inline-flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs font-medium"
             style={{
               backgroundColor: isDark ? statusConfig.darkBg : statusConfig.lightBg,
               color: isDark ? statusConfig.darkText : statusConfig.lightText,
@@ -268,13 +268,15 @@ export default function ProjectCard({
           </div>
         </div>
 
-        {/* Favorite Star */}
+        {/* Favorite Star - Always visible on mobile */}
         <button
           onClick={handleToggleFavorite}
-          className="p-1.5 rounded-lg transition opacity-0 group-hover:opacity-100 hover:bg-black/10"
+          className={`p-1 md:p-1.5 rounded-lg transition md:opacity-0 md:group-hover:opacity-100 ${
+            isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+          }`}
         >
           <Star
-            className={`w-5 h-5 ${
+            className={`w-4 h-4 md:w-5 md:h-5 ${
               project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
             }`}
             style={{
@@ -291,7 +293,7 @@ export default function ProjectCard({
       {/* Description */}
       {project.description && (
         <p
-          className="text-sm mb-4 line-clamp-2"
+          className="text-xs md:text-sm mb-3 md:mb-4 line-clamp-2"
           style={{
             color: isDark ? colorTheme.darkText + "CC" : colorTheme.lightText + "CC",
           }}
@@ -301,25 +303,25 @@ export default function ProjectCard({
       )}
 
       {/* Stats */}
-      <div className="space-y-3 mb-4">
+      <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
         {/* Progress */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <span
-              className="text-xs font-medium"
+              className="text-[10px] md:text-xs font-medium"
               style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
             >
               Progress
             </span>
             <span
-              className="text-xs font-bold"
+              className="text-xs md:text-sm font-bold"
               style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
             >
               {project.progress}%
             </span>
           </div>
           <div
-            className="h-2 rounded-full overflow-hidden"
+            className="h-1.5 md:h-2 rounded-full overflow-hidden"
             style={{
               backgroundColor: isDark
                 ? colorTheme.darkBorder + "40"
@@ -334,7 +336,7 @@ export default function ProjectCard({
         </div>
 
         {/* Tasks Count */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-[11px] md:text-sm">
           <span
             style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
           >
@@ -350,7 +352,7 @@ export default function ProjectCard({
 
         {/* Timeline */}
         {project.target_end_date && (
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-[11px] md:text-sm">
             <span
               style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
             >
@@ -365,7 +367,7 @@ export default function ProjectCard({
               }
             >
               {overdue
-                ? `${Math.abs(daysRemaining!)}d ago`
+                ? `${Math.abs(daysRemaining!)}d`
                 : daysRemaining === 0
                 ? "Today"
                 : `${daysRemaining}d`}
@@ -374,26 +376,30 @@ export default function ProjectCard({
         )}
       </div>
 
-      {/* Priority Badge */}
+      {/* Priority Badge & Actions */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 text-xs font-medium">
+        <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs font-medium">
           <span>{priorityConfig.icon}</span>
           <span style={{ color: priorityConfig.color }}>{priorityConfig.label}</span>
         </div>
 
-        {/* Actions Menu */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Actions Menu - Always visible on mobile */}
+        <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleEdit}
-            className="p-1 rounded transition hover:bg-black/10"
+            className={`p-0.5 md:p-1 rounded transition ${
+              isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+            }`}
           >
-            <Edit2 className="w-4 h-4" />
+            <Edit2 className="w-3 h-3 md:w-4 md:h-4" />
           </button>
           <button
             onClick={handleDelete}
-            className="p-1 rounded transition hover:bg-black/10"
+            className={`p-0.5 md:p-1 rounded transition ${
+              isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+            }`}
           >
-            <Trash2 className="w-4 h-4 text-red-500" />
+            <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
           </button>
         </div>
       </div>

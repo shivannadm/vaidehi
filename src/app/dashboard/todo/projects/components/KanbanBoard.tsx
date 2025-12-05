@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/KanbanBoard.tsx
-// FIXED: Drag & Drop now working properly
+// ✅ MOBILE RESPONSIVE - FIXED LAYOUT ISSUES
 // ============================================
 
 "use client";
@@ -29,10 +29,10 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
     completed: tasks.filter(t => t.is_completed),
   };
 
-  const columns: { id: KanbanColumn; title: string; color: string; icon: string }[] = [
-    { id: "todo", title: "To Do", color: "slate", icon: "📋" },
-    { id: "in_progress", title: "In Progress", color: "blue", icon: "⚡" },
-    { id: "completed", title: "Completed", color: "green", icon: "✅" },
+  const columns: { id: KanbanColumn; title: string; shortTitle: string; color: string; icon: string }[] = [
+    { id: "todo", title: "To Do", shortTitle: "To Do", color: "slate", icon: "📋" },
+    { id: "in_progress", title: "In Progress", shortTitle: "Progress", color: "blue", icon: "⚡" },
+    { id: "completed", title: "Completed", shortTitle: "Done", color: "green", icon: "✅" },
   ];
 
   const handleDragStart = (e: React.DragEvent, task: TaskWithTag) => {
@@ -59,7 +59,6 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
     e.preventDefault();
     if (!draggedTask) return;
 
-    // Prevent dropping in same column
     const currentColumn = draggedTask.is_completed 
       ? "completed" 
       : draggedTask.total_time_spent > 0 
@@ -72,15 +71,12 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
       return;
     }
 
-    // Update task based on column
     try {
       if (column === "completed" && !draggedTask.is_completed) {
         await completeTask(draggedTask.id);
       } else if (column !== "completed" && draggedTask.is_completed) {
         await uncompleteTask(draggedTask.id);
       }
-      // If moved to "in_progress" from "todo", the timer will need to be started
-      // This is handled by the timer functionality in the task detail
       
       onRefresh();
     } catch (error) {
@@ -99,8 +95,9 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
   };
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-3 gap-4">
+    <div className="p-3 md:p-6">
+      {/* Mobile: Vertical Stack, Desktop: Horizontal Grid */}
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-3 md:gap-4">
         {columns.map((column) => {
           const columnTasks = tasksByColumn[column.id];
           const isOver = dragOverColumn === column.id;
@@ -111,7 +108,7 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
               onDragOver={(e) => handleDragOver(e, column.id)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, column.id)}
-              className={`rounded-xl border-2 p-4 min-h-96 transition-all ${
+              className={`rounded-xl border-2 p-3 md:p-4 min-h-[200px] md:min-h-96 transition-all ${
                 isOver
                   ? 'border-indigo-500 bg-indigo-500/10'
                   : isDark
@@ -119,15 +116,17 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                     : 'bg-slate-50 border-slate-200 border-dashed'
               }`}
             >
-              {/* Column Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{column.icon}</span>
-                  <h3 className={`font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    {column.title}
+              {/* Column Header - Mobile Optimized */}
+              <div className="flex items-center justify-between mb-3 md:mb-4">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <span className="text-lg md:text-2xl">{column.icon}</span>
+                  <h3 className={`font-bold text-sm md:text-base ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {/* Show short title on mobile, full on desktop */}
+                    <span className="md:hidden">{column.shortTitle}</span>
+                    <span className="hidden md:inline">{column.title}</span>
                   </h3>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                    className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${
                       isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
                     }`}
                   >
@@ -136,10 +135,10 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                 </div>
               </div>
 
-              {/* Tasks */}
-              <div className="space-y-3">
+              {/* Tasks - Mobile Optimized */}
+              <div className="space-y-2 md:space-y-3">
                 {columnTasks.length === 0 ? (
-                  <div className={`text-center py-8 text-sm ${
+                  <div className={`text-center py-6 md:py-8 text-xs md:text-sm ${
                     isDark ? 'text-slate-500' : 'text-slate-400'
                   }`}>
                     {isOver ? 'Drop here' : 'No tasks'}
@@ -155,7 +154,7 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                         draggable
                         onDragStart={(e) => handleDragStart(e, task)}
                         onDragEnd={handleDragEnd}
-                        className={`group rounded-lg p-3 border cursor-move transition-all hover:shadow-md ${
+                        className={`group rounded-lg p-2.5 md:p-3 border cursor-move transition-all hover:shadow-md ${
                           isDragging 
                             ? 'opacity-50 scale-95'
                             : task.is_completed
@@ -167,15 +166,15 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                                 : 'bg-white border-slate-200 hover:border-slate-300'
                         }`}
                       >
-                        {/* Task Header */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex items-start gap-2 flex-1 min-w-0">
-                            <GripVertical className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                        {/* Task Header - Mobile Optimized */}
+                        <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
+                          <div className="flex items-start gap-1.5 md:gap-2 flex-1 min-w-0">
+                            <GripVertical className={`w-3 h-3 md:w-4 md:h-4 mt-0.5 flex-shrink-0 ${
                               isDark ? 'text-slate-500' : 'text-slate-400'
                             }`} />
                             <div className="flex-1 min-w-0">
                               <h4
-                                className={`font-semibold text-sm mb-1 ${
+                                className={`font-semibold text-xs md:text-sm mb-1 break-words ${
                                   task.is_completed
                                     ? isDark
                                       ? 'text-slate-400 line-through'
@@ -189,7 +188,7 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                               </h4>
                               {task.tag && (
                                 <span
-                                  className="text-xs px-2 py-0.5 rounded-full font-medium inline-block"
+                                  className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 rounded-full font-medium inline-block"
                                   style={{
                                     backgroundColor: isDark ? tagColor!.darkBg : tagColor!.lightBg,
                                     color: isDark ? tagColor!.darkText : tagColor!.lightText,
@@ -201,26 +200,27 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-1">
+                          {/* Actions - Always visible on mobile */}
+                          <div className="flex items-center gap-1 flex-shrink-0">
                             {task.is_important && (
-                              <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                              <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-yellow-500 text-yellow-500" />
                             )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteTask(task.id);
                               }}
-                              className={`p-1 rounded opacity-0 group-hover:opacity-100 transition ${
+                              className={`p-1 rounded md:opacity-0 md:group-hover:opacity-100 transition ${
                                 isDark ? 'hover:bg-slate-600' : 'hover:bg-slate-100'
                               }`}
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                              <Trash2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-red-500" />
                             </button>
                           </div>
                         </div>
 
-                        {/* Task Footer */}
-                        <div className="flex items-center justify-between text-xs">
+                        {/* Task Footer - Mobile Optimized */}
+                        <div className="flex items-center justify-between text-[10px] md:text-xs">
                           <div className={`flex items-center gap-1 ${
                             isDark ? 'text-slate-400' : 'text-slate-600'
                           }`}>
@@ -228,7 +228,7 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
                             {task.total_time_spent > 0 ? (
                               <span>{formatDuration(task.total_time_spent)}</span>
                             ) : (
-                              <span>Not started</span>
+                              <span className="hidden md:inline">Not started</span>
                             )}
                           </div>
                           <div className={isDark ? 'text-slate-500' : 'text-slate-400'}>
@@ -248,12 +248,12 @@ export default function KanbanBoard({ tasks, onRefresh, isDark }: KanbanBoardPro
         })}
       </div>
 
-      {/* Instructions */}
-      <div className={`mt-6 p-4 rounded-lg border ${
+      {/* Instructions - Mobile Optimized */}
+      <div className={`mt-4 md:mt-6 p-3 md:p-4 rounded-lg border text-xs md:text-sm ${
         isDark ? 'bg-slate-800 border-slate-700' : 'bg-blue-50 border-blue-200'
       }`}>
-        <p className={`text-sm ${isDark ? 'text-slate-300' : 'text-blue-900'}`}>
-          💡 <strong>Tip:</strong> Drag tasks between columns to change their status or start timer from tasks. Tasks in "In Progress" have time tracked.
+        <p className={isDark ? 'text-slate-300' : 'text-blue-900'}>
+          💡 <strong>Tip:</strong> Drag tasks between columns to change status or start timer from tasks.
         </p>
       </div>
     </div>
