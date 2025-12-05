@@ -301,7 +301,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Dashboard"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Dashboard'}
-                onClick={() => handleNavigation('Dashboard', 'trading', '/dashboard')}
+                onClick={() => handleNavigation('Dashboard', 'trading', '/dashboard/trading/dashboard')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -354,10 +354,10 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
               />
               <SidebarItem
                 icon={<PieChart className="w-4 h-4" />}
-                label="Performance"
+                label="Analytics"
                 isCollapsed={isCollapsed}
-                isActive={activeItem === 'Performance'}
-                onClick={() => onItemClick('Performance', 'trading')}
+                isActive={activeItem === 'Analytics'}
+                onClick={() => handleNavigation('Analytics', 'trading', '/dashboard/trading/analytics')}
                 isLight={isLight}
               />
             </div>
