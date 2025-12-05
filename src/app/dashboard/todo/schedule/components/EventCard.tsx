@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/schedule/components/EventCard.tsx
+// ✅ MOBILE RESPONSIVE - Always show action buttons on mobile
 "use client";
 
 import { Clock, Edit2, Trash2, ArrowRight } from "lucide-react";
@@ -43,26 +44,26 @@ export default function EventCard({
 
   return (
     <div
-      className={`rounded-lg p-4 border transition group ${
+      className={`rounded-lg p-3 sm:p-4 border transition group ${
         isDark
           ? "bg-slate-800 border-slate-700 hover:border-slate-600"
           : "bg-white border-slate-200 hover:border-slate-300"
       } ${isPast ? "opacity-60" : ""}`}
     >
       {/* Event Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-lg">{typeConfig.icon}</span>
+      <div className="flex items-start justify-between mb-2 gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="text-base sm:text-lg">{typeConfig.icon}</span>
             <h3
-              className={`font-semibold text-sm ${
+              className={`font-semibold text-sm sm:text-base ${
                 isDark ? "text-white" : "text-slate-900"
               }`}
             >
               {event.title}
             </h3>
             {isPast && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-500">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-500 whitespace-nowrap">
                 Past
               </span>
             )}
@@ -83,9 +84,12 @@ export default function EventCard({
           </div>
         </div>
 
-        {/* Actions - Hide for past events */}
+        {/* Actions - Always visible on mobile, hover on desktop */}
         {!isPast && (
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+          <div className={`flex items-center gap-1 flex-shrink-0 ${
+            // Always visible on mobile (< lg), hover on desktop
+            "lg:opacity-0 lg:group-hover:opacity-100"
+          } transition`}>
             {canMoveToTask && (
               <button
                 onClick={() => onMoveToTask(event.id)}
@@ -125,8 +129,8 @@ export default function EventCard({
         )}
       </div>
 
-      {/* Type Badge */}
-      <div className="flex items-center gap-2">
+      {/* Type Badge & Recurring */}
+      <div className="flex items-center gap-2 flex-wrap">
         <span
           className="text-xs px-2 py-0.5 rounded-full font-medium"
           style={{
@@ -153,7 +157,7 @@ export default function EventCard({
       {/* Description */}
       {event.description && (
         <p
-          className={`text-xs mt-2 ${
+          className={`text-xs mt-2 line-clamp-2 ${
             isDark ? "text-slate-400" : "text-slate-600"
           }`}
         >

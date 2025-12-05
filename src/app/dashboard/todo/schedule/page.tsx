@@ -1,4 +1,5 @@
 // src/app/dashboard/todo/schedule/page.tsx
+// ✅ MOBILE RESPONSIVE VERSION
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,7 +14,7 @@ import type { ScheduleEvent, EventFormData } from "@/types/database";
 import { createClient } from "@/lib/supabase/client";
 import { getUpcomingEvents, getScheduleEventsForDate } from "@/lib/supabase/schedule-helpers";
 
-// Helper function to format date correctly (fixes timezone issue)
+// Helper function to format date correctly
 function formatDateForInput(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -31,24 +32,20 @@ export default function SchedulePage() {
   const [upcomingEvents, setUpcomingEvents] = useState<ScheduleEvent[]>([]);
   const [allTodayEvents, setAllTodayEvents] = useState<ScheduleEvent[]>([]);
 
-  // Get formatted date string (fixes timezone issue)
   const selectedDateString = formatDateForInput(selectedDate);
 
-  // Fetch events for selected day
   const {
     events,
     loading: eventsLoading,
     refreshEvents,
   } = useSchedule(selectedDateString);
 
-  // Fetch events for current month (for calendar dots)
   const {
     eventCounts,
     loading: monthLoading,
     refreshMonthEvents,
   } = useMonthEvents(currentMonth.getFullYear(), currentMonth.getMonth());
 
-  // Event actions
   const { createEvent, updateEvent, deleteEvent, moveToTask, loading: actionLoading } =
     useEventActions();
 
@@ -71,7 +68,7 @@ export default function SchedulePage() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch upcoming events and today's events for notifications
+  // Fetch upcoming events and today's events
   useEffect(() => {
     const fetchEvents = async () => {
       const supabase = createClient();
@@ -80,13 +77,11 @@ export default function SchedulePage() {
       } = await supabase.auth.getUser();
 
       if (user) {
-        // Fetch upcoming events (for display)
         const { data: upcoming } = await getUpcomingEvents(user.id, 5);
         if (upcoming) {
           setUpcomingEvents(upcoming);
         }
 
-        // Fetch ALL today's events (for notifications)
         const today = formatDateForInput(new Date());
         const { data: todayEvents } = await getScheduleEventsForDate(user.id, today);
         if (todayEvents) {
@@ -96,9 +91,8 @@ export default function SchedulePage() {
     };
 
     fetchEvents();
-  }, [events]); // Refresh when events change
+  }, [events]);
 
-  // 🔔 Enable schedule notifications (checks every 1 minute)
   useScheduleNotifications(allTodayEvents);
 
   // Handlers
@@ -120,7 +114,6 @@ export default function SchedulePage() {
   };
 
   const handleAddEvent = () => {
-    // Check if selected date is in the past
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const selected = new Date(selectedDate);
@@ -141,7 +134,6 @@ export default function SchedulePage() {
   };
 
   const handleUpcomingEventClick = (event: ScheduleEvent) => {
-    // Jump to that event's date (fixed timezone parsing)
     const [year, month, day] = event.date.split('-').map(Number);
     const eventDate = new Date(year, month - 1, day);
     setSelectedDate(eventDate);
@@ -149,7 +141,6 @@ export default function SchedulePage() {
   };
 
   const handleSubmitEvent = async (formData: EventFormData) => {
-    // Prevent scheduling in the past
     const [year, month, day] = formData.date.split('-').map(Number);
     const eventDate = new Date(year, month - 1, day);
     const today = new Date();
@@ -163,7 +154,6 @@ export default function SchedulePage() {
 
     try {
       if (editingEvent) {
-        // Update existing event
         const result = await updateEvent(editingEvent.id, formData);
         if (result.success) {
           refreshEvents();
@@ -172,7 +162,6 @@ export default function SchedulePage() {
           setEditingEvent(null);
         }
       } else {
-        // Create new event
         const result = await createEvent(formData);
         if (result.success) {
           refreshEvents();
@@ -209,7 +198,6 @@ export default function SchedulePage() {
     setCurrentMonth(today);
   };
 
-  // SSR placeholder
   if (!mounted) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -223,10 +211,10 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="h-full flex flex-col" suppressHydrationWarning>
-      {/* Main Content - Grid Layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-7 gap-5 overflow-hidden">
-        {/* Calendar - Left Side (2 columns) */}
+    <div className="h-full flex flex-col p-3 sm:p-0" suppressHydrationWarning>
+      {/* Main Content - Stack on Mobile, Grid on Desktop */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-7 gap-3 sm:gap-5 overflow-hidden">
+        {/* Calendar - Full Width on Mobile */}
         <div className="lg:col-span-2 overflow-hidden">
           <ScheduleCalendar
             selectedDate={selectedDate}
@@ -240,9 +228,9 @@ export default function SchedulePage() {
           />
         </div>
 
-        {/* Right Side (5 columns) - Scrollable Events + Upcoming */}
-        <div className="lg:col-span-5 overflow-y-auto scrollbar-custom space-y-5 pr-2">
-          {/* Day Events - Top */}
+        {/* Right Side - Events + Upcoming */}
+        <div className="lg:col-span-5 overflow-y-auto scrollbar-custom space-y-3 sm:space-y-5 pr-0 sm:pr-2">
+          {/* Day Events */}
           <DayEventsList
             selectedDate={selectedDate}
             events={events}
@@ -254,7 +242,7 @@ export default function SchedulePage() {
             isDark={isDark}
           />
 
-          {/* Upcoming Events - Bottom */}
+          {/* Upcoming Events */}
           {upcomingEvents.length > 0 && (
             <UpcomingEvents
               events={upcomingEvents}
@@ -265,7 +253,7 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* Add/Edit Event Modal - Pass correct date string */}
+      {/* Add/Edit Event Modal */}
       <AddEventModal
         isOpen={isAddModalOpen}
         onClose={() => {
