@@ -1,5 +1,5 @@
 // src/app/dashboard/todo/trends/components/FocusGoalCalendar.tsx
-// FIXED: Timezone issue - tasks now show on correct date
+// ✅ MOBILE RESPONSIVE VERSION
 "use client";
 
 import { useState } from "react";
@@ -32,24 +32,20 @@ export default function FocusGoalCalendar({
 
   const dayNames = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-  // Generate calendar grid
   const generateCalendar = () => {
     const firstDay = new Date(selectedYear, selectedMonth, 1);
     const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
     
-    // Get starting day (0 = Monday, 6 = Sunday)
     let startDay = firstDay.getDay() - 1;
-    if (startDay < 0) startDay = 6; // Sunday becomes 6
+    if (startDay < 0) startDay = 6;
     
     const days: (number | null)[] = [];
     
-    // Add empty cells for days before month starts
     for (let i = 0; i < startDay; i++) {
       days.push(null);
     }
     
-    // Add days of month
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(i);
     }
@@ -59,18 +55,14 @@ export default function FocusGoalCalendar({
 
   const days = generateCalendar();
 
-  // FIXED: Get goal data for a specific day - Now uses LOCAL timezone correctly
   const getGoalData = (day: number): GoalDayData | undefined => {
-    // Create a date in LOCAL timezone for this day
     const localDate = new Date(selectedYear, selectedMonth, day);
     
-    // Format as YYYY-MM-DD in LOCAL timezone (not UTC)
     const year = localDate.getFullYear();
     const month = String(localDate.getMonth() + 1).padStart(2, '0');
     const dayStr = String(localDate.getDate()).padStart(2, '0');
     const dateStr = `${year}-${month}-${dayStr}`;
     
-    // Find matching goal day data
     return goalDays.find(g => g.date === dateStr);
   };
 
@@ -92,27 +84,25 @@ export default function FocusGoalCalendar({
     }
   };
 
-  // Calculate stats
   const completedDays = goalDays.filter(g => g.goalMet).length;
   const totalGoalDays = goalDays.length;
   const completionRate = totalGoalDays > 0 ? (completedDays / totalGoalDays) * 100 : 0;
 
-  // Get selected day info
   const selectedDayData = selectedDay ? getGoalData(selectedDay) : null;
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
+      className={`rounded-xl border p-4 sm:p-6 ${
         isDark
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-slate-200"
       }`}
     >
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <h2
-            className={`text-lg font-bold ${
+            className={`text-base sm:text-lg font-bold ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
@@ -120,17 +110,17 @@ export default function FocusGoalCalendar({
           </h2>
           <div className="flex items-center gap-2">
             <span
-              className={`text-sm font-medium ${
+              className={`text-xs sm:text-sm font-medium ${
                 isDark ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              Click date for details
+              Click date
             </span>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-sm">
+        {/* Stats - Mobile Wrap */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
           <div>
             <span
               className={`${
@@ -184,18 +174,18 @@ export default function FocusGoalCalendar({
 
       {/* Calendar */}
       <div>
-        {/* Month Navigator */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Month Navigator - Touch Friendly */}
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <button
             onClick={handlePrevMonth}
-            className={`p-1 rounded hover:bg-slate-700 transition ${
+            className={`p-2 rounded touch-manipulation hover:bg-slate-700 transition ${
               isDark ? "text-slate-300" : "text-slate-600"
             }`}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <h3
-            className={`text-lg font-bold ${
+            className={`text-base sm:text-lg font-bold ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
@@ -203,7 +193,7 @@ export default function FocusGoalCalendar({
           </h3>
           <button
             onClick={handleNextMonth}
-            className={`p-1 rounded hover:bg-slate-700 transition ${
+            className={`p-2 rounded touch-manipulation hover:bg-slate-700 transition ${
               isDark ? "text-slate-300" : "text-slate-600"
             }`}
           >
@@ -212,7 +202,7 @@ export default function FocusGoalCalendar({
         </div>
 
         {/* Day Names */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-2">
           {dayNames.map((day) => (
             <div
               key={day}
@@ -225,8 +215,8 @@ export default function FocusGoalCalendar({
           ))}
         </div>
 
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        {/* Calendar Grid - Mobile Optimized */}
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {days.map((day, index) => {
             if (day === null) {
               return <div key={`empty-${index}`} />;
@@ -243,7 +233,7 @@ export default function FocusGoalCalendar({
               <div
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`aspect-square flex items-center justify-center relative cursor-pointer transition-all ${
+                className={`aspect-square flex items-center justify-center relative cursor-pointer transition-all touch-manipulation ${
                   selectedDay === day
                     ? isDark
                       ? "bg-slate-700"
@@ -299,7 +289,7 @@ export default function FocusGoalCalendar({
                 
                 {/* Day Number */}
                 <span
-                  className={`relative z-10 text-sm font-medium ${
+                  className={`relative z-10 text-xs sm:text-sm font-medium ${
                     hasGoal
                       ? isDark
                         ? "text-white"
@@ -316,10 +306,10 @@ export default function FocusGoalCalendar({
           })}
         </div>
 
-        {/* Legend */}
-        <div className="mt-4 flex items-center gap-4 text-xs">
+        {/* Legend - Mobile Wrap */}
+        <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 sm:gap-4 text-xs">
           <div className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 border-red-500" />
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-red-500" />
             <span
               className={isDark ? "text-slate-400" : "text-slate-600"}
             >
@@ -327,7 +317,7 @@ export default function FocusGoalCalendar({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-4 h-4 rounded-full border-2 border-orange-500" />
+            <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-orange-500" />
             <span
               className={isDark ? "text-slate-400" : "text-slate-600"}
             >
@@ -336,7 +326,7 @@ export default function FocusGoalCalendar({
           </div>
           <div className="flex items-center gap-1">
             <div
-              className={`w-4 h-4 rounded-full border-2 ${
+              className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 ${
                 isDark ? "border-slate-600" : "border-slate-300"
               }`}
             />
@@ -351,7 +341,7 @@ export default function FocusGoalCalendar({
         {/* Selected Day Info */}
         {selectedDayData && (
           <div
-            className={`mt-4 p-4 rounded-lg border ${
+            className={`mt-3 sm:mt-4 p-3 sm:p-4 rounded-lg border ${
               isDark
                 ? "bg-slate-700 border-slate-600"
                 : "bg-slate-50 border-slate-200"
@@ -359,7 +349,7 @@ export default function FocusGoalCalendar({
           >
             <div className="flex items-center justify-between mb-2">
               <span
-                className={`font-bold ${
+                className={`text-sm sm:text-base font-bold ${
                   isDark ? "text-white" : "text-slate-900"
                 }`}
               >
@@ -375,7 +365,7 @@ export default function FocusGoalCalendar({
                 {selectedDayData.goalMet ? "✓ Goal Met" : "In Progress"}
               </span>
             </div>
-            <div className="space-y-1 text-sm">
+            <div className="space-y-1 text-xs sm:text-sm">
               <div className="flex justify-between">
                 <span
                   className={isDark ? "text-slate-400" : "text-slate-600"}
