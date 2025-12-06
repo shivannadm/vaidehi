@@ -1,4 +1,3 @@
-// src/app/dashboard/todo/notes/components/NoteEditor.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -32,7 +31,6 @@ export default function NoteEditor({
   const modalRef = useRef<HTMLDivElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize form
   useEffect(() => {
     if (isOpen) {
       if (note) {
@@ -50,7 +48,6 @@ export default function NoteEditor({
     }
   }, [isOpen, note]);
 
-  // Close on ESC
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -63,7 +60,6 @@ export default function NoteEditor({
     }
   }, [isOpen]);
 
-  // Close on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -124,48 +120,47 @@ export default function NoteEditor({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
       <div
         ref={modalRef}
-        className="w-full max-w-2xl rounded-xl shadow-2xl border-2 overflow-hidden"
+        className="w-full sm:max-w-2xl rounded-t-2xl sm:rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] sm:max-h-[85vh] flex flex-col"
         style={{
           backgroundColor: isDark ? colorConfig.darkBg : colorConfig.lightBg,
           borderColor: isDark ? colorConfig.darkBorder : colorConfig.lightBorder,
         }}
       >
-        {/* Header */}
+        {/* Header - MOBILE: Compact */}
         <div
-          className="flex items-center justify-between p-4 border-b-2"
+          className="flex items-center justify-between p-3 sm:p-4 border-b-2 flex-shrink-0"
           style={{
             borderColor: isDark ? colorConfig.darkBorder : colorConfig.lightBorder,
           }}
         >
-          <div className="flex items-center gap-3">
-            {/* Color Picker Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Color Picker */}
             <div className="relative">
               <button
                 onClick={() => setShowColorPicker(!showColorPicker)}
-                className="p-2 rounded-lg transition hover:bg-black/10"
+                className="p-1.5 sm:p-2 rounded-lg transition hover:bg-black/10 active:scale-95"
                 title="Change color"
               >
                 <Palette
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   style={{
                     color: isDark ? colorConfig.darkText : colorConfig.lightText,
                   }}
                 />
               </button>
 
-              {/* Color Picker Dropdown */}
               {showColorPicker && (
                 <div
-                  className="absolute top-full left-0 mt-2 p-3 rounded-lg shadow-xl border-2 z-50"
+                  className="absolute top-full left-0 mt-2 p-2 sm:p-3 rounded-lg shadow-xl border-2 z-50"
                   style={{
                     backgroundColor: isDark ? "#1e293b" : "#ffffff",
                     borderColor: isDark ? "#334155" : "#e2e8f0",
                   }}
                 >
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                     {availableColors.map((c) => (
                       <button
                         key={c}
@@ -173,7 +168,7 @@ export default function NoteEditor({
                           setColor(c);
                           setShowColorPicker(false);
                         }}
-                        className={`w-10 h-10 rounded-lg transition hover:scale-110 ${
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg transition hover:scale-110 active:scale-95 ${
                           color === c ? "ring-2 ring-indigo-500" : ""
                         }`}
                         style={{
@@ -192,10 +187,10 @@ export default function NoteEditor({
 
           <button
             onClick={handleClose}
-            className="p-2 rounded-lg transition hover:bg-black/10"
+            className="p-1.5 sm:p-2 rounded-lg transition hover:bg-black/10 active:scale-95"
           >
             <X
-              className="w-5 h-5"
+              className="w-4 h-4 sm:w-5 sm:h-5"
               style={{
                 color: isDark ? colorConfig.darkText : colorConfig.lightText,
               }}
@@ -203,8 +198,8 @@ export default function NoteEditor({
           </button>
         </div>
 
-        {/* Form */}
-        <div className="p-6 space-y-4">
+        {/* Form - MOBILE: Scrollable */}
+        <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
           {/* Title */}
           <input
             ref={titleInputRef}
@@ -212,7 +207,7 @@ export default function NoteEditor({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
-            className="w-full px-0 py-2 text-2xl font-bold bg-transparent border-0 focus:outline-none placeholder-opacity-50"
+            className="w-full px-0 py-2 text-xl sm:text-2xl font-bold bg-transparent border-0 focus:outline-none placeholder-opacity-50"
             style={{
               color: isDark ? colorConfig.darkText : colorConfig.lightText,
             }}
@@ -224,8 +219,8 @@ export default function NoteEditor({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Take a note..."
-            rows={10}
-            className="w-full px-0 py-2 bg-transparent border-0 resize-none focus:outline-none placeholder-opacity-50"
+            rows={8}
+            className="w-full px-0 py-2 text-sm sm:text-base bg-transparent border-0 resize-none focus:outline-none placeholder-opacity-50"
             style={{
               color: isDark ? colorConfig.darkText : colorConfig.lightText,
             }}
@@ -235,13 +230,13 @@ export default function NoteEditor({
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Tag
-                className="w-4 h-4"
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 style={{
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
               />
               <span
-                className="text-sm font-medium"
+                className="text-xs sm:text-sm font-medium"
                 style={{
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
@@ -251,11 +246,11 @@ export default function NoteEditor({
             </div>
 
             {/* Existing Labels */}
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
               {labels.map((label) => (
                 <span
                   key={label}
-                  className="px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1"
+                  className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1"
                   style={{
                     backgroundColor: isDark 
                       ? colorConfig.darkBorder 
@@ -266,7 +261,7 @@ export default function NoteEditor({
                   #{label}
                   <button
                     onClick={() => handleRemoveLabel(label)}
-                    className="hover:opacity-70"
+                    className="hover:opacity-70 active:scale-95"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -282,7 +277,7 @@ export default function NoteEditor({
                 onChange={(e) => setNewLabel(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddLabel()}
                 placeholder="Add label..."
-                className="flex-1 px-3 py-1.5 rounded-lg text-sm bg-transparent border focus:outline-none"
+                className="flex-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm bg-transparent border focus:outline-none"
                 style={{
                   borderColor: isDark 
                     ? colorConfig.darkBorder 
@@ -293,7 +288,7 @@ export default function NoteEditor({
               />
               <button
                 onClick={handleAddLabel}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium transition hover:opacity-80"
+                className="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition hover:opacity-80 active:scale-95"
                 style={{
                   backgroundColor: isDark 
                     ? colorConfig.darkBorder 
@@ -307,16 +302,16 @@ export default function NoteEditor({
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Footer - MOBILE: Compact */}
         <div
-          className="flex items-center justify-end gap-3 p-4 border-t-2"
+          className="flex items-center justify-end gap-2 sm:gap-3 p-3 sm:p-4 border-t-2 flex-shrink-0"
           style={{
             borderColor: isDark ? colorConfig.darkBorder : colorConfig.lightBorder,
           }}
         >
           <button
             onClick={handleClose}
-            className="px-4 py-2 rounded-lg font-medium text-sm transition hover:bg-black/10"
+            className="px-3 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition hover:bg-black/10 active:scale-95"
             style={{
               color: isDark ? colorConfig.darkText : colorConfig.lightText,
             }}
@@ -326,7 +321,7 @@ export default function NoteEditor({
           <button
             onClick={handleSave}
             disabled={saving || (!title.trim() && !content.trim())}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 sm:px-6 py-2 bg-indigo-600 text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           >
             {saving ? "Saving..." : note ? "Update" : "Create"}
           </button>
