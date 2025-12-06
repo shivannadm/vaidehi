@@ -1,8 +1,3 @@
-// ============================================
-// FILE: src/app/dashboard/todo/trends/components/ProjectDistribution.tsx
-// ✅ UPDATED: Now has its own independent time range selector
-// ============================================
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,7 +5,7 @@ import { getProjectDistribution, type ProjectTimeDistribution } from "@/lib/supa
 import { createClient } from "@/lib/supabase/client";
 
 interface ProjectDistributionProps {
-  data: ProjectTimeDistribution[]; // Initial data passed from parent
+  data: ProjectTimeDistribution[];
   isDark: boolean;
 }
 
@@ -23,7 +18,6 @@ export default function ProjectDistribution({
   const [data, setData] = useState<ProjectTimeDistribution[]>(initialData);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch data when time range changes
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -47,17 +41,15 @@ export default function ProjectDistribution({
     fetchData();
   }, [timeRange]);
 
-  // Update data when parent data changes
   useEffect(() => {
     if (!loading) {
       setData(initialData);
     }
   }, [initialData]);
 
-  // Calculate donut chart paths
   const createDonutPath = () => {
-    const size = 200;
-    const radius = 70;
+    const size = 160; // Fixed size for consistency
+    const radius = 55;
     const center = size / 2;
     let currentAngle = -90;
 
@@ -93,7 +85,6 @@ export default function ProjectDistribution({
   const totalHours = data.reduce((sum, d) => sum + d.totalHours, 0);
   const maxHours = Math.max(...data.map(d => d.totalHours), 1);
 
-  // ✅ Format time range label
   const getTimeRangeLabel = () => {
     switch (timeRange) {
       case 'daily': return 'Today';
@@ -104,24 +95,24 @@ export default function ProjectDistribution({
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
+      className={`rounded-xl border p-3 sm:p-4 md:p-6 ${
         isDark
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-slate-200"
       }`}
     >
-      {/* Header with Time Range Selector */}
-      <div className="mb-6">
+      {/* Header */}
+      <div className="mb-3 sm:mb-4 md:mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2
-            className={`text-lg font-bold ${
+            className={`text-sm sm:text-base md:text-lg font-bold ${
               isDark ? "text-white" : "text-slate-900"
             }`}
           >
             Time Distribution
           </h2>
           
-          {/* ✅ Time Range Selector */}
+          {/* Time Range Selector */}
           <div
             className={`flex items-center rounded-lg border ${
               isDark
@@ -134,7 +125,7 @@ export default function ProjectDistribution({
                 key={range}
                 onClick={() => setTimeRange(range)}
                 disabled={loading}
-                className={`px-3 py-1.5 text-xs font-medium transition ${
+                className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium transition ${
                   timeRange === range
                     ? "bg-indigo-600 text-white"
                     : isDark
@@ -149,129 +140,80 @@ export default function ProjectDistribution({
             ))}
           </div>
         </div>
-        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+        <p className={`text-[10px] sm:text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
           Time spent across projects - {getTimeRangeLabel()}
         </p>
       </div>
 
-      {/* Loading State */}
+      {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-8">
-          <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+          <div className="inline-block animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-indigo-600"></div>
         </div>
       )}
 
-      {/* Chart & Legend */}
+      {/* Content */}
       {!loading && (
         <>
           {data.length === 0 ? (
-            <div className="flex-1 text-center py-12">
-              <p
-                className={`text-sm ${
-                  isDark ? "text-slate-400" : "text-slate-600"
-                }`}
-              >
+            <div className="text-center py-8 sm:py-12">
+              <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                 No project data for selected period
               </p>
             </div>
           ) : (
             <>
-              {/* TOP: Donut Chart & Legend */}
-              <div className="flex items-center gap-8 mb-8">
-                {/* Donut Chart */}
+              {/* Donut & Legend - ALWAYS side by side */}
+              <div className="flex items-start gap-3 sm:gap-4 md:gap-8 mb-4 sm:mb-6 md:mb-8">
+                {/* Donut */}
                 <div className="flex-shrink-0">
-                  <svg width="200" height="200" viewBox="0 0 200 200">
-                    {/* Outer Ring */}
+                  <svg width="160" height="160" viewBox="0 0 160 160" className="w-32 h-32 sm:w-40 sm:h-40 md:w-[160px] md:h-[160px]">
                     {segments.map((seg, i) => (
                       <path
                         key={i}
                         d={seg.path}
                         fill={seg.color}
                         className={`transition-all cursor-pointer ${
-                          hoveredProject === seg.projectName
-                            ? 'opacity-100'
-                            : hoveredProject
-                            ? 'opacity-50'
-                            : 'opacity-100'
+                          hoveredProject === seg.projectName ? 'opacity-100' : hoveredProject ? 'opacity-50' : 'opacity-100'
                         }`}
                         onMouseEnter={() => setHoveredProject(seg.projectName)}
                         onMouseLeave={() => setHoveredProject(null)}
+                        onClick={() => setHoveredProject(hoveredProject === seg.projectName ? null : seg.projectName)}
                       />
                     ))}
-                    
-                    {/* Inner White Circle */}
-                    <circle
-                      cx="100"
-                      cy="100"
-                      r="50"
-                      fill={isDark ? "#1e293b" : "#ffffff"}
-                    />
-                    
-                    {/* Center Text */}
-                    <text
-                      x="100"
-                      y="95"
-                      textAnchor="middle"
-                      className={`text-2xl font-bold ${
-                        isDark ? "fill-white" : "fill-slate-900"
-                      }`}
-                    >
+                    <circle cx="80" cy="80" r="40" fill={isDark ? "#1e293b" : "#ffffff"} />
+                    <text x="80" y="75" textAnchor="middle" className={`text-lg sm:text-xl md:text-2xl font-bold ${isDark ? "fill-white" : "fill-slate-900"}`}>
                       {totalHours.toFixed(0)}
                     </text>
-                    <text
-                      x="100"
-                      y="110"
-                      textAnchor="middle"
-                      className={`text-xs ${
-                        isDark ? "fill-slate-400" : "fill-slate-600"
-                      }`}
-                    >
+                    <text x="80" y="90" textAnchor="middle" className={`text-[10px] sm:text-xs ${isDark ? "fill-slate-400" : "fill-slate-600"}`}>
                       hours
                     </text>
                   </svg>
                 </div>
 
-                {/* Legend */}
-                <div className="flex-1 space-y-2">
+                {/* Legend - Scrollable on mobile if needed */}
+                <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5 md:space-y-2 max-h-40 overflow-y-auto scrollbar-thin">
                   {data.map((item, i) => (
                     <div
                       key={i}
-                      className={`flex items-center justify-between group cursor-pointer transition-all ${
-                        hoveredProject === item.projectName
-                          ? 'scale-105'
-                          : hoveredProject
-                          ? 'opacity-50'
-                          : 'opacity-100'
+                      className={`flex items-center justify-between cursor-pointer transition-all ${
+                        hoveredProject === item.projectName ? 'scale-105' : hoveredProject ? 'opacity-50' : 'opacity-100'
                       }`}
                       onMouseEnter={() => setHoveredProject(item.projectName)}
                       onMouseLeave={() => setHoveredProject(null)}
+                      onClick={() => setHoveredProject(hoveredProject === item.projectName ? null : item.projectName)}
                     >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span
-                          className={`text-sm truncate ${
-                            isDark ? "text-slate-300" : "text-slate-700"
-                          }`}
-                        >
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                        <span className={`text-[10px] sm:text-xs md:text-sm truncate ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                           {item.projectName}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <span
-                          className={`text-sm font-medium ${
-                            isDark ? "text-slate-400" : "text-slate-600"
-                          }`}
-                        >
+                      <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+                        <span className={`text-[10px] sm:text-xs md:text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                           {item.totalHours.toFixed(1)}h
                         </span>
-                        <span
-                          className={`text-xs font-bold ${
-                            isDark ? "text-white" : "text-slate-900"
-                          }`}
-                        >
+                        <span className={`text-[10px] sm:text-xs font-bold min-w-[32px] text-right ${isDark ? "text-white" : "text-slate-900"}`}>
                           {item.percentage.toFixed(0)}%
                         </span>
                       </div>
@@ -280,58 +222,40 @@ export default function ProjectDistribution({
                 </div>
               </div>
 
-              {/* BOTTOM: BAR CHART */}
-              <div className={`pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-                <h3 className={`text-sm font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              {/* Bar Chart */}
+              <div className={`pt-3 sm:pt-4 md:pt-6 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                <h3 className={`text-xs sm:text-sm font-bold mb-2 sm:mb-3 md:mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Time Comparison
                 </h3>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
                   {data.map((item, i) => (
                     <div
                       key={i}
-                      className={`group cursor-pointer transition-all ${
-                        hoveredProject === item.projectName
-                          ? 'scale-102'
-                          : hoveredProject
-                          ? 'opacity-50'
-                          : 'opacity-100'
+                      className={`cursor-pointer transition-all ${
+                        hoveredProject === item.projectName ? 'scale-102' : hoveredProject ? 'opacity-50' : 'opacity-100'
                       }`}
                       onMouseEnter={() => setHoveredProject(item.projectName)}
                       onMouseLeave={() => setHoveredProject(null)}
+                      onClick={() => setHoveredProject(hoveredProject === item.projectName ? null : item.projectName)}
                     >
-                      {/* Project Name & Hours */}
-                      <div className="flex items-center justify-between mb-1">
-                        <span
-                          className={`text-xs font-medium ${
-                            isDark ? "text-slate-300" : "text-slate-700"
-                          }`}
-                        >
+                      <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                        <span className={`text-[10px] sm:text-xs font-medium truncate max-w-[60%] ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                           {item.projectName}
                         </span>
-                        <span
-                          className={`text-xs font-bold ${
-                            isDark ? "text-white" : "text-slate-900"
-                          }`}
-                        >
+                        <span className={`text-[10px] sm:text-xs font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                           {item.totalHours.toFixed(1)}h
                         </span>
                       </div>
-
-                      {/* Bar */}
-                      <div
-                        className={`h-8 rounded-lg overflow-hidden ${
-                          isDark ? "bg-slate-700" : "bg-slate-200"
-                        }`}
-                      >
+                      <div className={`h-5 sm:h-6 md:h-8 rounded-lg overflow-hidden ${isDark ? "bg-slate-700" : "bg-slate-200"}`}>
                         <div
-                          className="h-full transition-all duration-500 flex items-center justify-end pr-2"
+                          className="h-full transition-all duration-500 flex items-center justify-end pr-1.5 sm:pr-2"
                           style={{
                             width: `${(item.totalHours / maxHours) * 100}%`,
                             backgroundColor: item.color,
                           }}
                         >
-                          <span className="text-xs font-bold text-white">
+                          <span className="text-[9px] sm:text-[10px] md:text-xs font-bold text-white">
                             {item.percentage.toFixed(0)}%
                           </span>
                         </div>
@@ -347,18 +271,3 @@ export default function ProjectDistribution({
     </div>
   );
 }
-
-// ============================================
-// ✅ KEY CHANGES:
-// ============================================
-/*
-1. Added local timeRange state (line 15)
-2. Added loading state for time range changes (line 17)
-3. Added useEffect to fetch data when timeRange changes (lines 21-42)
-4. Added time range selector buttons in header (lines 125-148)
-5. Component now independently manages its own time filter
-6. Shows loading spinner when fetching new data
-7. Updates subtitle to show current selection (line 152)
-
-Now this component is completely independent from the global time filter!
-*/
