@@ -2,8 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import { Edit2, Trash2, Eye, TrendingUp, TrendingDown, BarChart3, Calendar, Activity, Play, Pause, Archive } from "lucide-react";
+import { Edit2, Trash2, Eye, TrendingUp, TrendingDown, BarChart3, Calendar, Activity, Play, Pause, Archive, Lock } from "lucide-react";
 import type { Strategy } from "@/types/database";
+import { formatIndianCurrency } from "@/types/database";
 
 interface StrategyCardProps {
   strategy: Strategy;
@@ -24,12 +25,28 @@ export default function StrategyCard({
 }: StrategyCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Check if this is a special strategy
+  const isSpecial = strategy.name === "No Strategy" || strategy.name === "Other";
+
   const handleDelete = async () => {
+    if (isSpecial) {
+      alert("Cannot delete special strategies");
+      return;
+    }
+
     if (!confirm(`Delete strategy "${strategy.name}"?`)) return;
 
     setIsDeleting(true);
     await onDelete(strategy.id);
     setIsDeleting(false);
+  };
+
+  const handleEdit = () => {
+    if (isSpecial) {
+      alert("Special strategies cannot be edited");
+      return;
+    }
+    onEdit(strategy);
   };
 
   // Status configuration
@@ -65,7 +82,11 @@ export default function StrategyCard({
     <div
       onClick={() => onView(strategy)}
       className={`rounded-xl border p-5 transition-all cursor-pointer hover:shadow-lg ${
-        isDark
+        isSpecial
+          ? isDark
+            ? "bg-indigo-900/20 border-indigo-500/30"
+            : "bg-indigo-50 border-indigo-200"
+          : isDark
           ? "bg-slate-800 border-slate-700 hover:border-indigo-500"
           : "bg-white border-slate-200 hover:border-indigo-400"
       }`}
@@ -73,13 +94,18 @@ export default function StrategyCard({
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0 pr-2">
-          <h3
-            className={`text-lg font-bold truncate mb-1 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
-          >
-            {strategy.name}
-          </h3>
+          <div className="flex items-center gap-2 mb-1">
+            <h3
+              className={`text-lg font-bold truncate ${
+                isDark ? "text-white" : "text-slate-900"
+              }`}
+            >
+              {strategy.name}
+            </h3>
+            {isSpecial && (
+              <Lock className={`w-4 h-4 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
+            )}
+          </div>
           <p
             className={`text-xs line-clamp-2 ${
               isDark ? "text-slate-400" : "text-slate-600"
@@ -138,15 +164,14 @@ export default function StrategyCard({
             Total P&L
           </div>
           <div className={`text-xl font-bold ${pnlColor}`}>
-            ${strategy.total_pnl >= 0 ? "+" : ""}
-            {strategy.total_pnl.toFixed(0)}
+            {formatIndianCurrency(strategy.total_pnl)}
           </div>
           <div
             className={`text-xs mt-1 ${
               isDark ? "text-slate-500" : "text-slate-500"
             }`}
           >
-            Avg: ${strategy.avg_pnl.toFixed(2)}
+            Avg: {formatIndianCurrency(strategy.avg_pnl)}
           </div>
         </div>
       </div>
@@ -191,36 +216,40 @@ export default function StrategyCard({
           <span>View</span>
         </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(strategy);
-          }}
-          className={`p-2 rounded-lg transition ${
-            isDark
-              ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-          title="Edit strategy"
-        >
-          <Edit2 className="w-4 h-4" />
-        </button>
+        {!isSpecial && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit();
+              }}
+              className={`p-2 rounded-lg transition ${
+                isDark
+                  ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+              title="Edit strategy"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
-          disabled={isDeleting}
-          className={`p-2 rounded-lg transition ${
-            isDark
-              ? "bg-red-900/30 text-red-400 hover:bg-red-900/50"
-              : "bg-red-50 text-red-600 hover:bg-red-100"
-          } disabled:opacity-50`}
-          title="Delete strategy"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              disabled={isDeleting}
+              className={`p-2 rounded-lg transition ${
+                isDark
+                  ? "bg-red-900/30 text-red-400 hover:bg-red-900/50"
+                  : "bg-red-50 text-red-600 hover:bg-red-100"
+              } disabled:opacity-50`}
+              title="Delete strategy"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

@@ -74,11 +74,16 @@ export default function StrategiesPage() {
 
   // Calculate filter counts
   const filterCounts = useMemo(() => {
+    // Filter out special strategies for counts
+    const regularStrategies = allStrategies.filter(
+      s => s.name !== "No Strategy" && s.name !== "Other"
+    );
+    
     return {
-      all: allStrategies.length,
-      active: allStrategies.filter((s) => s.status === "active").length,
-      testing: allStrategies.filter((s) => s.status === "testing").length,
-      archived: allStrategies.filter((s) => s.status === "archived").length,
+      all: regularStrategies.length,
+      active: regularStrategies.filter((s) => s.status === "active").length,
+      testing: regularStrategies.filter((s) => s.status === "testing").length,
+      archived: regularStrategies.filter((s) => s.status === "archived").length,
     };
   }, [allStrategies]);
 
@@ -88,12 +93,21 @@ export default function StrategiesPage() {
   };
 
   const handleEdit = (strategy: Strategy) => {
+    // Prevent editing special strategies
+    if (strategy.name === "No Strategy" || strategy.name === "Other") {
+      alert("Special strategies cannot be edited");
+      return;
+    }
     setEditingStrategy(strategy);
     setIsEditModalOpen(true);
   };
 
   const handleEditFromDetails = () => {
     if (viewingStrategy) {
+      if (viewingStrategy.name === "No Strategy" || viewingStrategy.name === "Other") {
+        alert("Special strategies cannot be edited");
+        return;
+      }
       setIsDetailModalOpen(false);
       setEditingStrategy(viewingStrategy);
       setIsEditModalOpen(true);
@@ -101,6 +115,11 @@ export default function StrategiesPage() {
   };
 
   const handleDelete = async (strategyId: string) => {
+    const strategy = allStrategies.find(s => s.id === strategyId);
+    if (strategy && (strategy.name === "No Strategy" || strategy.name === "Other")) {
+      alert("Cannot delete special strategies");
+      return;
+    }
     await deleteStrategy(strategyId);
   };
 
@@ -122,6 +141,14 @@ export default function StrategiesPage() {
       </div>
     );
   }
+
+  // Separate special strategies from regular ones for display
+  const specialStrategies = strategies.filter(
+    s => s.name === "No Strategy" || s.name === "Other"
+  );
+  const regularStrategies = strategies.filter(
+    s => s.name !== "No Strategy" && s.name !== "Other"
+  );
 
   return (
     <div className={`min-h-screen p-4 md:p-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
@@ -184,7 +211,7 @@ export default function StrategiesPage() {
         )}
 
         {/* Empty State */}
-        {!loading && !error && strategies.length === 0 && (
+        {!loading && !error && regularStrategies.length === 0 && (
           <div
             className={`text-center py-16 rounded-xl border ${
               isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
@@ -221,19 +248,48 @@ export default function StrategiesPage() {
         )}
 
         {/* Strategies Grid */}
-        {!loading && !error && strategies.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {strategies.map((strategy) => (
-              <StrategyCard
-                key={strategy.id}
-                strategy={strategy}
-                onView={handleViewDetails}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onToggleStatus={handleToggleStatus}
-                isDark={isDark}
-              />
-            ))}
+        {!loading && !error && (regularStrategies.length > 0 || specialStrategies.length > 0) && (
+          <div className="space-y-6">
+            {/* Regular Strategies */}
+            {regularStrategies.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {regularStrategies.map((strategy) => (
+                  <StrategyCard
+                    key={strategy.id}
+                    strategy={strategy}
+                    onView={handleViewDetails}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onToggleStatus={handleToggleStatus}
+                    isDark={isDark}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Special Strategies Section */}
+            {specialStrategies.length > 0 && (
+              <div>
+                <div className={`flex items-center gap-2 mb-4 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                  <div className="flex-1 h-px bg-slate-700"></div>
+                  <span className="text-sm font-medium">Special Strategies</span>
+                  <div className="flex-1 h-px bg-slate-700"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  {specialStrategies.map((strategy) => (
+                    <StrategyCard
+                      key={strategy.id}
+                      strategy={strategy}
+                      onView={handleViewDetails}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onToggleStatus={handleToggleStatus}
+                      isDark={isDark}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
