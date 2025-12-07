@@ -3,8 +3,9 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { LayoutDashboard, Loader2, RefreshCw } from "lucide-react";
+import { LayoutDashboard, Loader2, RefreshCw, Camera } from "lucide-react";
 import { useDashboardData } from "./hooks/useDashboardData";
+import { captureTradingScreenshot } from "@/lib/utils/tradingExportUtils";
 import HeroStats from "./components/HeroStats";
 import EquityCurve from "./components/EquityCurve";
 import MonthlyPnLChart from "./components/MonthlyPnLChart";
@@ -17,6 +18,8 @@ export default function TradingDashboardPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [userName, setUserName] = useState<string>("Trader");
 
   const {
     stats,
@@ -43,6 +46,17 @@ export default function TradingDashboardPage() {
       } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
+        
+        // Get user profile for name
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile?.full_name) {
+          setUserName(profile.full_name);
+        }
       } else {
         window.location.href = "/login";
       }
@@ -71,6 +85,24 @@ export default function TradingDashboardPage() {
     setTimeout(() => setIsRefreshing(false), 500);
   };
 
+  const handleCapture = async () => {
+    setIsCapturing(true);
+    try {
+      await captureTradingScreenshot("trading-analytics-dashboard", {
+        username: userName,
+        appName: "Trading Dashboard",
+      });
+      
+      // Success notification (you can replace with toast)
+      alert("📸 Screenshot saved successfully!");
+    } catch (error) {
+      console.error("Screenshot error:", error);
+      alert("❌ Failed to capture screenshot. Please try again.");
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
   if (!mounted) {
     return (
       <div
@@ -85,7 +117,7 @@ export default function TradingDashboardPage() {
 
   return (
     <div className={`min-h-screen p-4 md:p-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6" id="trading-analytics-dashboard">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -102,18 +134,39 @@ export default function TradingDashboardPage() {
             </p>
           </div>
 
-          <button
-            onClick={handleRefresh}
-            disabled={isRefreshing || loading}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${
-              isDark
-                ? "bg-slate-800 text-white hover:bg-slate-700"
-                : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
-            } disabled:opacity-50`}
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Screenshot Button */}
+            <button
+              onClick={handleCapture}
+              disabled={isCapturing || loading}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${
+                isDark
+                  ? "bg-slate-800 text-white hover:bg-slate-700"
+                  : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isCapturing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">Screenshot</span>
+            </button>
+
+            {/* Refresh Button */}
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing || loading}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${
+                isDark
+                  ? "bg-slate-800 text-white hover:bg-slate-700"
+                  : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+              } disabled:opacity-50`}
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          </div>
         </div>
 
         {/* Loading State */}
@@ -153,7 +206,7 @@ export default function TradingDashboardPage() {
               <MonthlyPnLChart data={monthlyPnL} isDark={isDark} />
             </div>
 
-            {/* Calendar Heatmap */}
+            {/* Calendar Heatmap - Full FY */}
             <CalendarHeatmap data={calendarData} isDark={isDark} />
 
             {/* Top Strategies & Best Days */}

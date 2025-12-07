@@ -61,10 +61,10 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
           </p>
         </div>
 
-        {/* Current Balance */}
+        {/* Current Balance with INR */}
         <div className="text-right">
           <div className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            ${currentBalance.toLocaleString()}
+            ₹{currentBalance.toLocaleString("en-IN")}
           </div>
           <div
             className={`text-sm font-medium ${
@@ -73,7 +73,7 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
                 : "text-red-600 dark:text-red-400"
             }`}
           >
-            {change >= 0 ? "+" : ""}${change.toLocaleString()} ({changePercent}%)
+            {change >= 0 ? "+" : ""}₹{change.toLocaleString("en-IN")} ({changePercent}%)
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
               stroke={isDark ? "#64748b" : "#94a3b8"}
               style={{ fontSize: "12px" }}
               tickLine={false}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip
               contentStyle={{
@@ -114,7 +114,7 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
               }}
               labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
               itemStyle={{ color: "#6366f1" }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, "Balance"]}
+              formatter={(value: number) => [`₹${value.toLocaleString("en-IN")}`, "Balance"]}
             />
             <Area
               type="monotone"

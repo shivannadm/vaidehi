@@ -1,7 +1,7 @@
 // src/app/dashboard/trading/dashboard/components/HeroStats.tsx
 "use client";
 
-import { TrendingUp, TrendingDown, Target, BarChart3, Zap, Award } from "lucide-react";
+import { TrendingUp, TrendingDown, Target, BarChart3, Award } from "lucide-react";
 import type { TradingStats } from "@/types/database";
 
 interface HeroStatsProps {
@@ -16,7 +16,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-      {/* Total P&L - Hero Card */}
+      {/* Total P&L - Hero Card with INR */}
       <div
         className={`relative overflow-hidden rounded-2xl p-6 ${
           isProfit
@@ -43,12 +43,12 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
           </div>
           
           <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-            ${isProfit ? "+" : ""}
-            {stats.total_pnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            ₹{isProfit ? "+" : ""}
+            {stats.total_pnl.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </div>
           
           <div className="text-sm text-white/80">
-            Net: ${stats.net_pnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            Net: ₹{stats.net_pnl.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </div>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
         </div>
       </div>
 
-      {/* Expectancy & Profit Factor */}
+      {/* Expectancy & Profit Factor with INR */}
       <div
         className={`rounded-2xl p-6 border ${
           isDark
@@ -178,7 +178,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             }`}>
-              ${stats.expectancy.toFixed(2)}
+              ₹{stats.expectancy.toFixed(2)}
             </div>
           </div>
 

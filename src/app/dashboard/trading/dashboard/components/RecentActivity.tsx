@@ -1,7 +1,7 @@
 // src/app/dashboard/trading/dashboard/components/RecentActivity.tsx
 "use client";
 
-import { Activity, TrendingUp, TrendingDown, FileText, Calendar } from "lucide-react";
+import { Activity, FileText, Calendar } from "lucide-react";
 import type { TradeWithStrategy, QuickNote } from "@/types/database";
 import { getInstrumentIcon, getCountryFlag } from "@/types/database";
 
@@ -59,7 +59,6 @@ export default function RecentActivity({ trades, notes, isDark }: RecentActivity
                     <span className={`font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                       {trade.symbol}
                     </span>
-                    <span className="text-lg">{getCountryFlag(trade.country)}</span>
                     <span
                       className={`px-2 py-0.5 rounded text-xs font-medium ${
                         trade.side === "long"
@@ -75,7 +74,7 @@ export default function RecentActivity({ trades, notes, isDark }: RecentActivity
                   </div>
                 </div>
 
-                {/* P&L */}
+                {/* P&L with INR */}
                 {trade.is_closed && trade.pnl !== null && (
                   <div className="text-right">
                     <div
@@ -85,7 +84,7 @@ export default function RecentActivity({ trades, notes, isDark }: RecentActivity
                           : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      ${trade.pnl >= 0 ? "+" : ""}
+                      {trade.pnl >= 0 ? "+" : ""}₹
                       {trade.pnl.toFixed(0)}
                     </div>
                     {trade.pnl_percentage !== null && (

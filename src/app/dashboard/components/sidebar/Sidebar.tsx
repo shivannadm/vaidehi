@@ -166,22 +166,21 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
         {/* TO DO Section */}
         <div>
-          <button
-            onClick={() => toggleSection('todo')}
-            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
-          >
-            {!isCollapsed && (
+          {isCollapsed ? (
+            <div className="flex items-center justify-center py-2">
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+            </div>
+          ) : (
+            <button
+              onClick={() => toggleSection('todo')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
               <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                 To Do
               </span>
-            )}
-            {isCollapsed && (
-              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
-            )}
-            {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.todo ? 'rotate-90' : ''}`} />
-            )}
-          </button>
+            </button>
+          )}
 
           {openSections.todo && (
             <div className="mt-1 space-y-0.5">
@@ -239,22 +238,21 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
         {/* ROUTINE Section */}
         <div>
-          <button
-            onClick={() => toggleSection('routine')}
-            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
-          >
-            {!isCollapsed && (
+          {isCollapsed ? (
+            <div className="flex items-center justify-center py-2">
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+            </div>
+          ) : (
+            <button
+              onClick={() => toggleSection('routine')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
               <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                 Routine
               </span>
-            )}
-            {isCollapsed && (
-              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
-            )}
-            {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.routine ? 'rotate-90' : ''}`} />
-            )}
-          </button>
+            </button>
+          )}
 
           {openSections.routine && (
             <div className="mt-1 space-y-0.5">
@@ -312,22 +310,21 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
         {/* TRADING Section */}
         <div>
-          <button
-            onClick={() => toggleSection('trading')}
-            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
-          >
-            {!isCollapsed && (
+          {isCollapsed ? (
+            <div className="flex items-center justify-center py-2">
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+            </div>
+          ) : (
+            <button
+              onClick={() => toggleSection('trading')}
+              className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            >
               <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                 Trading
               </span>
-            )}
-            {isCollapsed && (
-              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
-            )}
-            {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.trading ? 'rotate-90' : ''}`} />
-            )}
-          </button>
+            </button>
+          )}
 
           {openSections.trading && (
             <div className="mt-1 space-y-0.5">
@@ -407,9 +404,8 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileOpen(true)}
-        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${
-          isLight ? 'bg-white border border-slate-200' : 'bg-slate-800 border border-slate-700'
-        }`}
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${isLight ? 'bg-white border border-slate-200' : 'bg-slate-800 border border-slate-700'
+          }`}
       >
         <Menu className={`w-6 h-6 ${isLight ? 'text-slate-900' : 'text-white'}`} />
       </button>
@@ -424,11 +420,9 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex ${
-          isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
-        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex-col ${
-          isCollapsed ? "w-16" : "w-56"
-        }`}
+        className={`hidden lg:flex ${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
+          } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex-col ${isCollapsed ? "w-16" : "w-56"
+          }`}
         suppressHydrationWarning
       >
         <SidebarContent />
@@ -436,11 +430,9 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
       {/* Mobile Sidebar */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 h-screen w-64 z-50 transition-transform duration-300 flex flex-col ${
-          isLight ? 'bg-white' : 'bg-slate-900'
-        } text-${isLight ? 'slate-900' : 'white'} ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`lg:hidden fixed top-0 left-0 h-screen w-64 z-50 transition-transform duration-300 flex flex-col ${isLight ? 'bg-white' : 'bg-slate-900'
+          } text-${isLight ? 'slate-900' : 'white'} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
         suppressHydrationWarning
       >
         <SidebarContent />
@@ -467,11 +459,10 @@ function SidebarItem({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm ${
-        isActive
+      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition group text-sm ${isActive
           ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
           : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
-      }`}
+        }`}
       title={isCollapsed ? label : undefined}
     >
       <span className="flex-shrink-0">{icon}</span>

@@ -17,6 +17,26 @@ interface PerformanceMetricsProps {
   isDark: boolean;
 }
 
+// Indian currency formatter
+function formatINR(amount: number): string {
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+  const [intPart, decPart] = absAmount.toFixed(2).split('.');
+
+  let formatted = '';
+  let count = 0;
+
+  for (let i = intPart.length - 1; i >= 0; i--) {
+    if (count === 3 || (count > 3 && (count - 3) % 2 === 0)) {
+      formatted = ',' + formatted;
+    }
+    formatted = intPart[i] + formatted;
+    count++;
+  }
+
+  return `${isNegative ? '-' : ''}₹${formatted}.${decPart}`;
+}
+
 export default function PerformanceMetrics({
   avgWin,
   avgLoss,
@@ -33,62 +53,62 @@ export default function PerformanceMetrics({
   const metrics = [
     {
       label: "Avg Win",
-      value: `$${avgWin.toLocaleString()}`,
-      icon: <TrendingUp className="w-5 h-5" />,
+      value: formatINR(avgWin),
+      icon: <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "emerald",
     },
     {
       label: "Avg Loss",
-      value: `$${avgLoss.toLocaleString()}`,
-      icon: <TrendingDown className="w-5 h-5" />,
+      value: formatINR(avgLoss),
+      icon: <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "red",
     },
     {
       label: "Win/Loss Ratio",
       value: winLossRatio.toFixed(2),
-      icon: <Target className="w-5 h-5" />,
+      icon: <Target className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: winLossRatio >= 2 ? "emerald" : winLossRatio >= 1 ? "blue" : "orange",
     },
     {
       label: "Max Consecutive Wins",
       value: maxConsecutiveWins,
-      icon: <Award className="w-5 h-5" />,
+      icon: <Award className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "purple",
     },
     {
       label: "Max Consecutive Losses",
       value: maxConsecutiveLosses,
-      icon: <AlertTriangle className="w-5 h-5" />,
+      icon: <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "orange",
     },
     {
       label: "Max Drawdown",
-      value: `$${maxDrawdown.toLocaleString()}`,
-      icon: <Activity className="w-5 h-5" />,
+      value: formatINR(maxDrawdown),
+      icon: <Activity className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "red",
     },
     {
       label: "Recovery Factor",
       value: recoveryFactor.toFixed(2),
-      icon: <Zap className="w-5 h-5" />,
+      icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: recoveryFactor >= 2 ? "emerald" : recoveryFactor >= 1 ? "blue" : "orange",
     },
     {
       label: "Largest Win",
-      value: `$${largestWin.toLocaleString()}`,
-      icon: <TrendingUp className="w-5 h-5" />,
+      value: formatINR(largestWin),
+      icon: <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "emerald",
     },
     {
       label: "Largest Loss",
-      value: `$${Math.abs(largestLoss).toLocaleString()}`,
-      icon: <TrendingDown className="w-5 h-5" />,
+      value: formatINR(Math.abs(largestLoss)),
+      icon: <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "red",
     },
     {
       label: "Avg Risk/Trade",
-      value: avgRiskPerTrade > 0 ? `$${avgRiskPerTrade.toLocaleString()}` : "N/A",
-      icon: <Shield className="w-5 h-5" />,
+      value: avgRiskPerTrade > 0 ? formatINR(avgRiskPerTrade) : "N/A",
+      icon: <Shield className="w-4 h-4 sm:w-5 sm:h-5" />,
       color: "blue",
     },
   ];
@@ -125,26 +145,26 @@ export default function PerformanceMetrics({
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
       {metrics.map((metric, index) => {
         const colors = getColorClasses(metric.color);
         
         return (
           <div
             key={index}
-            className={`rounded-xl p-4 border transition-all hover:scale-105 ${
+            className={`rounded-xl p-3 sm:p-4 border transition-all hover:scale-105 ${
               isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
             } shadow-lg`}
           >
-            <div className={`inline-flex p-2 rounded-lg mb-3 ${colors.bg}`}>
+            <div className={`inline-flex p-1.5 sm:p-2 rounded-lg mb-2 sm:mb-3 ${colors.bg}`}>
               <div className={colors.icon}>{metric.icon}</div>
             </div>
             
-            <div className={`text-2xl font-bold mb-1 ${colors.text}`}>
+            <div className={`text-lg sm:text-xl md:text-2xl font-bold mb-1 break-words ${colors.text}`}>
               {metric.value}
             </div>
             
-            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            <div className={`text-xs leading-tight ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               {metric.label}
             </div>
           </div>

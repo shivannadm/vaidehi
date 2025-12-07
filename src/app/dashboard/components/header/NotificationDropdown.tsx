@@ -145,78 +145,153 @@ export default function NotificationDropdown({ theme }: NotificationDropdownProp
                 )}
             </button>
 
-            {/* Notifications Dropdown - Fixed positioning */}
+            {/* Notifications Dropdown - Fully responsive */}
             {showNotifications && (
-                <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-lg shadow-lg border py-2 max-h-96 overflow-y-auto z-50 ${isLight
-                    ? 'bg-white border-slate-200'
-                    : 'bg-slate-800 border-slate-700'
-                    }`}>
-                    <div className={`flex items-center justify-between px-4 py-2 border-b ${isLight ? 'border-slate-200' : 'border-slate-700'
+                <>
+                    {/* Mobile: Fixed position overlay */}
+                    <div className={`sm:hidden fixed inset-x-4 top-20 rounded-lg shadow-2xl border py-2 max-h-[calc(100vh-6rem)] overflow-y-auto z-50 ${isLight
+                        ? 'bg-white border-slate-200'
+                        : 'bg-slate-800 border-slate-700'
                         }`}>
-                        <h3 className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'
-                            }`}>Notifications</h3>
-                        {unreadCount > 0 && (
-                            <button
-                                onClick={handleMarkAllAsRead}
-                                className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
-                            >
-                                Mark all as read
-                            </button>
+                        <div className={`flex items-center justify-between px-4 py-2 border-b ${isLight ? 'border-slate-200' : 'border-slate-700'
+                            }`}>
+                            <h3 className={`font-semibold text-sm ${isLight ? 'text-slate-900' : 'text-white'
+                                }`}>Notifications</h3>
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={handleMarkAllAsRead}
+                                    className="text-xs text-indigo-600 hover:text-indigo-700 font-medium whitespace-nowrap"
+                                >
+                                    Mark all read
+                                </button>
+                            )}
+                        </div>
+
+                        {loading ? (
+                            <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                }`}>
+                                Loading...
+                            </div>
+                        ) : notifications.length === 0 ? (
+                            <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                }`}>
+                                No notifications
+                            </div>
+                        ) : (
+                            notifications.map(notif => (
+                                <div
+                                    key={notif.id}
+                                    className={`relative group px-4 py-3 transition border-b ${isLight
+                                        ? `hover:bg-slate-50 border-slate-100 ${!notif.read ? 'bg-indigo-50' : ''}`
+                                        : `hover:bg-slate-700 border-slate-700 ${!notif.read ? 'bg-slate-700/50' : ''}`
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-2">
+                                        {!notif.read && (
+                                            <div className="w-2 h-2 bg-indigo-600 rounded-full mt-1.5 flex-shrink-0" />
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-sm pr-6 ${isLight ? 'text-slate-700' : 'text-slate-200'
+                                                }`}>{notif.message}</p>
+                                            <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                                }`}>
+                                                {formatTime(notif.created_at)}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteNotification(notif.id)}
+                                            className={`absolute top-3 right-3 p-1 opacity-0 group-hover:opacity-100 rounded transition ${isLight ? 'hover:bg-slate-200' : 'hover:bg-slate-600'
+                                                }`}
+                                        >
+                                            <X className={`w-4 h-4 ${isLight ? 'text-slate-500' : 'text-slate-300'
+                                                }`} />
+                                        </button>
+                                    </div>
+                                    {!notif.read && (
+                                        <button
+                                            onClick={() => handleMarkAsRead(notif.id)}
+                                            className="absolute bottom-2 right-3 text-xs text-indigo-600 hover:text-indigo-700 opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                            Mark as read
+                                        </button>
+                                    )}
+                                </div>
+                            ))
                         )}
                     </div>
 
-                    {loading ? (
-                        <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                    {/* Desktop/Tablet: Absolute dropdown */}
+                    <div className={`hidden sm:block absolute right-0 mt-2 w-80 lg:w-96 rounded-lg shadow-lg border py-2 max-h-96 overflow-y-auto z-50 ${isLight
+                        ? 'bg-white border-slate-200'
+                        : 'bg-slate-800 border-slate-700'
+                        }`}>
+                        <div className={`flex items-center justify-between px-4 py-2 border-b ${isLight ? 'border-slate-200' : 'border-slate-700'
                             }`}>
-                            Loading...
+                            <h3 className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'
+                                }`}>Notifications</h3>
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={handleMarkAllAsRead}
+                                    className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                                >
+                                    Mark all as read
+                                </button>
+                            )}
                         </div>
-                    ) : notifications.length === 0 ? (
-                        <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
-                            }`}>
-                            No notifications
-                        </div>
-                    ) : (
-                        notifications.map(notif => (
-                            <div
-                                key={notif.id}
-                                className={`relative group px-4 py-3 transition border-b ${isLight
-                                    ? `hover:bg-slate-50 border-slate-100 ${!notif.read ? 'bg-indigo-50' : ''}`
-                                    : `hover:bg-slate-700 border-slate-700 ${!notif.read ? 'bg-slate-700/50' : ''}`
-                                    }`}
-                            >
-                                <div className="flex items-start gap-2">
-                                    {!notif.read && (
-                                        <div className="w-2 h-2 bg-indigo-600 rounded-full mt-1.5 flex-shrink-0" />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm pr-6 ${isLight ? 'text-slate-700' : 'text-slate-200'
-                                            }`}>{notif.message}</p>
-                                        <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'
-                                            }`}>
-                                            {formatTime(notif.created_at)}
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => handleDeleteNotification(notif.id)}
-                                        className={`absolute top-3 right-3 p-1 opacity-0 group-hover:opacity-100 rounded transition ${isLight ? 'hover:bg-slate-200' : 'hover:bg-slate-600'
-                                            }`}
-                                    >
-                                        <X className={`w-4 h-4 ${isLight ? 'text-slate-500' : 'text-slate-300'
-                                            }`} />
-                                    </button>
-                                </div>
-                                {!notif.read && (
-                                    <button
-                                        onClick={() => handleMarkAsRead(notif.id)}
-                                        className="absolute bottom-2 right-3 text-xs text-indigo-600 hover:text-indigo-700 opacity-0 group-hover:opacity-100 transition"
-                                    >
-                                        Mark as read
-                                    </button>
-                                )}
+
+                        {loading ? (
+                            <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                }`}>
+                                Loading...
                             </div>
-                        ))
-                    )}
-                </div>
+                        ) : notifications.length === 0 ? (
+                            <div className={`px-4 py-8 text-center text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                }`}>
+                                No notifications
+                            </div>
+                        ) : (
+                            notifications.map(notif => (
+                                <div
+                                    key={notif.id}
+                                    className={`relative group px-4 py-3 transition border-b ${isLight
+                                        ? `hover:bg-slate-50 border-slate-100 ${!notif.read ? 'bg-indigo-50' : ''}`
+                                        : `hover:bg-slate-700 border-slate-700 ${!notif.read ? 'bg-slate-700/50' : ''}`
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-2">
+                                        {!notif.read && (
+                                            <div className="w-2 h-2 bg-indigo-600 rounded-full mt-1.5 flex-shrink-0" />
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-sm pr-6 ${isLight ? 'text-slate-700' : 'text-slate-200'
+                                                }`}>{notif.message}</p>
+                                            <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'
+                                                }`}>
+                                                {formatTime(notif.created_at)}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDeleteNotification(notif.id)}
+                                            className={`absolute top-3 right-3 p-1 opacity-0 group-hover:opacity-100 rounded transition ${isLight ? 'hover:bg-slate-200' : 'hover:bg-slate-600'
+                                                }`}
+                                        >
+                                            <X className={`w-4 h-4 ${isLight ? 'text-slate-500' : 'text-slate-300'
+                                                }`} />
+                                        </button>
+                                    </div>
+                                    {!notif.read && (
+                                        <button
+                                            onClick={() => handleMarkAsRead(notif.id)}
+                                            className="absolute bottom-2 right-3 text-xs text-indigo-600 hover:text-indigo-700 opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                            Mark as read
+                                        </button>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </>
             )}
         </div>
     );

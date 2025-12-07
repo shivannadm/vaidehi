@@ -13,17 +13,17 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
   if (!data || data.length === 0) {
     return (
       <div
-        className={`rounded-2xl p-6 border ${
+        className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 border ${
           isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
         }`}
       >
-        <div className="flex items-center gap-2 mb-4">
-          <Target className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
-          <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          <Target className={`w-4 h-4 sm:w-5 sm:h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
+          <h3 className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             Win Rate Trend
           </h3>
         </div>
-        <div className={`text-center py-12 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+        <div className={`text-center py-8 sm:py-12 text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
           <p>No trend data available</p>
         </div>
       </div>
@@ -45,27 +45,27 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
 
   return (
     <div
-      className={`rounded-2xl p-6 border ${
+      className={`rounded-xl sm:rounded-2xl p-4 sm:p-6 border ${
         isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
       } shadow-lg`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4 sm:mb-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Target className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
-            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+          <div className="flex items-center gap-2 mb-1 sm:mb-2">
+            <Target className={`w-4 h-4 sm:w-5 sm:h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
+            <h3 className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
               Win Rate Trend
             </h3>
           </div>
-          <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+          <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             Monthly win rate performance
           </p>
         </div>
 
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           <div
-            className={`text-2xl font-bold ${
+            className={`text-xl sm:text-2xl font-bold ${
               avgWinRate >= 60
                 ? "text-emerald-600 dark:text-emerald-400"
                 : avgWinRate >= 50
@@ -82,7 +82,7 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
       </div>
 
       {/* Chart */}
-      <div className="h-72">
+      <div className="h-60 sm:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
@@ -99,12 +99,12 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
             <XAxis
               dataKey="month"
               stroke={isDark ? "#64748b" : "#94a3b8"}
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: "10px" }}
               tickLine={false}
             />
             <YAxis
               stroke={isDark ? "#64748b" : "#94a3b8"}
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: "10px" }}
               tickLine={false}
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
@@ -115,7 +115,7 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
                 backgroundColor: isDark ? "#1e293b" : "#ffffff",
                 border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
                 borderRadius: "8px",
-                fontSize: "12px",
+                fontSize: "11px",
               }}
               labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
               formatter={(value: number) => [`${value}%`, "Win Rate"]}
@@ -124,13 +124,13 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
               y={50}
               stroke={isDark ? "#64748b" : "#94a3b8"}
               strokeDasharray="3 3"
-              label={{ value: "50%", fill: isDark ? "#64748b" : "#94a3b8", fontSize: 10 }}
+              label={{ value: "50%", fill: isDark ? "#64748b" : "#94a3b8", fontSize: 9 }}
             />
             <Area
               type="monotone"
               dataKey="winRate"
               stroke="#3b82f6"
-              strokeWidth={3}
+              strokeWidth={2}
               fill="url(#colorWinRate)"
               animationDuration={1000}
             />
