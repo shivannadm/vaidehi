@@ -5,59 +5,59 @@
 export type Theme = 'light' | 'dark' | 'system';
 
 export interface Profile {
-    id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-    timezone: string;
-    subscription_tier: 'starter' | 'pro' | 'team';
-    subscription_status: 'active' | 'cancelled' | 'expired';
-    trial_ends_at: string;
-    created_at: string;
-    updated_at: string;
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  timezone: string;
+  subscription_tier: 'starter' | 'pro' | 'team';
+  subscription_status: 'active' | 'cancelled' | 'expired';
+  trial_ends_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserStreak {
-    id: string;
-    user_id: string;
-    current_streak: number;
-    longest_streak: number;
-    last_activity_date: string | null;
-    created_at: string;
-    updated_at: string;
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Notification {
-    id: string;
-    user_id: string;
-    message: string;
-    read: boolean;
-    created_at: string;
-    expires_at: string;
+  id: string;
+  user_id: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+  expires_at: string;
 }
 
 export interface UserPreferences {
-    id: string;
-    user_id: string;
-    theme: Theme;
-    notifications_enabled: boolean;
-    updated_at: string;
+  id: string;
+  user_id: string;
+  theme: Theme;
+  notifications_enabled: boolean;
+  updated_at: string;
 }
 
-export type TagColor = 
-  | 'red' 
-  | 'pink' 
-  | 'purple' 
-  | 'indigo' 
-  | 'blue' 
-  | 'cyan' 
-  | 'teal' 
-  | 'green' 
-  | 'lime' 
-  | 'yellow' 
-  | 'orange' 
-  | 'brown' 
-  | 'gray' 
-  | 'slate' 
+export type TagColor =
+  | 'red'
+  | 'pink'
+  | 'purple'
+  | 'indigo'
+  | 'blue'
+  | 'cyan'
+  | 'teal'
+  | 'green'
+  | 'lime'
+  | 'yellow'
+  | 'orange'
+  | 'brown'
+  | 'gray'
+  | 'slate'
   | 'violet';
 
 // Color Configuration for UI
@@ -333,7 +333,7 @@ export const TAG_COLORS: Record<TagColor, TagColorConfig> = {
 export function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (hours > 0 && minutes > 0) {
     return `${hours}h ${minutes}m`;
   } else if (hours > 0) {
@@ -560,14 +560,14 @@ export function formatTimeTo12Hour(time24: string): string {
 export function formatTimeTo24Hour(time12: string): string {
   const match = time12.match(/(\d+):(\d+)\s*(AM|PM)/i);
   if (!match) return '00:00:00';
-  
+
   let hours = parseInt(match[1]);
   const minutes = match[2];
   const period = match[3].toUpperCase();
-  
+
   if (period === 'PM' && hours !== 12) hours += 12;
   if (period === 'AM' && hours === 12) hours = 0;
-  
+
   return `${hours.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
@@ -580,10 +580,10 @@ export function formatEventTimeRange(startTime: string, endTime: string): string
 export function calculateEventDuration(startTime: string, endTime: string): number {
   const [startHours, startMinutes] = startTime.split(':').map(Number);
   const [endHours, endMinutes] = endTime.split(':').map(Number);
-  
+
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = endHours * 60 + endMinutes;
-  
+
   return endTotalMinutes - startTotalMinutes;
 }
 
@@ -592,7 +592,7 @@ export function formatEventDuration(startTime: string, endTime: string): string 
   const minutes = calculateEventDuration(startTime, endTime);
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
-  
+
   if (hours > 0 && mins > 0) {
     return `${hours}h ${mins}m`;
   } else if (hours > 0) {
@@ -639,35 +639,35 @@ export function generateMonthCalendar(year: number, month: number): Date[][] {
   const lastDay = new Date(year, month + 1, 0);
   const startDate = new Date(firstDay);
   startDate.setDate(startDate.getDate() - startDate.getDay()); // Start from Sunday
-  
+
   const weeks: Date[][] = [];
   let currentWeek: Date[] = [];
-  
+
   for (let i = 0; i < 42; i++) { // 6 weeks max
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
-    
+
     currentWeek.push(currentDate);
-    
+
     if (currentWeek.length === 7) {
       weeks.push(currentWeek);
       currentWeek = [];
     }
-    
+
     // Stop if we've passed the last day and completed the week
     if (currentDate > lastDay && currentWeek.length === 0) {
       break;
     }
   }
-  
+
   return weeks;
 }
 
 // Check if two dates are the same day
 export function isSameDay(date1: Date, date2: Date): boolean {
   return date1.getFullYear() === date2.getFullYear() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getDate() === date2.getDate();
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
 }
 
 // Sort events by start time
@@ -811,15 +811,15 @@ export interface Note {
   updated_at: string;
 }
 
-export type NoteColor = 
-  | "default" 
-  | "red" 
-  | "orange" 
-  | "yellow" 
-  | "green" 
-  | "teal" 
-  | "blue" 
-  | "purple" 
+export type NoteColor =
+  | "default"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "teal"
+  | "blue"
+  | "purple"
   | "pink";
 
 export const NOTE_COLORS: Record<
@@ -935,27 +935,27 @@ export interface Project {
   updated_at: string;
 }
 
-export type ProjectStatus = 
-  | 'planning' 
-  | 'active' 
-  | 'on_hold' 
-  | 'completed' 
+export type ProjectStatus =
+  | 'planning'
+  | 'active'
+  | 'on_hold'
+  | 'completed'
   | 'archived';
 
-export type ProjectPriority = 
-  | 'low' 
-  | 'medium' 
-  | 'high' 
+export type ProjectPriority =
+  | 'low'
+  | 'medium'
+  | 'high'
   | 'critical';
 
-export type ProjectColor = 
-  | 'blue' 
-  | 'green' 
-  | 'orange' 
-  | 'purple' 
-  | 'red' 
-  | 'teal' 
-  | 'pink' 
+export type ProjectColor =
+  | 'blue'
+  | 'green'
+  | 'orange'
+  | 'purple'
+  | 'red'
+  | 'teal'
+  | 'pink'
   | 'yellow';
 
 // ============================================
@@ -1168,14 +1168,14 @@ export function getProjectColorTheme(color: ProjectColor) {
 
 export function calculateDaysRemaining(targetDate: string | null): number | null {
   if (!targetDate) return null;
-  
+
   const target = new Date(targetDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const diffTime = target.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return diffDays;
 }
 
@@ -1185,16 +1185,16 @@ export function isProjectOverdue(targetDate: string | null): boolean {
 }
 
 export function formatProjectDateRange(
-  startDate: string | null, 
+  startDate: string | null,
   endDate: string | null
 ): string {
   if (!startDate && !endDate) return 'No timeline set';
-  
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
-  
+
   if (startDate && endDate) {
     return `${formatDate(startDate)} → ${formatDate(endDate)}`;
   } else if (startDate) {
@@ -1258,58 +1258,58 @@ export interface HealthEntry {
   id: string;
   user_id: string;
   date: string; // YYYY-MM-DD
-  
+
   // Sleep Tracking
   sleep_start?: string | null; // HH:mm
   sleep_end?: string | null; // HH:mm
   sleep_quality: number; // 1-10
   sleep_notes?: string | null;
-  
+
   // Hydration
   water_intake: number; // in ml
-  
+
   // Nutrition
   meals_logged: number; // 0-5 meals
   protein_intake?: number | null; // grams
   calories_intake?: number | null;
   diet_quality: number; // 1-10 rating
-  
+
   // Physical Activity
   steps_count?: number | null;
   active_minutes: number; // cardio/exercise minutes
   workout_type?: string | null;
-  
+
   // Vitals & Recovery
   resting_heart_rate?: number | null; // BPM
   heart_rate_variability?: number | null; // ms
   recovery_score: number; // 1-10
   stress_level: number; // 1-10
-  
+
   // Mental Wellness
   meditation_minutes: number;
   mood_rating: number; // 1-10
   anxiety_level: number; // 1-10
-  
+
   // Body Metrics
   weight?: number | null; // kg
   body_temperature?: number | null; // celsius
   blood_pressure_systolic?: number | null;
   blood_pressure_diastolic?: number | null;
-  
+
   // Habits & Lifestyle
   screen_time_limit_met: boolean;
   alcohol_units?: number | null;
   caffeine_intake?: number | null; // mg
   smoking_avoided: boolean;
-  
+
   // Notes
   symptoms?: string | null;
   achievements?: string | null;
   notes?: string | null;
-  
+
   // Streak
   health_streak?: number;
-  
+
   created_at: string;
   updated_at: string;
 }
@@ -1319,13 +1319,13 @@ export interface HealthEntry {
 // ============================================
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
-export type HabitCategory = 
-  | 'Health' 
-  | 'Fitness' 
-  | 'Mental Health' 
-  | 'Learning' 
-  | 'Productivity' 
-  | 'Social' 
+export type HabitCategory =
+  | 'Health'
+  | 'Fitness'
+  | 'Mental Health'
+  | 'Learning'
+  | 'Productivity'
+  | 'Social'
   | 'Finance'
   | 'Spiritual'
   | 'Digital Wellness'
@@ -1500,24 +1500,24 @@ export function calculateStreak(
   completions: { date: string; completed: boolean }[]
 ): { current: number; best: number } {
   if (!completions.length) return { current: 0, best: 0 };
-  
+
   // Sort by date descending
-  const sorted = [...completions].sort((a, b) => 
+  const sorted = [...completions].sort((a, b) =>
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
-  
+
   let currentStreak = 0;
   let bestStreak = 0;
   let tempStreak = 0;
-  
+
   // Calculate current streak from today backwards
   const today = new Date().toISOString().split('T')[0];
   let checkDate = new Date(today);
-  
+
   for (const completion of sorted) {
     const compDate = new Date(completion.date);
     const checkDateStr = checkDate.toISOString().split('T')[0];
-    
+
     if (completion.date === checkDateStr && completion.completed) {
       currentStreak++;
       checkDate.setDate(checkDate.getDate() - 1);
@@ -1525,7 +1525,7 @@ export function calculateStreak(
       break; // Streak broken
     }
   }
-  
+
   // Calculate best streak
   for (const completion of completions) {
     if (completion.completed) {
@@ -1535,7 +1535,7 @@ export function calculateStreak(
       tempStreak = 0;
     }
   }
-  
+
   return { current: currentStreak, best: bestStreak };
 }
 
@@ -1544,7 +1544,7 @@ export function calculateCompletionRate(
   completions: { date: string; completed: boolean }[]
 ): number {
   if (!completions.length) return 0;
-  
+
   const completed = completions.filter(c => c.completed).length;
   return Math.round((completed / completions.length) * 100);
 }
@@ -1578,33 +1578,33 @@ export type NoteCategory = 'personal' | 'work' | 'health' | 'finance' | 'relatio
 export interface KeyNote {
   id: string;
   user_id: string;
-  
+
   // Core Content
   title: string;
   content: string;
   type: NoteType;
   category: NoteCategory;
-  
+
   // Metadata
   tags: string[];
   is_pinned: boolean;
   is_favorite: boolean;
   is_archived: boolean;
-  
+
   // Context
   source?: string | null; // Book, person, event, etc.
   linked_date?: string | null; // YYYY-MM-DD (link to routine day)
-  
+
   // Action Items
   action_required: boolean;
   action_completed: boolean;
   action_deadline?: string | null;
-  
+
   // Knowledge Management
   linked_notes: string[]; // IDs of related notes
   review_count: number;
   last_reviewed?: string | null;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
@@ -1620,7 +1620,7 @@ export interface KeyNote {
 // TRADING ENUMS
 // ============================================
 
-export type InstrumentType = 'stock' | 'futures' | 'options' | 'forex';
+export type InstrumentType = 'stock' | 'futures' | 'options' | 'forex' | 'commodity' | 'currency';
 export type CountryCode = 'US' | 'IN' | 'UK' | 'EU' | 'JP' | 'OTHER';
 export type TradeSide = 'long' | 'short';
 export type MarketCondition = 'trending' | 'ranging' | 'volatile' | 'quiet';
@@ -1685,70 +1685,79 @@ export type UpdateStrategy = Partial<Omit<Strategy, 'id' | 'user_id' | 'created_
 export interface Trade {
   id: string;
   user_id: string;
-  
+
   // Instrument
   symbol: string;
   instrument_type: InstrumentType;
-  country: CountryCode;
-  
+  // country: CountryCode;
+
   // Trade Details
   side: TradeSide;
   quantity: number;
-  
+
   // Entry
   entry_date: string;
   entry_time: string | null;
   entry_price: number;
-  
+
   // Exit
   exit_date: string | null;
   exit_time: string | null;
   exit_price: number | null;
-  
+
   // Risk
   stop_loss: number | null;
   take_profit: number | null;
   risk_reward_ratio: number | null;
-  
+
   // Costs
   commission: number;
   fees: number;
-  
+
   // P&L (auto-calculated)
   pnl: number | null;
   pnl_percentage: number | null;
-  
+
   // Strategy & Rules
   strategy_id: string | null;
   setup_name: string | null;
   market_condition: MarketCondition | null;
-  
+
   // Psychology
   emotional_state: EmotionalState | null;
   confidence_level: number | null;
   discipline_score: number | null;
-  
+
   // Rule Tracking
-  rules_followed: any; // JSON array
-  rules_broken: any; // JSON array
-  
+  // rules_followed: any; // JSON array
+  // rules_broken: any; // JSON array
+
   // Tags
   mistakes_tags: string[] | null;
-  
+
   // Notes
   pre_trade_notes: string | null;
   post_trade_notes: string | null;
   lessons_learned: string | null;
-  
+
   // Media
   screenshots: string[] | null;
-  
+
   // Status
   is_closed: boolean;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
+
+  // Options-specific fields
+  rules_followed: string[] | null;  // NEW
+  rules_broken: string[] | null;    // NEW
+  option_expiry: string | null;     // NEW
+  option_strike: number | null;     // NEW
+  option_type: 'call' | 'put' | null; // NEW
+
+  
 }
 
 export interface TradeWithStrategy extends Trade {
@@ -1758,9 +1767,49 @@ export interface TradeWithStrategy extends Trade {
 export type CreateTrade = Omit<Trade, 'id' | 'pnl' | 'pnl_percentage' | 'is_closed' | 'created_at' | 'updated_at'>;
 export type UpdateTrade = Partial<Omit<Trade, 'id' | 'user_id' | 'created_at'>>;
 
+
+// ============================================
+// STRATEGY SPECIAL VALUES
+// ============================================
+
+export const SPECIAL_STRATEGIES = {
+  NO_STRATEGY: 'no_strategy',
+  OTHER: 'other'
+} as const;
+
+// Helper to check if strategy is special
+export function isSpecialStrategy(strategyId: string | null): boolean {
+  return strategyId === SPECIAL_STRATEGIES.NO_STRATEGY ||
+    strategyId === SPECIAL_STRATEGIES.OTHER;
+}
 // ============================================
 // QUICK NOTES
 // ============================================
+
+// Add Indian currency formatter
+export function formatIndianCurrency(amount: number): string {
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+  const [intPart, decPart] = absAmount.toFixed(2).split('.');
+
+  let formatted = '';
+  let count = 0;
+
+  for (let i = intPart.length - 1; i >= 0; i--) {
+    if (count === 3 || (count > 3 && (count - 3) % 2 === 0)) {
+      formatted = ',' + formatted;
+    }
+    formatted = intPart[i] + formatted;
+    count++;
+  }
+
+  return `${isNegative ? '-' : ''}₹${formatted}.${decPart}`;
+}
+
+export function formatIndianPercentage(value: number): string {
+  const sign = value >= 0 ? '+' : '';
+  return `${sign}${value.toFixed(2)}%`;
+}
 
 export interface QuickNote {
   id: string;
@@ -1906,16 +1955,19 @@ export function calculatePnL(
   fees: number = 0
 ): { pnl: number; pnl_percentage: number } {
   let pnl = 0;
-  
+
   if (side === 'long') {
     pnl = (exitPrice - entryPrice) * quantity - commission - fees;
   } else {
     pnl = (entryPrice - exitPrice) * quantity - commission - fees;
   }
-  
+
   const pnl_percentage = (pnl / (entryPrice * quantity)) * 100;
-  
-  return { pnl, pnl_percentage };
+
+  return {
+    pnl: Math.round(pnl * 100) / 100,
+    pnl_percentage: Math.round(pnl_percentage * 100) / 100
+  };
 }
 
 /**
@@ -1960,7 +2012,7 @@ export function calculateRiskRewardRatio(
 ): number {
   let risk = 0;
   let reward = 0;
-  
+
   if (side === 'long') {
     risk = Math.abs(entryPrice - stopLoss);
     reward = Math.abs(takeProfit - entryPrice);
@@ -1968,7 +2020,7 @@ export function calculateRiskRewardRatio(
     risk = Math.abs(stopLoss - entryPrice);
     reward = Math.abs(entryPrice - takeProfit);
   }
-  
+
   if (risk === 0) return 0;
   return Math.round((reward / risk) * 100) / 100;
 }
@@ -1985,7 +2037,7 @@ export function formatCurrency(
     INR: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }),
     EUR: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }),
   };
-  
+
   return formatters[currency].format(amount);
 }
 
@@ -2008,14 +2060,33 @@ export function getPnLColor(pnl: number): string {
 /**
  * Get icon for instrument type
  */
+// export function getInstrumentIcon(type: InstrumentType): string {
+//   const icons = {
+//     stock: '📈',
+//     futures: '⏳',
+//     options: '📊',
+//     forex: '💱',
+//     commodity: '🏭',
+//     currency: '💰',
+//   };
+//   return icons[type] || '📊';
+// }
+
+const INSTRUMENT_CONFIG = {
+  stock: { label: 'Stock', icon: '📈', color: 'blue' },
+  futures: { label: 'Futures', icon: '⏳', color: 'purple' },
+  options: { label: 'Options', icon: '📊', color: 'orange' },
+  forex: { label: 'Forex', icon: '💱', color: 'green' },
+  commodity: { label: 'Commodity', icon: '🥇', color: 'yellow' },
+  currency: { label: 'Currency', icon: '💰', color: 'teal' },
+} as const;
+
+export function getInstrumentConfig(type: InstrumentType) {
+  return INSTRUMENT_CONFIG[type];
+}
+
 export function getInstrumentIcon(type: InstrumentType): string {
-  const icons = {
-    stock: '📈',
-    futures: '⏳',
-    options: '📊',
-    forex: '💱',
-  };
-  return icons[type] || '📊';
+  return INSTRUMENT_CONFIG[type].icon;
 }
 
 /**
