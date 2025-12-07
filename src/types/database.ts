@@ -1610,11 +1610,6 @@ export interface KeyNote {
   updated_at: string;
 }
 
-// ============================================
-// ADD TO: src/types/database.ts
-// Trading Section - Type Definitions
-// Place this at the END of your database.ts file
-// ============================================
 
 // ============================================
 // TRADING ENUMS
@@ -1727,10 +1722,6 @@ export interface Trade {
   emotional_state: EmotionalState | null;
   confidence_level: number | null;
   discipline_score: number | null;
-
-  // Rule Tracking
-  // rules_followed: any; // JSON array
-  // rules_broken: any; // JSON array
 
   // Tags
   mistakes_tags: string[] | null;
