@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Edit2, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import type { TradingRule } from "@/types/database";
-import { getRuleCategoryColor, getRuleCategoryLabel } from "@/types/database";
+import { getRuleCategoryColor, getRuleCategoryLabel, formatIndianCurrency } from "@/types/database";
 
 interface RuleCardProps {
   rule: TradingRule;
@@ -144,7 +144,7 @@ export default function RuleCard({ rule, onEdit, onDelete, onToggleStatus, isDar
                 Cost
               </div>
               <div className={`text-lg font-bold ${isDark ? "text-red-300" : "text-red-700"}`}>
-                ${rule.cost_of_violations.toFixed(2)}
+                {formatIndianCurrency(rule.cost_of_violations)}
               </div>
             </div>
           </div>
@@ -174,7 +174,9 @@ export default function RuleCard({ rule, onEdit, onDelete, onToggleStatus, isDar
       </div>
 
       {/* Active Toggle */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+      <div className={`flex items-center justify-between pt-4 border-t ${
+        isDark ? "border-slate-700" : "border-slate-200"
+      }`}>
         <span className={`text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-700"}`}>
           {rule.is_active ? "Active" : "Inactive"}
         </span>
