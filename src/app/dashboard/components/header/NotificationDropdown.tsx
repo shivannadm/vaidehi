@@ -139,15 +139,15 @@ export default function NotificationDropdown({ theme }: NotificationDropdownProp
                 <Bell className={`w-5 h-5 ${isLight ? 'text-slate-600' : 'text-slate-300'
                     }`} />
                 {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
 
-            {/* Notifications Dropdown */}
+            {/* Notifications Dropdown - Fixed positioning */}
             {showNotifications && (
-                <div className={`absolute right-0 mt-2 w-80 rounded-lg shadow-lg border py-2 max-h-96 overflow-y-auto z-50 ${isLight
+                <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-lg shadow-lg border py-2 max-h-96 overflow-y-auto z-50 ${isLight
                     ? 'bg-white border-slate-200'
                     : 'bg-slate-800 border-slate-700'
                     }`}>

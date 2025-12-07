@@ -25,7 +25,9 @@ import {
   FileText,
   Zap,
   Shield,
-  LayoutDashboard
+  LayoutDashboard,
+  Menu,
+  X
 } from "lucide-react";
 
 interface SidebarProps {
@@ -38,6 +40,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
   const router = useRouter();
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openSections, setOpenSections] = useState({
     todo: true,
     routine: true,
@@ -45,18 +48,32 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
   });
   const [mounted, setMounted] = useState(false);
 
-  // Only render after mount to avoid hydration issues
   useEffect(() => {
     setMounted(true);
 
-    // Set active item based on current pathname
     if (pathname.includes('/todo/tasks')) {
       onItemClick('Tasks', 'todo');
     } else if (pathname === '/dashboard') {
       onItemClick('Dashboard', 'trading');
     }
-    // Add more pathname checks as you build other pages
   }, [pathname]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleSection = (section: 'todo' | 'routine' | 'trading') => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -74,10 +91,9 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
   const isLight = theme === 'light';
 
-  // Return a placeholder during SSR to prevent hydration mismatch
   if (!mounted) {
     return (
-      <aside className="bg-slate-900 text-white h-screen sticky top-0 w-56 flex flex-col">
+      <aside className="hidden lg:block bg-slate-900 text-white h-screen sticky top-0 w-56 flex-col">
         <div className="p-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -92,13 +108,8 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
     );
   }
 
-  return (
-    <aside
-      className={`${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
-        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex flex-col ${isCollapsed ? "w-16" : "w-56"
-        }`}
-      suppressHydrationWarning
-    >
+  const SidebarContent = () => (
+    <>
       {/* Logo Section */}
       <div className={`p-3 flex items-center justify-between ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
         <div
@@ -115,15 +126,24 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
           )}
         </div>
 
+        {/* Desktop collapse button */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`p-1 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded transition`}
+          className={`hidden lg:block p-1 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded transition`}
         >
           {isCollapsed ? (
             <ChevronRight className="w-4 h-4" />
           ) : (
             <ChevronLeft className="w-4 h-4" />
           )}
+        </button>
+
+        {/* Mobile close button */}
+        <button
+          onClick={() => setIsMobileOpen(false)}
+          className={`lg:hidden p-1 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded transition`}
+        >
+          <X className="w-5 h-5" />
         </button>
       </div>
 
@@ -141,18 +161,23 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         )}
       </div>
 
-      {/* Navigation Sections with Custom Scrollbar */}
-      <nav className={`flex-1 overflow-y-auto p-3 space-y-1 ${isLight ? 'scrollbar-custom-light' : 'scrollbar-custom'}`} suppressHydrationWarning>
+      {/* Navigation with Custom Scrollbar */}
+      <nav className={`flex-1 overflow-y-auto p-3 space-y-1 ${isLight ? 'scrollbar-custom-light' : 'scrollbar-custom'}`}>
 
         {/* TO DO Section */}
         <div>
           <button
             onClick={() => toggleSection('todo')}
-            className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
           >
-            <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
-              To Do
-            </span>
+            {!isCollapsed && (
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                To Do
+              </span>
+            )}
+            {isCollapsed && (
+              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
+            )}
             {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.todo ? 'rotate-90' : ''}`} />
             )}
@@ -216,11 +241,16 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         <div>
           <button
             onClick={() => toggleSection('routine')}
-            className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
           >
-            <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
-              Routine
-            </span>
+            {!isCollapsed && (
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                Routine
+              </span>
+            )}
+            {isCollapsed && (
+              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
+            )}
             {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.routine ? 'rotate-90' : ''}`} />
             )}
@@ -273,7 +303,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Progress"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Progress'}
-                onClick={() => handleNavigation('Progress', 'routine','/dashboard/routine/progress')}
+                onClick={() => handleNavigation('Progress', 'routine', '/dashboard/routine/progress')}
                 isLight={isLight}
               />
             </div>
@@ -284,11 +314,16 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         <div>
           <button
             onClick={() => toggleSection('trading')}
-            className={`w-full flex items-center justify-between p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
+            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-2 ${isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-800'} rounded-lg transition`}
           >
-            <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'} ${isCollapsed ? 'hidden' : ''}`}>
-              Trading
-            </span>
+            {!isCollapsed && (
+              <span className={`font-semibold text-xs uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                Trading
+              </span>
+            )}
+            {isCollapsed && (
+              <div className="w-8 h-px bg-gradient-to-r from-pink-500 to-pink-600" />
+            )}
             {!isCollapsed && (
               <ChevronRight className={`w-3 h-3 transition-transform ${openSections.trading ? 'rotate-90' : ''}`} />
             )}
@@ -309,7 +344,15 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Rules"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Rules'}
-                onClick={() => handleNavigation('Rules', 'trading' , '/dashboard/trading/rules')}
+                onClick={() => handleNavigation('Rules', 'trading', '/dashboard/trading/rules')}
+                isLight={isLight}
+              />
+              <SidebarItem
+                icon={<Layers className="w-4 h-4" />}
+                label="Strategies"
+                isCollapsed={isCollapsed}
+                isActive={activeItem === 'Strategies'}
+                onClick={() => handleNavigation('Strategies', 'trading', '/dashboard/trading/strategies')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -325,15 +368,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Backtest"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Backtest'}
-                onClick={() => handleNavigation('Backtest', 'trading' , '/dashboard/trading/backtest')}
-                isLight={isLight}
-              />
-              <SidebarItem
-                icon={<Layers className="w-4 h-4" />}
-                label="Strategies"
-                isCollapsed={isCollapsed}
-                isActive={activeItem === 'Strategies'}
-                onClick={() => handleNavigation('Strategies', 'trading', '/dashboard/trading/strategies')}
+                onClick={() => handleNavigation('Backtest', 'trading', '/dashboard/trading/backtest')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -349,7 +384,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 label="Reports"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Reports'}
-                onClick={() => handleNavigation('Reports', 'trading' , '/dashboard/trading/reports')}
+                onClick={() => handleNavigation('Reports', 'trading', '/dashboard/trading/reports')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -364,7 +399,53 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
           )}
         </div>
       </nav>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className={`lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg ${
+          isLight ? 'bg-white border border-slate-200' : 'bg-slate-800 border border-slate-700'
+        }`}
+      >
+        <Menu className={`w-6 h-6 ${isLight ? 'text-slate-900' : 'text-white'}`} />
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden lg:flex ${
+          isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
+        } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex-col ${
+          isCollapsed ? "w-16" : "w-56"
+        }`}
+        suppressHydrationWarning
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sidebar */}
+      <aside
+        className={`lg:hidden fixed top-0 left-0 h-screen w-64 z-50 transition-transform duration-300 flex flex-col ${
+          isLight ? 'bg-white' : 'bg-slate-900'
+        } text-${isLight ? 'slate-900' : 'white'} ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        suppressHydrationWarning
+      >
+        <SidebarContent />
+      </aside>
+    </>
   );
 }
 
@@ -386,10 +467,11 @@ function SidebarItem({
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm ${isActive
-        ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
-        : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
-        }`}
+      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition group text-sm ${
+        isActive
+          ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
+          : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
+      }`}
       title={isCollapsed ? label : undefined}
     >
       <span className="flex-shrink-0">{icon}</span>
