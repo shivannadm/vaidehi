@@ -46,14 +46,14 @@ export default function TradingDashboardPage() {
       } = await supabase.auth.getUser();
       if (user) {
         setUserId(user.id);
-        
+
         // Get user profile for name
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name")
           .eq("id", user.id)
           .single();
-        
+
         if (profile?.full_name) {
           setUserName(profile.full_name);
         }
@@ -92,7 +92,7 @@ export default function TradingDashboardPage() {
         username: userName,
         appName: "Trading Dashboard",
       });
-      
+
       // Success notification (you can replace with toast)
       alert("📸 Screenshot saved successfully!");
     } catch (error) {
@@ -106,9 +106,8 @@ export default function TradingDashboardPage() {
   if (!mounted) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center ${
-          isDark ? "bg-slate-900" : "bg-slate-50"
-        }`}
+        className={`min-h-screen flex items-center justify-center ${isDark ? "bg-slate-900" : "bg-slate-50"
+          }`}
       >
         <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
       </div>
@@ -122,9 +121,8 @@ export default function TradingDashboardPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1
-              className={`text-2xl md:text-3xl font-bold flex items-center gap-3 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`text-2xl md:text-3xl font-bold flex items-center gap-3 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               <LayoutDashboard className="w-7 h-7 md:w-8 md:h-8 text-indigo-500" />
               Trading Dashboard
@@ -139,11 +137,10 @@ export default function TradingDashboardPage() {
             <button
               onClick={handleCapture}
               disabled={isCapturing || loading}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${
-                isDark
-                  ? "bg-slate-800 text-white hover:bg-slate-700"
-                  : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${isDark
+                ? "bg-slate-800 text-white hover:bg-slate-700"
+                : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {isCapturing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -157,11 +154,10 @@ export default function TradingDashboardPage() {
             <button
               onClick={handleRefresh}
               disabled={isRefreshing || loading}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${
-                isDark
-                  ? "bg-slate-800 text-white hover:bg-slate-700"
-                  : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
-              } disabled:opacity-50`}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition ${isDark
+                ? "bg-slate-800 text-white hover:bg-slate-700"
+                : "bg-white text-slate-900 hover:bg-slate-100 border border-slate-200"
+                } disabled:opacity-50`}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -184,11 +180,10 @@ export default function TradingDashboardPage() {
         {/* Error State */}
         {error && !loading && (
           <div
-            className={`p-6 rounded-xl border ${
-              isDark
-                ? "bg-red-900/20 border-red-500/30 text-red-300"
-                : "bg-red-50 border-red-200 text-red-700"
-            }`}
+            className={`p-6 rounded-xl border ${isDark
+              ? "bg-red-900/20 border-red-500/30 text-red-300"
+              : "bg-red-50 border-red-200 text-red-700"
+              }`}
           >
             <p className="font-medium">{error}</p>
           </div>
@@ -224,19 +219,16 @@ export default function TradingDashboardPage() {
         {/* Empty State */}
         {!loading && !error && !stats && (
           <div
-            className={`text-center py-20 rounded-xl border ${
-              isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-            }`}
+            className={`text-center py-20 rounded-xl border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+              }`}
           >
             <LayoutDashboard
-              className={`w-16 h-16 mx-auto mb-4 ${
-                isDark ? "text-slate-600" : "text-slate-300"
-              }`}
+              className={`w-16 h-16 mx-auto mb-4 ${isDark ? "text-slate-600" : "text-slate-300"
+                }`}
             />
             <h3
-              className={`text-xl font-semibold mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               No Trading Data Yet
             </h3>

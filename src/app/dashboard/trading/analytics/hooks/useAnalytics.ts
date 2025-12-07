@@ -193,12 +193,12 @@ export function useAnalytics(userId: string | null) {
 
       // P&L Histogram
       const pnlRanges = [
-        { range: '<-$500', min: -Infinity, max: -500 },
-        { range: '-$500 to -$200', min: -500, max: -200 },
-        { range: '-$200 to $0', min: -200, max: 0 },
-        { range: '$0 to $200', min: 0, max: 200 },
-        { range: '$200 to $500', min: 200, max: 500 },
-        { range: '>$500', min: 500, max: Infinity },
+        { range: '<-₹500', min: -Infinity, max: -500 },
+        { range: '-₹500 to -₹200', min: -500, max: -200 },
+        { range: '-₹200 to ₹0', min: -200, max: 0 },
+        { range: '₹0 to ₹200', min: 0, max: 200 },
+        { range: '₹200 to ₹500', min: 200, max: 500 },
+        { range: '>₹500', min: 500, max: Infinity },
       ];
 
       const pnlHistogram = pnlRanges.map((range) => ({

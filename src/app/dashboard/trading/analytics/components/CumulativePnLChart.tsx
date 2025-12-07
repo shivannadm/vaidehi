@@ -13,9 +13,8 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
   if (!data || data.length === 0) {
     return (
       <div
-        className={`rounded-2xl p-6 border ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -31,7 +30,7 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
   }
 
   const chartData = data.map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    date: new Date(item.date).toLocaleDateString("en-IN", { month: "short", day: "numeric" }),
     cumulative: item.cumulative,
   }));
 
@@ -40,12 +39,11 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
 
   return (
     <div
-      className={`rounded-2xl p-6 border ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      } shadow-lg`}
+      className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        } shadow-lg`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -58,16 +56,14 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
           </p>
         </div>
 
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           <div
-            className={`text-2xl font-bold ${
-              isProfit
+            className={`text-2xl font-bold ${isProfit
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
-            }`}
+              }`}
           >
-            ${finalPnL >= 0 ? "+" : ""}
-            {finalPnL.toLocaleString()}
+            {finalPnL >= 0 ? "+" : ""}₹{finalPnL.toLocaleString("en-IN")}
           </div>
           <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             From {data.length} trades
@@ -75,8 +71,8 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="h-72">
+      {/* Chart - Increased height */}
+      <div className="h-80 sm:h-96">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
             <CartesianGrid
@@ -87,18 +83,21 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
             <XAxis
               dataKey="date"
               stroke={isDark ? "#64748b" : "#94a3b8"}
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: "11px" }}
               tickLine={false}
+              angle={-45}
+              textAnchor="end"
+              height={60}
             />
             <YAxis
               stroke={isDark ? "#64748b" : "#94a3b8"}
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: "11px" }}
               tickLine={false}
               tickFormatter={(value) => {
                 if (Math.abs(value) >= 1000) {
-                  return `$${(value / 1000).toFixed(1)}k`;
+                  return `₹${(value / 1000).toFixed(1)}k`;
                 }
-                return `$${value}`;
+                return `₹${value}`;
               }}
             />
             <Tooltip
@@ -107,10 +106,11 @@ export default function CumulativePnLChart({ data, isDark }: CumulativePnLChartP
                 border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
                 borderRadius: "8px",
                 fontSize: "12px",
+                color: isDark ? "#f1f5f9" : "#0f172a",
               }}
               labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
               formatter={(value: number) => [
-                `$${value >= 0 ? "+" : ""}${value.toLocaleString()}`,
+                `₹${value >= 0 ? "+" : ""}${value.toLocaleString("en-IN")}`,
                 "Cumulative P&L",
               ]}
             />
