@@ -780,11 +780,11 @@ export async function calculateTradingStats(
 
     const totalPnl = closedTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
     const totalCommission = closedTrades.reduce((sum, t) => sum + (t.commission || 0) + (t.fees || 0), 0);
-    
+
     const avgWin = winningTrades.length > 0
       ? winningTrades.reduce((sum, t) => sum + (t.pnl || 0), 0) / winningTrades.length
       : 0;
-    
+
     const avgLoss = losingTrades.length > 0
       ? losingTrades.reduce((sum, t) => sum + (t.pnl || 0), 0) / losingTrades.length
       : 0;
@@ -803,7 +803,7 @@ export async function calculateTradingStats(
     let peak = 0;
     let maxDrawdown = 0;
     let runningBalance = 0;
-    
+
     closedTrades
       .sort((a, b) => new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime())
       .forEach(trade => {
@@ -896,6 +896,464 @@ export async function getDashboardData(
 // EXPORT ALL
 // ============================================
 
+// ============================================
+// UPDATED: trading-helpers.ts
+// Add these new functions to your existing file
+// ============================================
+
+// ============================================
+// NEW: SPECIAL STRATEGIES MANAGEMENT
+// ============================================
+
+/**
+ * Ensure special strategies exist for user
+ * Creates "No Strategy" and "Other" if they don't exist
+ */
+export async function ensureSpecialStrategies(
+  userId: string
+): Promise<TradingResponse<{ no_strategy_id: string; other_id: string }>> {
+  try {
+    // Check if special strategies exist
+    const { data: existing, error: fetchError } = await supabase
+      .from("strategies")
+      .select("id, name")
+      .eq("user_id", userId)
+      .in("name", ["No Strategy", "Other"]);
+
+    if (fetchError) throw fetchError;
+
+    let noStrategyId = existing?.find(s => s.name === "No Strategy")?.id;
+    let otherId = existing?.find(s => s.name === "Other")?.id;
+
+    // Create "No Strategy" if doesn't exist
+    if (!noStrategyId) {
+      const { data: noStrategy, error: noStratError } = await supabase
+        .from("strategies")
+        .insert({
+          user_id: userId,
+          name: "No Strategy",
+          description: "Trades without a defined strategy",
+          status: "active",
+          market_type: null,
+          timeframe: null,
+          entry_criteria: {},
+          exit_criteria: {},
+          risk_management: null,
+        })
+        .select()
+        .single();
+
+      if (noStratError) throw noStratError;
+      noStrategyId = noStrategy.id;
+    }
+
+    // Create "Other" if doesn't exist
+    if (!otherId) {
+      const { data: other, error: otherError } = await supabase
+        .from("strategies")
+        .insert({
+          user_id: userId,
+          name: "Other",
+          description: "Miscellaneous trading strategies",
+          status: "active",
+          market_type: null,
+          timeframe: null,
+          entry_criteria: {},
+          exit_criteria: {},
+          risk_management: null,
+        })
+        .select()
+        .single();
+
+      if (otherError) throw otherError;
+      otherId = other.id;
+    }
+
+    return {
+      data: { no_strategy_id: noStrategyId, other_id: otherId },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+/**
+ * Get all strategies including special ones
+ */
+export async function getStrategiesWithSpecial(
+  userId: string
+): Promise<TradingResponse<Strategy[]>> {
+  try {
+    // Ensure special strategies exist
+    await ensureSpecialStrategies(userId);
+
+    // Get all strategies
+    const { data, error } = await supabase
+      .from("strategies")
+      .select("*")
+      .eq("user_id", userId)
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+
+    // Sort to put special strategies at the end
+    const sorted = data?.sort((a, b) => {
+      const aSpecial = a.name === "No Strategy" || a.name === "Other";
+      const bSpecial = b.name === "No Strategy" || b.name === "Other";
+
+      if (aSpecial && !bSpecial) return 1;
+      if (!aSpecial && bSpecial) return -1;
+
+      // Put "No Strategy" before "Other"
+      if (a.name === "No Strategy") return -1;
+      if (b.name === "No Strategy") return 1;
+
+      return 0;
+    });
+
+    return { data: sorted || [], error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+// ============================================
+// NEW: RULES INTEGRATION FOR TRADES
+// ============================================
+
+/**
+ * Get active rules for dropdown selection
+ */
+export async function getActiveRulesForSelection(
+  userId: string
+): Promise<TradingResponse<TradingRule[]>> {
+  const { data, error } = await supabase
+    .from("trading_rules")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("title", { ascending: true });
+
+  return { data, error };
+}
+
+/**
+ * Create trade with rules integration
+ */
+export async function createTradeWithRules(
+  trade: CreateTrade
+): Promise<TradingResponse<Trade>> {
+  try {
+    // Validate rules don't overlap
+    if (trade.rules_followed && trade.rules_broken) {
+      const followed = new Set(trade.rules_followed);
+      const broken = new Set(trade.rules_broken);
+      const overlap = [...followed].filter(id => broken.has(id));
+
+      if (overlap.length > 0) {
+        throw new Error("A rule cannot be both followed and broken");
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("trades")
+      .insert(trade)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+/**
+ * Update trade with rules validation
+ */
+export async function updateTradeWithRules(
+  tradeId: string,
+  updates: UpdateTrade
+): Promise<TradingResponse<Trade>> {
+  try {
+    // Validate rules don't overlap
+    if (updates.rules_followed && updates.rules_broken) {
+      const followed = new Set(updates.rules_followed);
+      const broken = new Set(updates.rules_broken);
+      const overlap = [...followed].filter(id => broken.has(id));
+
+      if (overlap.length > 0) {
+        throw new Error("A rule cannot be both followed and broken");
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("trades")
+      .update(updates)
+      .eq("id", tradeId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+/**
+ * Close trade with rules and auto P&L calculation
+ */
+export async function closeTradeWithRules(
+  tradeId: string,
+  exitDetails: {
+    exit_date: string;
+    exit_time?: string;
+    exit_price: number;
+    post_trade_notes?: string;
+    lessons_learned?: string;
+    rules_broken?: string[]; // Can add rules broken during exit
+  }
+): Promise<TradingResponse<Trade>> {
+  try {
+    // Get current trade to calculate P&L
+    const { data: currentTrade, error: fetchError } = await supabase
+      .from("trades")
+      .select("*")
+      .eq("id", tradeId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Calculate P&L
+    const { pnl, pnl_percentage } = calculatePnL(
+      currentTrade.side,
+      currentTrade.entry_price,
+      exitDetails.exit_price,
+      currentTrade.quantity,
+      currentTrade.commission,
+      currentTrade.fees
+    );
+
+    // Merge rules broken
+    const allRulesBroken = [
+      ...(currentTrade.rules_broken || []),
+      ...(exitDetails.rules_broken || []),
+    ];
+    const uniqueRulesBroken = [...new Set(allRulesBroken)];
+
+    // Update trade
+    const { data, error } = await supabase
+      .from("trades")
+      .update({
+        exit_date: exitDetails.exit_date,
+        exit_time: exitDetails.exit_time || null,
+        exit_price: exitDetails.exit_price,
+        post_trade_notes: exitDetails.post_trade_notes || null,
+        lessons_learned: exitDetails.lessons_learned || null,
+        rules_broken: uniqueRulesBroken.length > 0 ? uniqueRulesBroken : null,
+        pnl,
+        pnl_percentage,
+        is_closed: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", tradeId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+// ============================================
+// NEW: TRADES WITH RULES INFORMATION
+// ============================================
+
+/**
+ * Get trade with rules and strategy information
+ */
+export interface TradeWithDetails extends TradeWithStrategy {
+  followed_rules?: TradingRule[];
+  broken_rules?: TradingRule[];
+}
+
+export async function getTradeWithDetails(
+  tradeId: string
+): Promise<TradingResponse<TradeWithDetails>> {
+  try {
+    const { data: trade, error: tradeError } = await supabase
+      .from("trades")
+      .select(`
+        *,
+        strategy:strategies(*)
+      `)
+      .eq("id", tradeId)
+      .single();
+
+    if (tradeError) throw tradeError;
+
+    // Fetch rules if they exist
+    let followedRules: TradingRule[] = [];
+    let brokenRules: TradingRule[] = [];
+
+    if (trade.rules_followed && trade.rules_followed.length > 0) {
+      const { data: followed } = await supabase
+        .from("trading_rules")
+        .select("*")
+        .in("id", trade.rules_followed);
+
+      followedRules = followed || [];
+    }
+
+    if (trade.rules_broken && trade.rules_broken.length > 0) {
+      const { data: broken } = await supabase
+        .from("trading_rules")
+        .select("*")
+        .in("id", trade.rules_broken);
+
+      brokenRules = broken || [];
+    }
+
+    return {
+      data: {
+        ...trade,
+        followed_rules: followedRules,
+        broken_rules: brokenRules,
+      },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+/**
+ * Get trades for a specific date with details
+ */
+export async function getTradesByDate(
+  userId: string,
+  date: string
+): Promise<TradingResponse<TradeWithStrategy[]>> {
+  const { data, error } = await supabase
+    .from("trades")
+    .select(`
+      *,
+      strategy:strategies(*)
+    `)
+    .eq("user_id", userId)
+    .eq("entry_date", date)
+    .order("entry_time", { ascending: true });
+
+  return { data, error };
+}
+
+/**
+ * Get trades grouped by date
+ */
+export interface TradesByDate {
+  date: string;
+  trades: TradeWithStrategy[];
+  total_pnl: number;
+  winning_trades: number;
+  losing_trades: number;
+}
+
+export async function getTradesGroupedByDate(
+  userId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<TradingResponse<TradesByDate[]>> {
+  try {
+    let query = supabase
+      .from("trades")
+      .select(`
+        *,
+        strategy:strategies(*)
+      `)
+      .eq("user_id", userId)
+      .order("entry_date", { ascending: false })
+      .order("entry_time", { ascending: true });
+
+    if (startDate) query = query.gte("entry_date", startDate);
+    if (endDate) query = query.lte("entry_date", endDate);
+
+    const { data: trades, error } = await query;
+
+    if (error) throw error;
+
+    // Group by date
+    const grouped = trades?.reduce((acc, trade) => {
+      const date = trade.entry_date;
+      const existing = acc.find((g: { date: any; }) => g.date === date);
+
+      if (existing) {
+        existing.trades.push(trade);
+        if (trade.is_closed && trade.pnl) {
+          existing.total_pnl += trade.pnl;
+          if (trade.pnl > 0) existing.winning_trades++;
+          else existing.losing_trades++;
+        }
+      } else {
+        acc.push({
+          date,
+          trades: [trade],
+          total_pnl: trade.is_closed && trade.pnl ? trade.pnl : 0,
+          winning_trades: trade.is_closed && trade.pnl && trade.pnl > 0 ? 1 : 0,
+          losing_trades: trade.is_closed && trade.pnl && trade.pnl <= 0 ? 1 : 0,
+        });
+      }
+
+      return acc;
+    }, [] as TradesByDate[]);
+
+    return { data: grouped || [], error: null };
+  } catch (error) {
+    return { data: null, error: error as Error };
+  }
+}
+
+// ============================================
+// HELPER: Calculate P&L (Updated for INR)
+// ============================================
+
+function calculatePnL(
+  side: 'long' | 'short',
+  entryPrice: number,
+  exitPrice: number,
+  quantity: number,
+  commission: number = 0,
+  fees: number = 0
+): { pnl: number; pnl_percentage: number } {
+  let pnl = 0;
+
+  if (side === 'long') {
+    pnl = (exitPrice - entryPrice) * quantity - commission - fees;
+  } else {
+    pnl = (entryPrice - exitPrice) * quantity - commission - fees;
+  }
+
+  const pnl_percentage = (pnl / (entryPrice * quantity)) * 100;
+
+  return {
+    pnl: Math.round(pnl * 100) / 100,
+    pnl_percentage: Math.round(pnl_percentage * 100) / 100
+  };
+}
+
+// Export all existing functions + new ones
+// export {
+//   createTradeWithRules as createTrade,
+//   updateTradeWithRules as updateTrade,
+//   closeTradeWithRules as closeTrade,
+// };
+
 export default {
   // Rules
   getTradingRules,
@@ -955,3 +1413,4 @@ export default {
   calculateTradingStats,
   getDashboardData,
 };
+
