@@ -1755,6 +1755,14 @@ export interface TradeWithStrategy extends Trade {
   strategy: Strategy | null;
 }
 
+export interface TradesByDate {
+  date: string; // YYYY-MM-DD
+  trades: TradeWithStrategy[];
+  total_pnl: number;
+  winning_trades: number;
+  losing_trades: number;
+}
+
 export type CreateTrade = Omit<Trade, 'id' | 'pnl' | 'pnl_percentage' | 'is_closed' | 'created_at' | 'updated_at'>;
 export type UpdateTrade = Partial<Omit<Trade, 'id' | 'user_id' | 'created_at'>>;
 

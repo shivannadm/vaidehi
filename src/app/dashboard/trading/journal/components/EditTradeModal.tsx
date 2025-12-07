@@ -49,7 +49,6 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
     if (trade) {
       setSymbol(trade.symbol);
       setInstrumentType(trade.instrument_type);
-      setCountry(trade.country);
       setSide(trade.side);
       setEntryDate(trade.entry_date);
       setEntryTime(trade.entry_time || "");
