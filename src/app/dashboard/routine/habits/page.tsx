@@ -1,4 +1,4 @@
-// UPDATE: src/app/dashboard/routine/habits/page.tsx
+// src/app/dashboard/routine/habits/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -59,7 +59,6 @@ export default function HabitsPage() {
 
     init();
 
-    // Theme detection
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains('dark'));
     };
@@ -77,7 +76,7 @@ export default function HabitsPage() {
 
   if (!mounted) {
     return (
-      <div className={`flex items-center justify-center h-64 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <div className={`flex items-center justify-center min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
         <p className={isDark ? 'text-white' : 'text-slate-900'}>Loading Habits...</p>
       </div>
     );
@@ -85,7 +84,7 @@ export default function HabitsPage() {
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center h-64 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <div className={`flex items-center justify-center min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p className={`mt-2 text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -98,44 +97,46 @@ export default function HabitsPage() {
 
   if (error && !userId) {
     return (
-      <div className={`p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
-        <p className={isDark ? 'text-red-300' : 'text-red-700'}>
-          Authentication required. <a href="/login" className="underline">Sign in</a>
-        </p>
+      <div className="p-4 sm:p-6">
+        <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
+          <p className={isDark ? 'text-red-300' : 'text-red-700'}>
+            Authentication required. <a href="/login" className="underline">Sign in</a>
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen p-6 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className={`min-h-screen p-4 sm:p-6 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        {/* Header - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <Target className="w-8 h-8 text-indigo-500" />
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+              <Target className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500" />
               Habit Tracker
             </h1>
-            <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            <p className={`text-xs sm:text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               Build consistency, one day at a time
             </p>
           </div>
           
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
+          {/* Action Buttons - Stack on Mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <button
               onClick={() => setShowInsightsModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95"
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
-              <Sparkles className="w-5 h-5" />
-              Life-Changing Insights
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="whitespace-nowrap">Life-Changing Insights</span>
             </button>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95"
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium transition shadow-lg hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               Add Habit
             </button>
           </div>
@@ -143,38 +144,38 @@ export default function HabitsPage() {
 
         {/* Error Display */}
         {error && (
-          <div className={`p-4 rounded-lg border ${
+          <div className={`p-3 sm:p-4 rounded-lg border text-sm ${
             isDark ? 'bg-red-900/20 border-red-500/30 text-red-300' : 'bg-red-50 border-red-200 text-red-700'
           }`}>
             {error}
           </div>
         )}
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Quick Stats - Responsive Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
-            icon={<CheckCircle className="w-6 h-6" />}
+            icon={<CheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />}
             label="Today's Progress"
             value={`${stats.completedToday}/${stats.totalHabits}`}
             color="#10B981"
             isDark={isDark}
           />
           <StatCard
-            icon={<TrendingUp className="w-6 h-6" />}
+            icon={<TrendingUp className="w-4 h-4 sm:w-6 sm:h-6" />}
             label="Avg Completion"
             value={`${stats.avgCompletionRate}%`}
             color="#3B82F6"
             isDark={isDark}
           />
           <StatCard
-            icon={<Flame className="w-6 h-6" />}
+            icon={<Flame className="w-4 h-4 sm:w-6 sm:h-6" />}
             label="Longest Streak"
             value={`${stats.longestStreak} days`}
             color="#F59E0B"
             isDark={isDark}
           />
           <StatCard
-            icon={<Award className="w-6 h-6" />}
+            icon={<Award className="w-4 h-4 sm:w-6 sm:h-6" />}
             label="Active Habits"
             value={stats.totalHabits}
             color="#A855F7"
@@ -183,41 +184,41 @@ export default function HabitsPage() {
         </div>
 
         {/* Today's Habits */}
-        <div className={`rounded-xl border p-6 ${
+        <div className={`rounded-xl border p-4 sm:p-6 ${
           isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
         }`}>
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-500" />
+          <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
             Today's Habits
           </h2>
           
           {habits.length === 0 ? (
-            <div className="text-center py-12">
-              <Target className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
-              <h3 className={`text-lg font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <div className="text-center py-8 sm:py-12">
+              <Target className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
+              <h3 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 No habits yet
               </h3>
-              <p className={`text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <p className={`text-xs sm:text-sm mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 Start building better habits by adding your first one
               </p>
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowInsightsModal(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg transition font-medium"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-lg transition font-medium text-sm"
                 >
                   <Sparkles className="w-4 h-4 inline mr-2" />
                   Get Ideas
                 </button>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition text-sm"
                 >
                   Add Your First Habit
                 </button>
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {habits.map(habit => (
                 <HabitCard
                   key={habit.id}
@@ -242,15 +243,15 @@ export default function HabitsPage() {
 
         {/* Monthly Overview */}
         {habits.length > 0 && (
-          <div className={`rounded-xl border p-6 ${
+          <div className={`rounded-xl border p-4 sm:p-6 ${
             isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
           }`}>
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-indigo-500" />
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
               Monthly Performance
             </h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {habits.map(habit => {
                 const percentage = habit.completion_rate;
                 
@@ -258,14 +259,14 @@ export default function HabitsPage() {
                   <div key={habit.id}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{habit.icon}</span>
-                        <span className="font-medium">{habit.name}</span>
+                        <span className="text-lg sm:text-xl">{habit.icon}</span>
+                        <span className="font-medium text-sm sm:text-base truncate">{habit.name}</span>
                       </div>
-                      <span className="text-sm font-bold" style={{ color: habit.color }}>
+                      <span className="text-xs sm:text-sm font-bold flex-shrink-0 ml-2" style={{ color: habit.color }}>
                         {percentage}%
                       </span>
                     </div>
-                    <div className={`h-3 rounded-full overflow-hidden ${
+                    <div className={`h-2.5 sm:h-3 rounded-full overflow-hidden ${
                       isDark ? 'bg-slate-700' : 'bg-slate-200'
                     }`}>
                       <div
@@ -305,8 +306,7 @@ export default function HabitsPage() {
           onAddHabit={async (habitData) => {
             const result = await addHabit(habitData);
             if (result) {
-              // Optionally keep modal open or close it
-              // setShowInsightsModal(false);
+              // Modal stays open
             }
           }}
           isDark={isDark}
@@ -332,24 +332,24 @@ export default function HabitsPage() {
   );
 }
 
-// Stat Card Component
+// Stat Card Component - Mobile Optimized
 function StatCard({ icon, label, value, color, isDark }: any) {
   return (
-    <div className={`rounded-xl border p-4 transition-all hover:scale-105 ${
+    <div className={`rounded-xl border p-3 sm:p-4 transition-all hover:scale-105 ${
       isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
     }`}>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div
-          className="p-3 rounded-lg"
+          className="p-2 sm:p-3 rounded-lg flex-shrink-0"
           style={{ backgroundColor: `${color}20` }}
         >
           <div style={{ color }}>{icon}</div>
         </div>
-        <div>
-          <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+        <div className="min-w-0 flex-1">
+          <div className={`text-[10px] sm:text-sm truncate ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
             {label}
           </div>
-          <div className="text-2xl font-bold" style={{ color }}>
+          <div className="text-lg sm:text-2xl font-bold truncate" style={{ color }}>
             {value}
           </div>
         </div>

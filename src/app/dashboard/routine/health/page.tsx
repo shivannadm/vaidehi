@@ -5,13 +5,14 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useHealthTracking } from "./hooks/useHealthTracking";
 import HealthForm from "./components/HealthForm";
-import { Heart, TrendingUp, Activity, Droplets, Moon, Brain, Flame } from "lucide-react";
+import { Heart, TrendingUp, Activity, Droplets, Moon, Brain, Flame, Menu, X } from "lucide-react";
 
 export default function HealthPage() {
   const [mounted, setMounted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isDark, setIsDark] = useState(true);
+  const [showInsights, setShowInsights] = useState(false);
 
   const { entry, updateField, saveEntry, saving, loading, error } = useHealthTracking(userId, selectedDate);
 
@@ -31,7 +32,6 @@ export default function HealthPage() {
 
     init();
 
-    // Real-time theme detection
     const checkTheme = () => {
       const dark = document.documentElement.classList.contains('dark');
       setIsDark(dark);
@@ -50,7 +50,7 @@ export default function HealthPage() {
 
   if (!mounted) {
     return (
-      <div className={`flex items-center justify-center h-64 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <div className={`flex items-center justify-center min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
         <p className={isDark ? 'text-white' : 'text-slate-900'}>Loading Health Tracker...</p>
       </div>
     );
@@ -58,17 +58,19 @@ export default function HealthPage() {
 
   if (error && !userId) {
     return (
-      <div className={`p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
-        <p className={isDark ? 'text-red-300' : 'text-red-700'}>
-          Authentication required. <a href="/login" className="underline">Sign in</a>
-        </p>
+      <div className="p-4 sm:p-6">
+        <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
+          <p className={isDark ? 'text-red-300' : 'text-red-700'}>
+            Authentication required. <a href="/login" className="underline">Sign in</a>
+          </p>
+        </div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center h-64 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <div className={`flex items-center justify-center min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
         <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Loading your data...</p>
       </div>
     );
@@ -76,19 +78,20 @@ export default function HealthPage() {
 
   if (error) {
     return (
-      <div className={`p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
-        <p className={isDark ? 'text-red-300' : 'text-red-700'}>Error: {error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
-        >
-          Retry
-        </button>
+      <div className="p-4 sm:p-6">
+        <div className={`p-4 sm:p-6 rounded-xl ${isDark ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200'}`}>
+          <p className={isDark ? 'text-red-300' : 'text-red-700'}>Error: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-2 px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
-  // Calculate health score (simple average of key metrics)
   const healthScore = Math.round((
     (entry.sleep_quality || 7) +
     (entry.diet_quality || 7) +
@@ -98,131 +101,147 @@ export default function HealthPage() {
   ) / 5);
 
   return (
-    <div className={`space-y-6 p-6 max-w-7xl mx-auto space-y-5 ${isDark ? 'text-white bg-slate-900 min-h-screen' : 'text-slate-900 bg-slate-50 min-h-screen'}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            Health Tracking
-            <Heart className="w-6 h-6 text-red-500" />
-          </h1>
-          <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-            Comprehensive wellness monitoring
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {/* Health Streak */}
-          <div className="flex items-center gap-2 bg-green-500/10 px-4 py-2 rounded-full border border-green-500/30">
-            <Flame className="w-5 h-5 text-green-500" />
-            <span className="text-green-500 font-bold text-lg">
-              {(entry as any).health_streak || 1}
-            </span>
-            <span className={`text-sm font-medium ${isDark ? 'text-green-400' : 'text-green-600'}`}>
-              Day Streak
-            </span>
-          </div>
-          <span className="text-sm opacity-75">{selectedDate.toDateString()}</span>
-        </div>
-      </div>
-
-      {/* Health Score Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Overall Health Score */}
-        <div className={`p-6 rounded-xl border text-center ${
-          isDark ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700/50' : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
-        }`}>
-          <div className="text-5xl font-bold text-green-500 mb-2">
-            {healthScore}
-          </div>
-          <div className={`text-sm font-medium ${isDark ? 'text-green-400' : 'text-green-700'}`}>
-            Health Score
-          </div>
-          <div className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Out of 10
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <QuickStat
-          icon={<Moon className="w-6 h-6" />}
-          label="Sleep"
-          value={`${entry.sleep_quality || 7}/10`}
-          color="blue"
-          isDark={isDark}
-        />
-        <QuickStat
-          icon={<Droplets className="w-6 h-6" />}
-          label="Hydration"
-          value={`${Math.floor((entry.water_intake || 0) / 250)}/8`}
-          color="cyan"
-          isDark={isDark}
-        />
-        <QuickStat
-          icon={<Activity className="w-6 h-6" />}
-          label="Active"
-          value={`${entry.active_minutes || 0}m`}
-          color="orange"
-          isDark={isDark}
-        />
-        <QuickStat
-          icon={<Brain className="w-6 h-6" />}
-          label="Mood"
-          value={`${entry.mood_rating || 7}/10`}
-          color="purple"
-          isDark={isDark}
-        />
-      </div>
-
-      {/* Main Form */}
-      <HealthForm
-        entry={entry}
-        onUpdate={updateField}
-        onSave={saveEntry}
-        saving={saving}
-        isDark={isDark}
-      />
-
-      {/* Weekly Insights */}
-      <div className={`p-6 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
-        <h3 className="font-semibold flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-indigo-500" />
-          Weekly Health Insights
-        </h3>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
-            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Avg Sleep</p>
-            <p className="text-2xl font-bold mt-1">
-              {entry.sleep_quality || 7}/10
+    <div className={`min-h-screen ${isDark ? 'text-white bg-slate-900' : 'text-slate-900 bg-slate-50'}`}>
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+              Health Tracking
+              <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
+            </h1>
+            <p className={`text-xs sm:text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              Comprehensive wellness monitoring
             </p>
           </div>
 
-          <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
-            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Avg Mood</p>
-            <p className="text-2xl font-bold mt-1">
-              {entry.mood_rating || 7}/10
-            </p>
-          </div>
-
-          <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
-            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Active Days</p>
-            <p className="text-2xl font-bold mt-1">
-              {entry.active_minutes ? '5/7' : '0/7'}
-            </p>
-          </div>
-
-          <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
-            <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>Recovery</p>
-            <p className="text-2xl font-bold mt-1">
-              {entry.recovery_score || 7}/10
-            </p>
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-green-500/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-green-500/30">
+              <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+              <span className="text-green-500 font-bold text-base sm:text-lg">
+                {(entry as any).health_streak || 1}
+              </span>
+              <span className={`text-xs sm:text-sm font-medium ${isDark ? 'text-green-400' : 'text-green-600'}`}>
+                Day Streak
+              </span>
+            </div>
+            <span className="hidden sm:inline text-sm opacity-75">{selectedDate.toDateString()}</span>
+            <button
+              onClick={() => setShowInsights(!showInsights)}
+              className="sm:hidden p-2 rounded-lg bg-indigo-600 text-white"
+              aria-label="Toggle insights"
+            >
+              {showInsights ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
-        <p className={`text-xs mt-4 ${isDark ? 'opacity-70' : 'opacity-60'}`}>
-          You're doing <span className="font-bold text-green-500">Excellent</span> · Keep up the healthy habits!
-        </p>
+        <div className="sm:hidden text-xs opacity-75">
+          {selectedDate.toDateString()}
+        </div>
+
+        {/* Health Score Dashboard - Mobile Optimized */}
+        <div className={`${showInsights ? 'block' : 'hidden'} sm:block`}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {/* Overall Health Score */}
+            <div className={`col-span-2 sm:col-span-1 p-4 sm:p-6 rounded-xl border text-center ${
+              isDark ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700/50' : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
+            }`}>
+              <div className="text-4xl sm:text-5xl font-bold text-green-500 mb-2">
+                {healthScore}
+              </div>
+              <div className={`text-xs sm:text-sm font-medium ${isDark ? 'text-green-400' : 'text-green-700'}`}>
+                Health Score
+              </div>
+              <div className={`text-[10px] sm:text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Out of 10
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <QuickStat
+              icon={<Moon className="w-4 h-4 sm:w-6 sm:h-6" />}
+              label="Sleep"
+              value={`${entry.sleep_quality || 7}/10`}
+              color="blue"
+              isDark={isDark}
+            />
+            <QuickStat
+              icon={<Droplets className="w-4 h-4 sm:w-6 sm:h-6" />}
+              label="Hydration"
+              value={`${Math.floor((entry.water_intake || 0) / 250)}/8`}
+              color="cyan"
+              isDark={isDark}
+            />
+            <QuickStat
+              icon={<Activity className="w-4 h-4 sm:w-6 sm:h-6" />}
+              label="Active"
+              value={`${entry.active_minutes || 0}m`}
+              color="orange"
+              isDark={isDark}
+            />
+            <QuickStat
+              icon={<Brain className="w-4 h-4 sm:w-6 sm:h-6" />}
+              label="Mood"
+              value={`${entry.mood_rating || 7}/10`}
+              color="purple"
+              isDark={isDark}
+            />
+          </div>
+        </div>
+
+        {/* Main Form */}
+        <HealthForm
+          entry={entry}
+          onUpdate={updateField}
+          onSave={saveEntry}
+          saving={saving}
+          isDark={isDark}
+        />
+
+        {/* Weekly Insights */}
+        <div className={`${showInsights ? 'block' : 'hidden'} sm:block`}>
+          <div className={`p-4 sm:p-6 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+            <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2 mb-4">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
+              Weekly Health Insights
+            </h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-sm">
+              <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                <p className={`text-xs sm:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Avg Sleep</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">
+                  {entry.sleep_quality || 7}/10
+                </p>
+              </div>
+
+              <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                <p className={`text-xs sm:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Avg Mood</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">
+                  {entry.mood_rating || 7}/10
+                </p>
+              </div>
+
+              <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                <p className={`text-xs sm:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Active Days</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">
+                  {entry.active_minutes ? '5/7' : '0/7'}
+                </p>
+              </div>
+
+              <div className={`p-3 sm:p-4 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                <p className={`text-xs sm:text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Recovery</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">
+                  {entry.recovery_score || 7}/10
+                </p>
+              </div>
+            </div>
+
+            <p className={`text-xs mt-4 ${isDark ? 'opacity-70' : 'opacity-60'}`}>
+              You're doing <span className="font-bold text-green-500">Excellent</span> · Keep up the healthy habits!
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -240,17 +259,17 @@ function QuickStat({ icon, label, value, color, isDark }: any) {
 
   return (
     <div 
-      className="p-4 rounded-xl border"
+      className="p-3 sm:p-4 rounded-xl border"
       style={{
         backgroundColor: colors.bg,
         borderColor: colors.border
       }}
     >
-      <div className="flex items-center gap-2 mb-2" style={{ color: colors.text }}>
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-2" style={{ color: colors.text }}>
         {icon}
-        <span className="font-medium text-sm">{label}</span>
+        <span className="font-medium text-xs sm:text-sm">{label}</span>
       </div>
-      <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+      <div className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
         {value}
       </div>
     </div>

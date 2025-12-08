@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Moon, Droplets, Utensils, Activity, Heart, Brain, 
+import {
+  Moon, Droplets, Utensils, Activity, Heart, Brain,
   Weight, Thermometer, Gauge, Coffee, Wine, Cigarette,
   TrendingUp, Smile, Frown, Meh, StickyNote, Save,
   ChevronDown, ChevronUp
@@ -46,6 +46,8 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
   const addWaterGlass = () => onUpdate("water_intake", (entry.water_intake || 0) + 250);
   const removeWaterGlass = () => onUpdate("water_intake", Math.max(0, (entry.water_intake || 0) - 250));
 
+  const text = (t: string) => (isDark ? "text-slate-300" : "text-slate-700");
+
   return (
     <div className={`space-y-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       
@@ -58,9 +60,9 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         isDark={isDark}
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Sleep Start
               </label>
               <input
@@ -68,13 +70,11 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
                 value={entry.sleep_start || ""}
                 onChange={(e) => onUpdate("sleep_start", e.target.value)}
                 disabled={saving}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
               />
             </div>
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Wake Time
               </label>
               <input
@@ -82,16 +82,14 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
                 value={entry.sleep_end || ""}
                 onChange={(e) => onUpdate("sleep_end", e.target.value)}
                 disabled={saving}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
               />
             </div>
           </div>
           
           <RatingSlider
             label="Sleep Quality"
-            value={entry.sleep_quality || 7}
+            value={entry.sleep_quality ?? 7}
             onChange={(val: any) => onUpdate("sleep_quality", val)}
             min={1}
             max={10}
@@ -107,9 +105,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
             onChange={(e) => onUpdate("sleep_notes", e.target.value)}
             rows={2}
             disabled={saving}
-            className={`w-full px-3 py-2 rounded-lg border text-sm resize-none ${
-              isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 placeholder-slate-400'
-            }`}
+            className={`w-full px-3 py-3 rounded-lg border text-sm resize-none ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 placeholder-slate-400'}`}
           />
         </div>
       </Section>
@@ -126,12 +122,22 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {[...Array(8)].map((_, i) => (
-                <Droplets
+                <button
                   key={i}
-                  className={`w-6 h-6 transition ${
-                    i < waterGlasses ? 'text-blue-500 fill-blue-500' : isDark ? 'text-slate-600' : 'text-slate-300'
-                  }`}
-                />
+                  onClick={() => {
+                    // toggle to this many glasses quickly (tap target friendly)
+                    const target = (i + 1) * 250;
+                    onUpdate("water_intake", target);
+                  }}
+                  type="button"
+                  className="p-1"
+                  aria-label={`Set ${i + 1} glasses`}
+                >
+                  <Droplets
+                    key={i}
+                    className={`w-6 h-6 transition ${i < waterGlasses ? 'text-blue-500 fill-blue-500' : isDark ? 'text-slate-600' : 'text-slate-300'}`}
+                  />
+                </button>
               ))}
             </div>
             <div className={`text-sm font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
@@ -143,16 +149,14 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
             <button
               onClick={removeWaterGlass}
               disabled={saving || (entry.water_intake || 0) === 0}
-              className={`flex-1 py-2 rounded-lg font-medium transition ${
-                isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-200 hover:bg-slate-300'
-              } disabled:opacity-50`}
+              className={`flex-1 py-3 rounded-lg font-medium transition ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-200 hover:bg-slate-300'} disabled:opacity-50`}
             >
               - Glass
             </button>
             <button
               onClick={addWaterGlass}
               disabled={saving}
-              className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+              className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
             >
               + Glass
             </button>
@@ -169,44 +173,40 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         isDark={isDark}
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Meals Logged
               </label>
               <input
                 type="number"
                 min="0"
                 max="5"
-                value={entry.meals_logged || 0}
+                value={entry.meals_logged ?? 0}
                 onChange={(e) => onUpdate("meals_logged", parseInt(e.target.value) || 0)}
                 disabled={saving}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
               />
             </div>
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Protein (g)
               </label>
               <input
                 type="number"
                 min="0"
-                value={entry.protein_intake || ""}
+                value={entry.protein_intake ?? ""}
                 onChange={(e) => onUpdate("protein_intake", parseInt(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
           </div>
 
           <RatingSlider
             label="Diet Quality"
-            value={entry.diet_quality || 7}
+            value={entry.diet_quality ?? 7}
             onChange={(val: any) => onUpdate("diet_quality", val)}
             min={1}
             max={10}
@@ -227,51 +227,45 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         isDark={isDark}
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Active Minutes
               </label>
               <input
                 type="number"
                 min="0"
-                value={entry.active_minutes || 0}
+                value={entry.active_minutes ?? 0}
                 onChange={(e) => onUpdate("active_minutes", parseInt(e.target.value) || 0)}
                 disabled={saving}
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
               />
             </div>
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Steps
               </label>
               <input
                 type="number"
                 min="0"
-                value={entry.steps_count || ""}
+                value={entry.steps_count ?? ""}
                 onChange={(e) => onUpdate("steps_count", parseInt(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
           </div>
 
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               Workout Type
             </label>
             <select
-              value={entry.workout_type || ""}
+              value={entry.workout_type ?? ""}
               onChange={(e) => onUpdate("workout_type", e.target.value || null)}
               disabled={saving}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
             >
               <option value="">No workout</option>
               <option value="cardio">Cardio</option>
@@ -297,45 +291,41 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         isDark={isDark}
       >
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Resting HR (BPM)
               </label>
               <input
                 type="number"
                 min="30"
                 max="200"
-                value={entry.resting_heart_rate || ""}
+                value={entry.resting_heart_rate ?? ""}
                 onChange={(e) => onUpdate("resting_heart_rate", parseInt(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 HRV (ms)
               </label>
               <input
                 type="number"
                 min="0"
-                value={entry.heart_rate_variability || ""}
+                value={entry.heart_rate_variability ?? ""}
                 onChange={(e) => onUpdate("heart_rate_variability", parseInt(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
           </div>
 
           <RatingSlider
             label="Recovery Score"
-            value={entry.recovery_score || 7}
+            value={entry.recovery_score ?? 7}
             onChange={(val: any) => onUpdate("recovery_score", val)}
             min={1}
             max={10}
@@ -347,7 +337,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
 
           <RatingSlider
             label="Stress Level"
-            value={entry.stress_level || 5}
+            value={entry.stress_level ?? 5}
             onChange={(val: any) => onUpdate("stress_level", val)}
             min={1}
             max={10}
@@ -370,24 +360,22 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
       >
         <div className="space-y-4">
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               Meditation (minutes)
             </label>
             <input
               type="number"
               min="0"
-              value={entry.meditation_minutes || 0}
+              value={entry.meditation_minutes ?? 0}
               onChange={(e) => onUpdate("meditation_minutes", parseInt(e.target.value) || 0)}
               disabled={saving}
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-slate-300'}`}
             />
           </div>
 
           <RatingSlider
             label="Mood"
-            value={entry.mood_rating || 7}
+            value={entry.mood_rating ?? 7}
             onChange={(val: any) => onUpdate("mood_rating", val)}
             min={1}
             max={10}
@@ -399,7 +387,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
 
           <RatingSlider
             label="Anxiety Level"
-            value={entry.anxiety_level || 5}
+            value={entry.anxiety_level ?? 5}
             onChange={(val: any) => onUpdate("anxiety_level", val)}
             min={1}
             max={10}
@@ -420,26 +408,24 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         onToggle={() => toggleSection('body')}
         isDark={isDark}
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               Weight (kg)
             </label>
             <input
               type="number"
               step="0.1"
               min="0"
-              value={entry.weight || ""}
+              value={entry.weight ?? ""}
               onChange={(e) => onUpdate("weight", parseFloat(e.target.value) || null)}
               disabled={saving}
               placeholder="Optional"
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
             />
           </div>
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               Temperature (°C)
             </label>
             <input
@@ -447,45 +433,39 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
               step="0.1"
               min="35"
               max="42"
-              value={entry.body_temperature || ""}
+              value={entry.body_temperature ?? ""}
               onChange={(e) => onUpdate("body_temperature", parseFloat(e.target.value) || null)}
               disabled={saving}
               placeholder="Optional"
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
             />
           </div>
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               BP Systolic
             </label>
             <input
               type="number"
               min="0"
-              value={entry.blood_pressure_systolic || ""}
+              value={entry.blood_pressure_systolic ?? ""}
               onChange={(e) => onUpdate("blood_pressure_systolic", parseInt(e.target.value) || null)}
               disabled={saving}
               placeholder="Optional"
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
             />
           </div>
           <div>
-            <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+            <label className={`text-sm font-medium mb-2 block ${text('')}`}>
               BP Diastolic
             </label>
             <input
               type="number"
               min="0"
-              value={entry.blood_pressure_diastolic || ""}
+              value={entry.blood_pressure_diastolic ?? ""}
               onChange={(e) => onUpdate("blood_pressure_diastolic", parseInt(e.target.value) || null)}
               disabled={saving}
               placeholder="Optional"
-              className={`w-full px-3 py-2 rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-              }`}
+              className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
             />
           </div>
         </div>
@@ -502,7 +482,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 rounded-lg border" style={{
             borderColor: isDark ? '#475569' : '#e2e8f0',
-            backgroundColor: entry.screen_time_limit_met ? (isDark ? '#10b98120' : '#d1fae5') : (isDark ? '#1e293b' : '#f8fafc')
+            backgroundColor: entry.screen_time_limit_met ? (isDark ? '#052e1f' : '#d1fae5') : (isDark ? '#0f172a' : '#f8fafc')
           }}>
             <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Screen Time Limit Met
@@ -510,9 +490,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
             <button
               onClick={() => onUpdate("screen_time_limit_met", !entry.screen_time_limit_met)}
               disabled={saving}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                entry.screen_time_limit_met ? 'bg-green-600 text-white' : isDark ? 'bg-slate-600 text-slate-300' : 'bg-slate-300'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${entry.screen_time_limit_met ? 'bg-green-600 text-white' : isDark ? 'bg-slate-600 text-slate-300' : 'bg-slate-300'}`}
             >
               {entry.screen_time_limit_met ? 'Yes' : 'No'}
             </button>
@@ -520,7 +498,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
 
           <div className="flex items-center justify-between p-3 rounded-lg border" style={{
             borderColor: isDark ? '#475569' : '#e2e8f0',
-            backgroundColor: entry.smoking_avoided ? (isDark ? '#10b98120' : '#d1fae5') : (isDark ? '#7f1d1d20' : '#fee2e2')
+            backgroundColor: entry.smoking_avoided ? (isDark ? '#052e1f' : '#d1fae5') : (isDark ? '#3f1a1a' : '#fee2e2')
           }}>
             <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Avoided Smoking
@@ -528,46 +506,40 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
             <button
               onClick={() => onUpdate("smoking_avoided", !entry.smoking_avoided)}
               disabled={saving}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                entry.smoking_avoided ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-              }`}
+              className={`px-4 py-2 rounded-lg font-medium transition ${entry.smoking_avoided ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}
             >
               {entry.smoking_avoided ? 'Yes' : 'No'}
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Alcohol (units)
               </label>
               <input
                 type="number"
                 min="0"
                 step="0.5"
-                value={entry.alcohol_units || ""}
+                value={entry.alcohol_units ?? ""}
                 onChange={(e) => onUpdate("alcohol_units", parseFloat(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
             <div>
-              <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              <label className={`text-sm font-medium mb-2 block ${text('')}`}>
                 Caffeine (mg)
               </label>
               <input
                 type="number"
                 min="0"
-                value={entry.caffeine_intake || ""}
+                value={entry.caffeine_intake ?? ""}
                 onChange={(e) => onUpdate("caffeine_intake", parseInt(e.target.value) || null)}
                 disabled={saving}
                 placeholder="Optional"
-                className={`w-full px-3 py-2 rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'
-                }`}
+                className={`w-full px-3 py-3 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-500' : 'bg-white border-slate-300 placeholder-slate-400'}`}
               />
             </div>
           </div>
@@ -586,9 +558,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
           onChange={(e) => onUpdate("notes", e.target.value)}
           rows={3}
           disabled={saving}
-          className={`w-full px-3 py-2 rounded-lg border text-sm resize-none ${
-            isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 placeholder-slate-400'
-          }`}
+          className={`w-full px-3 py-3 rounded-lg border text-sm resize-none ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-slate-300 placeholder-slate-400'}`}
         />
       </div>
 
@@ -596,9 +566,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
       <button
         onClick={handleSave}
         disabled={saving}
-        className={`w-full py-4 rounded-2xl font-bold text-lg transition transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${
-          saving ? 'bg-indigo-500/70 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-        } text-white shadow-lg`}
+        className={`w-full py-4 rounded-2xl font-bold text-lg transition transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${saving ? 'bg-indigo-500/70 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'} text-white shadow-lg`}
       >
         <Save className="w-5 h-5" />
         {saving ? "Saving..." : "Save Health Data"}
@@ -610,22 +578,15 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
 // Collapsible Section Component
 function Section({ title, subtitle, isExpanded, onToggle, isDark, children }: any) {
   return (
-    <div className={`rounded-xl border overflow-hidden ${
-      isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-    }`}>
+    <div className={`rounded-xl border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
       <button
         onClick={onToggle}
-        className={`w-full p-4 flex items-center justify-between hover:bg-opacity-80 transition ${
-          isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-50'
-        }`}
+        className={`w-full p-4 flex items-center justify-between hover:bg-opacity-80 transition ${isDark ? 'hover:bg-slate-700' : 'hover:bg-slate-50'}`}
+        aria-expanded={isExpanded}
       >
         <div className="text-left">
-          <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            {title}
-          </h3>
-          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            {subtitle}
-          </p>
+          <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{subtitle}</p>
         </div>
         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
       </button>
@@ -650,9 +611,7 @@ function RatingSlider({ label, value, onChange, min, max, lowLabel, highLabel, i
 
   return (
     <div>
-      <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-        {label}
-      </label>
+      <label className={`text-sm font-medium mb-2 block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{label}</label>
       <div className="relative">
         <input
           type="range"
@@ -663,22 +622,25 @@ function RatingSlider({ label, value, onChange, min, max, lowLabel, highLabel, i
           disabled={disabled}
           className="w-full h-3 rounded-full appearance-none cursor-pointer"
           style={{ background: getGradient() }}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={value}
         />
         <style jsx>{`
           input[type="range"]::-webkit-slider-thumb {
             appearance: none;
-            height: 24px;
-            width: 24px;
+            height: 28px;
+            width: 28px;
             border-radius: 50%;
             background: white;
             border: 4px solid #6366f1;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
             cursor: grab;
-            transition: all 0.2s;
+            transition: all 0.18s;
           }
           input[type="range"]::-webkit-slider-thumb:active {
             cursor: grabbing;
-            transform: scale(1.1);
+            transform: scale(1.05);
           }
         `}</style>
       </div>
