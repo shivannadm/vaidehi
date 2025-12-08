@@ -11,13 +11,13 @@ interface TomorrowCardProps {
 
 export default function TomorrowCard({ value, onChange, isDark }: TomorrowCardProps) {
   return (
-    <div className={`rounded-xl border p-5 ${
+    <div className={`rounded-xl border p-4 sm:p-5 ${
       isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
     }`}>
-      <h3 className={`text-lg font-bold flex items-center gap-2 mb-4 ${
+      <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 mb-4 ${
         isDark ? 'text-white' : 'text-slate-900'
       }`}>
-        <Sunrise className="w-5 h-5 text-orange-500" />
+        <Sunrise className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
         Tomorrow's Preview
       </h3>
 
@@ -26,10 +26,10 @@ export default function TomorrowCard({ value, onChange, isDark }: TomorrowCardPr
         onChange={(e) => onChange(e.target.value)}
         placeholder="What will be your highlight tomorrow?"
         rows={3}
-        className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 transition ${
+        className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors ${
           isDark
             ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
-            : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+            : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-500'
         }`}
         maxLength={300}
       />

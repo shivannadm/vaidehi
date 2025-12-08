@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectCard.tsx
-// ✅ MOBILE RESPONSIVE VERSION
+// ✅ UPDATED: Shows completion date when completed within due date
 // ============================================
 
 "use client";
@@ -36,6 +36,69 @@ interface ProjectCardProps {
   isDark: boolean;
 }
 
+// Helper function to format date display
+const formatDateDisplay = (date: string) => {
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
+
+// Helper function to get timeline status and text
+const getTimelineDisplay = (project: Project) => {
+  const isCompleted = project.status === 'completed';
+  const hasTargetDate = !!project.target_end_date;
+  
+  if (!hasTargetDate) {
+    return { text: '', color: '', icon: null, showClock: false };
+  }
+
+  const daysRemaining = calculateDaysRemaining(project.target_end_date);
+  const overdue = isProjectOverdue(project.target_end_date);
+
+  // If completed
+  if (isCompleted) {
+    // Check if completed within due date
+    if (!overdue || daysRemaining! >= 0) {
+      // Show completion date (using actual_end_date if available, otherwise use updated_at)
+      const completionDate = project.actual_end_date || project.updated_at;
+      return {
+        text: formatDateDisplay(completionDate),
+        color: 'text-green-500',
+        icon: <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-green-500" />,
+        showClock: false
+      };
+    } else {
+      // Completed but was overdue
+      return {
+        text: `Overdue by ${Math.abs(daysRemaining!)}d`,
+        color: 'text-red-500',
+        icon: <Clock className="w-3 h-3 md:w-4 md:h-4 text-red-500" />,
+        showClock: true
+      };
+    }
+  }
+
+  // Not completed - show days remaining or overdue
+  if (overdue) {
+    return {
+      text: `${Math.abs(daysRemaining!)}d overdue`,
+      color: 'text-red-500',
+      icon: <Clock className="w-3 h-3 md:w-4 md:h-4 text-red-500" />,
+      showClock: true
+    };
+  }
+
+  return {
+    text: daysRemaining === 0 ? 'Due today' : `${daysRemaining}d left`,
+    color: 'text-blue-500',
+    icon: <Clock className="w-3 h-3 md:w-4 md:h-4 text-blue-500" />,
+    showClock: true
+  };
+};
+
 export default function ProjectCard({
   project,
   viewMode,
@@ -51,8 +114,7 @@ export default function ProjectCard({
   const priorityConfig = PROJECT_PRIORITY_CONFIG[project.priority];
   const colorTheme = PROJECT_COLORS[project.color];
 
-  const daysRemaining = calculateDaysRemaining(project.target_end_date);
-  const overdue = isProjectOverdue(project.target_end_date);
+  const timelineDisplay = getTimelineDisplay(project);
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -151,24 +213,16 @@ export default function ProjectCard({
                 <span className="font-bold text-green-500 text-[10px] md:text-sm">{project.progress}%</span>
               </div>
 
-              {/* Timeline */}
-              {project.target_end_date && (
+              {/* Timeline - Updated Logic */}
+              {timelineDisplay.text && (
                 <div className="flex items-center gap-1 md:gap-1.5">
-                  <Clock className={`w-3 h-3 md:w-4 md:h-4 ${overdue ? "text-red-500" : "text-blue-500"}`} />
+                  <span className={timelineDisplay.color}>
+                    {timelineDisplay.icon}
+                  </span>
                   <span
-                    className={`font-medium text-[10px] md:text-xs ${
-                      overdue
-                        ? "text-red-500"
-                        : isDark
-                        ? "text-slate-300"
-                        : "text-slate-700"
-                    }`}
+                    className={`font-medium text-[10px] md:text-xs ${timelineDisplay.color}`}
                   >
-                    {overdue
-                      ? `${Math.abs(daysRemaining!)}d`
-                      : daysRemaining === 0
-                      ? "Today"
-                      : `${daysRemaining}d`}
+                    {timelineDisplay.text}
                   </span>
                 </div>
               )}
@@ -350,27 +404,18 @@ export default function ProjectCard({
           </span>
         </div>
 
-        {/* Timeline */}
-        {project.target_end_date && (
+        {/* Timeline - Updated Logic */}
+        {timelineDisplay.text && (
           <div className="flex items-center justify-between text-[11px] md:text-sm">
             <span
               style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
             >
-              {overdue ? "Overdue" : "Due in"}
+              {project.status === 'completed' ? 'Completed' : 'Due in'}
             </span>
             <span
-              className={`font-bold ${overdue ? "text-red-500" : ""}`}
-              style={
-                !overdue
-                  ? { color: isDark ? colorTheme.darkText : colorTheme.lightText }
-                  : undefined
-              }
+              className={`font-bold ${timelineDisplay.color}`}
             >
-              {overdue
-                ? `${Math.abs(daysRemaining!)}d`
-                : daysRemaining === 0
-                ? "Today"
-                : `${daysRemaining}d`}
+              {timelineDisplay.text}
             </span>
           </div>
         )}

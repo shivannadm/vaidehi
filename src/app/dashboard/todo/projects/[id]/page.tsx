@@ -1,13 +1,13 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/[id]/page.tsx
-// ✅ MOBILE RESPONSIVE VERSION
+// ✅ UPDATED: Shows completion date when completed, overdue status when applicable
 // ============================================
 
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Star, Edit2, Trash2, ListTodo, Calendar, Columns, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Star, Edit2, Trash2, ListTodo, Calendar, Columns, LayoutGrid, CheckCircle2, AlertCircle } from "lucide-react";
 
 import { useProjectDetail } from "../hooks/useProjects";
 import ProjectEditor from "../components/ProjectEditor";
@@ -19,6 +19,16 @@ import MilestoneSection from "../components/MilestoneSection";
 
 import { toggleProjectFavorite, deleteProject, updateProject } from "@/lib/supabase/project-helpers";
 import { calculateDaysRemaining, isProjectOverdue, PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/types/database";
+
+// Helper function to format date display
+const formatDateDisplay = (date: string) => {
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
 
 export default function ProjectDetailPage() {
   const router = useRouter();
@@ -135,8 +145,62 @@ export default function ProjectDetailPage() {
 
   const statusConfig = PROJECT_STATUS_CONFIG[project.status as keyof typeof PROJECT_STATUS_CONFIG];
   const priorityConfig = PROJECT_PRIORITY_CONFIG[project.priority as keyof typeof PROJECT_PRIORITY_CONFIG];
-  const daysRemaining = project.target_end_date ? calculateDaysRemaining(project.target_end_date) : null;
-  const overdue = project.target_end_date ? isProjectOverdue(project.target_end_date) : false;
+  
+  // Enhanced Due Date Logic
+  const getDueInDisplay = () => {
+    if (!project.target_end_date) {
+      return null;
+    }
+
+    const daysRemaining = calculateDaysRemaining(project.target_end_date);
+    const overdue = isProjectOverdue(project.target_end_date);
+    const isCompleted = project.status === 'completed';
+
+    if (isCompleted) {
+      // Check if completed within due date
+      if (!overdue || daysRemaining! >= 0) {
+        const completionDate = project.actual_end_date || project.updated_at;
+        return {
+          label: 'Completed on',
+          text: formatDateDisplay(completionDate),
+          color: 'text-green-500',
+          bgColor: isDark ? 'bg-green-900/20 border-green-700' : 'bg-green-50 border-green-300',
+          icon: <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" />
+        };
+      } else {
+        // Completed but was overdue
+        const completionDate = project.actual_end_date || project.updated_at;
+        return {
+          label: 'Completed (Overdue)',
+          text: formatDateDisplay(completionDate),
+          color: 'text-orange-500',
+          bgColor: isDark ? 'bg-orange-900/20 border-orange-700' : 'bg-orange-50 border-orange-300',
+          icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+        };
+      }
+    }
+
+    // Not completed
+    if (overdue) {
+      return {
+        label: 'Overdue by',
+        text: `${Math.abs(daysRemaining!)}d`,
+        color: 'text-red-500',
+        bgColor: isDark ? 'bg-red-900/20 border-red-600' : 'bg-red-50 border-red-400',
+        icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+      };
+    }
+
+    return {
+      label: 'Due in',
+      text: daysRemaining === 0 ? 'Today' : `${daysRemaining}d`,
+      color: isDark ? 'text-white' : 'text-slate-900',
+      bgColor: isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200',
+      icon: <Calendar className="w-5 h-5 md:w-6 md:h-6" />
+    };
+  };
+
+  const dueInDisplay = getDueInDisplay();
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
@@ -260,29 +324,18 @@ export default function ProjectDetailPage() {
             </p>
           </div>
           
-          {/* Due Date Card */}
-          {daysRemaining !== null && (
-            <div className={`rounded-xl p-4 md:p-6 border ${
-              overdue 
-                ? isDark 
-                  ? "border-red-600 bg-red-900/20" 
-                  : "border-red-400 bg-red-50"
-                : isDark 
-                  ? "bg-slate-800 border-slate-700" 
-                  : "bg-white border-slate-200"
-            }`}>
+          {/* Due Date Card - Enhanced */}
+          {dueInDisplay && (
+            <div className={`rounded-xl p-4 md:p-6 border-2 ${dueInDisplay.bgColor}`}>
               <p className={`text-xs md:text-sm font-medium ${
                 isDark ? 'text-slate-400' : 'text-slate-600'
               }`}>
-                Due in
+                {dueInDisplay.label}
               </p>
-              <p className={`text-lg md:text-2xl font-bold mt-1.5 md:mt-2 ${
-                overdue 
-                  ? "text-red-500" 
-                  : isDark ? 'text-white' : 'text-slate-900'
-              }`}>
-                {overdue ? `${Math.abs(daysRemaining)}d ago` : `${daysRemaining}d`}
-              </p>
+              <div className={`text-lg md:text-2xl font-bold mt-1.5 md:mt-2 flex items-center gap-1.5 md:gap-2 ${dueInDisplay.color}`}>
+                {dueInDisplay.icon}
+                <span className="text-sm md:text-xl">{dueInDisplay.text}</span>
+              </div>
             </div>
           )}
         </div>

@@ -11,13 +11,13 @@ interface YesterdayCardProps {
 
 export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) {
   return (
-    <div className={`rounded-xl border p-5 ${
+    <div className={`rounded-xl border p-4 sm:p-5 ${
       isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
     }`}>
-      <h3 className={`text-lg font-bold flex items-center gap-2 mb-4 ${
+      <h3 className={`text-base sm:text-lg font-bold flex items-center gap-2 mb-4 ${
         isDark ? 'text-white' : 'text-slate-900'
       }`}>
-        <Calendar className="w-5 h-5 text-blue-500" />
+        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
         Yesterday's Snapshot
       </h3>
 
@@ -28,7 +28,7 @@ export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) 
             isDark ? 'bg-slate-700/50' : 'bg-slate-50'
           }`}>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className={`w-5 h-5 ${
+              <CheckCircle2 className={`w-4 h-4 sm:w-5 sm:h-5 ${
                 isDark ? 'text-green-400' : 'text-green-600'
               }`} />
               <span className={`text-sm font-medium ${
@@ -37,7 +37,7 @@ export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) 
                 Tasks Completed
               </span>
             </div>
-            <span className={`font-bold text-xl ${
+            <span className={`font-bold text-lg sm:text-xl ${
               isDark ? 'text-white' : 'text-slate-900'
             }`}>
               {snapshot.tasksCompleted}
@@ -49,7 +49,7 @@ export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) 
             isDark ? 'bg-slate-700/50' : 'bg-slate-50'
           }`}>
             <div className="flex items-center gap-2">
-              <Clock className={`w-5 h-5 ${
+              <Clock className={`w-4 h-4 sm:w-5 sm:h-5 ${
                 isDark ? 'text-indigo-400' : 'text-indigo-600'
               }`} />
               <span className={`text-sm font-medium ${
@@ -58,7 +58,7 @@ export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) 
                 Time Focused
               </span>
             </div>
-            <span className={`font-bold text-xl ${
+            <span className={`font-bold text-lg sm:text-xl ${
               isDark ? 'text-white' : 'text-slate-900'
             }`}>
               {formatDuration(snapshot.timeFocused)}
@@ -66,8 +66,8 @@ export default function YesterdayCard({ snapshot, isDark }: YesterdayCardProps) 
           </div>
         </div>
       ) : (
-        <div className="text-center py-8">
-          <div className="text-4xl mb-3">📅</div>
+        <div className="text-center py-6 sm:py-8">
+          <div className="text-3xl sm:text-4xl mb-3">📅</div>
           <p className={`text-sm ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           }`}>

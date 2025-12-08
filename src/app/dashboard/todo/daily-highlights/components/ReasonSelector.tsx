@@ -17,7 +17,7 @@ export default function ReasonSelector({
   const reasons: HighlightReason[] = ['urgency', 'satisfaction', 'joy'];
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {reasons.map((reason) => {
         const config = HIGHLIGHT_REASONS[reason];
         const isSelected = selectedReason === reason;
@@ -27,7 +27,7 @@ export default function ReasonSelector({
             key={reason}
             onClick={() => onSelect(reason)}
             type="button"
-            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 active:scale-95 ${
               isSelected
                 ? 'border-indigo-500 shadow-lg scale-105'
                 : isDark
@@ -43,7 +43,7 @@ export default function ReasonSelector({
             }}
           >
             <div className="text-center">
-              <div className="text-3xl mb-2">{config.icon}</div>
+              <div className="text-2xl sm:text-3xl mb-2">{config.icon}</div>
               <div
                 className={`font-semibold mb-1 text-sm ${
                   isSelected
