@@ -13,9 +13,8 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
   if (!data || data.length === 0) {
     return (
       <div
-        className={`rounded-2xl p-6 border ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -30,25 +29,36 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
     );
   }
 
-  const startBalance = data[0]?.balance || 10000;
-  const currentBalance = data[data.length - 1]?.balance || 10000;
+  // GROUP BY DAY - Take last balance of each day
+  const dayWiseData = data.reduce((acc, item) => {
+    const dateKey = item.date;
+    acc[dateKey] = item.balance; // Last balance of the day
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Convert to array and sort by date
+  const sortedDayData = Object.entries(dayWiseData)
+    .map(([date, balance]) => ({ date, balance }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const startBalance = sortedDayData[0]?.balance || 10000;
+  const currentBalance = sortedDayData[sortedDayData.length - 1]?.balance || 10000;
   const change = currentBalance - startBalance;
   const changePercent = ((change / startBalance) * 100).toFixed(2);
 
-  // Format data for chart
-  const chartData = data.map((item) => ({
+  // Format data for chart - DAY-WISE
+  const chartData = sortedDayData.map((item) => ({
     date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
     balance: item.balance,
   }));
 
   return (
     <div
-      className={`rounded-2xl p-6 border ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      } shadow-lg`}
+      className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        } shadow-lg`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -61,19 +71,18 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
           </p>
         </div>
 
-        {/* Current Balance with INR */}
+        {/* Current Balance - CORRECT FORMAT: +₹2,650.00 or -₹23.23 */}
         <div className="text-right">
           <div className={`text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            ₹{currentBalance.toLocaleString("en-IN")}
+            ₹{currentBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div
-            className={`text-sm font-medium ${
-              change >= 0
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            }`}
+            className={`text-sm font-medium ${change >= 0
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-red-600 dark:text-red-400"
+              }`}
           >
-            {change >= 0 ? "+" : ""}₹{change.toLocaleString("en-IN")} ({changePercent}%)
+            {change >= 0 ? "+" : "-"}₹{Math.abs(change).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({change >= 0 ? "+" : ""}{changePercent}%)
           </div>
         </div>
       </div>
@@ -114,7 +123,7 @@ export default function EquityCurve({ data, isDark }: EquityCurveProps) {
               }}
               labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
               itemStyle={{ color: "#6366f1" }}
-              formatter={(value: number) => [`₹${value.toLocaleString("en-IN")}`, "Balance"]}
+              formatter={(value: number) => [`₹${value.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`, "Balance"]}
             />
             <Area
               type="monotone"
