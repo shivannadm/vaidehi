@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Plus, BookOpen, Loader2 } from "lucide-react";
+import { Plus, BookOpen, Loader2, Calendar } from "lucide-react";
 import DailyTradeRow from "./components/DailyTradeRow";
 import TradeFilters from "./components/TradeFilters";
 import NetPnLCard from "./components/NetPnLCard";
@@ -85,18 +85,23 @@ export default function TradingJournalPage() {
     return groups;
   }, [trades]);
 
-  // Filter and search
-  const filteredGroupedTrades = useMemo(() => {
-    let filtered = Object.entries(groupedTrades);
+  // Get today's date
+  const todayDate = new Date().toISOString().split('T')[0];
+  const todayTrades = groupedTrades[todayDate] || [];
+  const todayPnL = todayTrades
+    .filter(t => t.is_closed && t.pnl)
+    .reduce((sum, t) => sum + (t.pnl || 0), 0);
 
-    // Instrument filter
+  // Filter and search (exclude today's trades from list)
+  const filteredGroupedTrades = useMemo(() => {
+    let filtered = Object.entries(groupedTrades).filter(([date]) => date !== todayDate);
+
     if (selectedInstrument !== "all") {
       filtered = filtered.filter(([_, dayTrades]) => 
         dayTrades.some(t => t.instrument_type === selectedInstrument)
       );
     }
 
-    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(([_, dayTrades]) =>
@@ -107,11 +112,10 @@ export default function TradingJournalPage() {
       );
     }
 
-    // Sort by date descending
     return filtered.sort(([dateA], [dateB]) => 
       new Date(dateB).getTime() - new Date(dateA).getTime()
     );
-  }, [groupedTrades, selectedInstrument, searchQuery]);
+  }, [groupedTrades, selectedInstrument, searchQuery, todayDate]);
 
   // Calculate net P&L
   const netPnL = useMemo(() => {
@@ -145,7 +149,6 @@ export default function TradingJournalPage() {
     );
   }
 
-  // If insights view is active
   if (showInsights) {
     return (
       <InsightsView
@@ -156,7 +159,6 @@ export default function TradingJournalPage() {
     );
   }
 
-  // If date selected, show day detail view
   if (selectedDate) {
     return (
       <DayDetailView
@@ -208,11 +210,9 @@ export default function TradingJournalPage() {
           </div>
         </div>
 
-        {/* Main Content - Responsive Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Trade List - Full width on mobile, 2/3 on desktop */}
+          {/* Left: Trade List */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Filters */}
             <TradeFilters
               selectedInstrument={selectedInstrument}
               onInstrumentChange={setSelectedInstrument}
@@ -221,7 +221,68 @@ export default function TradingJournalPage() {
               isDark={isDark}
             />
 
-            {/* Trades */}
+            {/* TODAY'S TRADES CARD - NEW */}
+            <button
+              onClick={() => handleDateClick(todayDate)}
+              className={`w-full rounded-xl border p-5 transition-all hover:shadow-lg text-left ${
+                isDark
+                  ? "bg-indigo-900/20 border-indigo-500/50 hover:border-indigo-500"
+                  : "bg-indigo-50 border-indigo-300 hover:border-indigo-400"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Calendar className={`w-6 h-6 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
+                  <div>
+                    <div className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                      Today's Trades
+                    </div>
+                    <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                      {new Date().toLocaleDateString('en-IN', { 
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <Plus className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className={`p-3 rounded-lg ${isDark ? "bg-slate-800/50" : "bg-white/80"}`}>
+                  <div className={`text-xs mb-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    Trades
+                  </div>
+                  <div className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                    {todayTrades.length}
+                  </div>
+                </div>
+                <div className={`p-3 rounded-lg ${
+                  todayPnL >= 0
+                    ? isDark ? "bg-green-900/30" : "bg-green-100"
+                    : isDark ? "bg-red-900/30" : "bg-red-100"
+                }`}>
+                  <div className={`text-xs mb-1 ${
+                    todayPnL >= 0
+                      ? isDark ? "text-green-400" : "text-green-700"
+                      : isDark ? "text-red-400" : "text-red-700"
+                  }`}>
+                    P&L
+                  </div>
+                  <div className={`text-xl font-bold ${
+                    todayPnL >= 0
+                      ? isDark ? "text-green-400" : "text-green-700"
+                      : isDark ? "text-red-400" : "text-red-700"
+                  }`}>
+                    ₹{Math.abs(todayPnL).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {/* Previous Trades */}
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
@@ -236,21 +297,13 @@ export default function TradingJournalPage() {
                 <h3 className={`text-xl font-semibold mb-2 ${
                   isDark ? "text-white" : "text-slate-900"
                 }`}>
-                  {searchQuery || selectedInstrument !== "all" ? "No trades found" : "No Trades Yet"}
+                  {searchQuery || selectedInstrument !== "all" ? "No trades found" : "No Previous Trades"}
                 </h3>
                 <p className={`text-sm mb-4 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                   {searchQuery || selectedInstrument !== "all" 
                     ? "Try a different search term or filter" 
                     : "Start logging your trades"}
                 </p>
-                {!searchQuery && selectedInstrument === "all" && (
-                  <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
-                  >
-                    Log Your First Trade
-                  </button>
-                )}
               </div>
             ) : (
               <div className="space-y-3">
@@ -267,12 +320,9 @@ export default function TradingJournalPage() {
             )}
           </div>
 
-          {/* Right: Net P&L + Calendar */}
+          {/* Right: Stats */}
           <div className="space-y-4">
-            {/* Net P&L Card */}
             <NetPnLCard netPnL={netPnL} isDark={isDark} />
-
-            {/* Calendar */}
             <MiniCalendar 
               userId={userId || ""} 
               trades={trades} 
@@ -283,13 +333,13 @@ export default function TradingJournalPage() {
         </div>
       </div>
 
-      {/* Add Trade Modal */}
       <AddTradeModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddTrade}
         userId={userId || ""}
         isDark={isDark}
+        prefilledDate={new Date().toISOString().split('T')[0]}
       />
     </div>
   );
