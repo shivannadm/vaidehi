@@ -1,7 +1,4 @@
-// ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectTaskList.tsx
-// ✅ MOBILE RESPONSIVE - FIXED TIMER & LAYOUT ISSUES
-// ============================================
 
 "use client";
 
@@ -104,6 +101,7 @@ export default function ProjectTaskList({
                 date: null as any,
                 is_completed: false,
                 is_important: false,
+                is_recurring: false, // ✅ FIXED: Added missing property
                 total_time_spent: 0,
                 tag_id: null,
             });
