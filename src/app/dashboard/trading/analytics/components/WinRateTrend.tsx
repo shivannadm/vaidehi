@@ -82,7 +82,7 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
       </div>
 
       {/* Chart */}
-      <div className="h-60 sm:h-72">
+      <div className="h-60 sm:h-90">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <defs>
