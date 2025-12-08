@@ -13,9 +13,8 @@ export default function MonthlyPnLChart({ data, isDark }: MonthlyPnLChartProps) 
   if (!data || data.length === 0) {
     return (
       <div
-        className={`rounded-2xl p-6 border ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         <div className="flex items-center gap-2 mb-4">
           <BarChart3 className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -43,14 +42,42 @@ export default function MonthlyPnLChart({ data, isDark }: MonthlyPnLChartProps) 
   const totalPnL = data.reduce((sum, item) => sum + item.pnl, 0);
   const profitableMonths = data.filter((item) => item.pnl > 0).length;
 
+  // Custom Tooltip - CORRECT FORMAT: +₹2,650.00 or -₹23.23
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const value = payload[0].value;
+      return (
+        <div
+          className={`px-4 py-3 rounded-lg shadow-xl border ${isDark
+            ? "bg-slate-800 border-slate-600"
+            : "bg-white border-slate-300"
+            }`}
+        >
+          <p className={`text-sm font-semibold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>
+            {label}
+          </p>
+          <p
+            className={`text-base font-bold ${value >= 0 ? "text-emerald-500" : "text-red-500"
+              }`}
+          >
+            {value >= 0 ? "+" : "-"}₹{Math.abs(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+          <p className={`text-xs mt-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            P&L
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div
-      className={`rounded-2xl p-6 border ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      } shadow-lg`}
+      className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        } shadow-lg`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <BarChart3 className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
@@ -63,17 +90,15 @@ export default function MonthlyPnLChart({ data, isDark }: MonthlyPnLChartProps) 
           </p>
         </div>
 
-        {/* Stats */}
+        {/* Stats - CORRECT FORMAT: +₹2,650.00 or -₹23.23 */}
         <div className="text-right">
           <div
-            className={`text-2xl font-bold ${
-              totalPnL >= 0
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            }`}
+            className={`text-xl md:text-2xl font-bold ${totalPnL >= 0
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-red-600 dark:text-red-400"
+              }`}
           >
-            ${totalPnL >= 0 ? "+" : ""}
-            {totalPnL.toLocaleString()}
+            {totalPnL >= 0 ? "+" : "-"}₹{Math.abs(totalPnL).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             {profitableMonths}/{data.length} profitable
@@ -101,23 +126,17 @@ export default function MonthlyPnLChart({ data, isDark }: MonthlyPnLChartProps) 
               style={{ fontSize: "12px" }}
               tickLine={false}
               tickFormatter={(value) => {
-                if (value >= 1000) return `$${(value / 1000).toFixed(0)}k`;
-                return `$${value}`;
+                if (value >= 1000) return `₹${(value / 1000).toFixed(0)}k`;
+                if (value <= -1000) return `-₹${(Math.abs(value) / 1000).toFixed(0)}k`;
+                return `₹${value}`;
               }}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: isDark ? "#1e293b" : "#ffffff",
-                border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
-                borderRadius: "8px",
-                fontSize: "12px",
+              content={<CustomTooltip />}
+              cursor={{
+                fill: isDark ? "rgba(100, 116, 139, 0.1)" : "rgba(241, 245, 249, 0.5)",
+                radius: 8
               }}
-              labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
-              formatter={(value: number) => [
-                `${value >= 0 ? "+" : ""}$${value.toLocaleString()}`,
-                "P&L",
-              ]}
-              cursor={{ fill: isDark ? "#1e293b50" : "#f1f5f950" }}
             />
             <Bar dataKey="pnl" radius={[8, 8, 0, 0]} animationDuration={1000}>
               {chartData.map((entry, index) => (
