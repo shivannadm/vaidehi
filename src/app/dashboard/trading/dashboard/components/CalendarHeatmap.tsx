@@ -222,7 +222,8 @@ export default function CalendarHeatmap({ data, isDark }: CalendarHeatmapProps) 
                       );
                     }
 
-                    const dateStr = date.toISOString().split("T")[0];
+                    // --- FIXED: use local date components to create YYYY-MM-DD (avoid toISOString timezone shift) ---
+                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
                     const pnl = dataMap.get(dateStr);
                     const colorClass = getColorClass(pnl);
 
@@ -294,7 +295,8 @@ export default function CalendarHeatmap({ data, isDark }: CalendarHeatmapProps) 
                       );
                     }
 
-                    const dateStr = date.toISOString().split("T")[0];
+                    // --- FIXED: mobile also uses same local date key for lookup if needed later ---
+                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
                     const pnl = dataMap.get(dateStr);
                     const colorClass = getColorClass(pnl);
 
