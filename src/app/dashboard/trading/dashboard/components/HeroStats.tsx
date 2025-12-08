@@ -16,7 +16,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-      {/* Total P&L - Hero Card with INR */}
+      {/* Total P&L - CORRECT: +₹ or -₹ */}
       <div
         className={`relative overflow-hidden rounded-2xl p-6 ${
           isProfit
@@ -43,17 +43,18 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
           </div>
           
           <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-            ₹{isProfit ? "+" : ""}
-            {stats.total_pnl.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+            {isProfit ? "+" : "-"}₹
+            {Math.abs(stats.total_pnl).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </div>
           
           <div className="text-sm text-white/80">
-            Net: ₹{stats.net_pnl.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+            Net: {stats.net_pnl >= 0 ? "+" : "-"}₹
+            {Math.abs(stats.net_pnl).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
           </div>
         </div>
       </div>
 
-      {/* Win Rate - Circular Progress */}
+      {/* Win Rate */}
       <div
         className={`rounded-2xl p-6 border ${
           isDark
@@ -71,7 +72,6 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
             </div>
           </div>
           
-          {/* Circular Progress */}
           <div className="relative w-16 h-16">
             <svg className="w-16 h-16 transform -rotate-90">
               <circle
@@ -153,7 +153,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
         </div>
       </div>
 
-      {/* Expectancy & Profit Factor with INR */}
+      {/* Performance - CORRECT: +₹ or -₹ */}
       <div
         className={`rounded-2xl p-6 border ${
           isDark
@@ -178,7 +178,7 @@ export default function HeroStats({ stats, isDark }: HeroStatsProps) {
                 ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             }`}>
-              ₹{stats.expectancy.toFixed(2)}
+              {stats.expectancy >= 0 ? "+" : "-"}₹{Math.abs(stats.expectancy).toFixed(2)}
             </div>
           </div>
 

@@ -74,7 +74,7 @@ export default function RecentActivity({ trades, notes, isDark }: RecentActivity
                   </div>
                 </div>
 
-                {/* P&L with INR */}
+                {/* P&L with INR - CORRECT FORMAT: +₹ or -₹ */}
                 {trade.is_closed && trade.pnl !== null && (
                   <div className="text-right">
                     <div
@@ -84,8 +84,8 @@ export default function RecentActivity({ trades, notes, isDark }: RecentActivity
                           : "text-red-600 dark:text-red-400"
                       }`}
                     >
-                      {trade.pnl >= 0 ? "+" : ""}₹
-                      {trade.pnl.toFixed(0)}
+                      {trade.pnl >= 0 ? "+" : "-"}₹
+                      {Math.abs(trade.pnl).toFixed(0)}
                     </div>
                     {trade.pnl_percentage !== null && (
                       <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
