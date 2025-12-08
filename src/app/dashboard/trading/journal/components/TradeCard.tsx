@@ -1,7 +1,7 @@
 // src/app/dashboard/trading/journal/components/TradeCard.tsx
 "use client";
 
-import { Edit2, Trash2, TrendingUp, TrendingDown, Clock, DollarSign } from "lucide-react";
+import { Edit2, Trash2, TrendingUp, TrendingDown } from "lucide-react";
 import { formatIndianCurrency, getInstrumentIcon } from "@/types/database";
 import type { TradeWithStrategy } from "@/types/database";
 
@@ -22,6 +22,7 @@ export default function TradeCard({
 }: TradeCardProps) {
   const isProfit = (trade.pnl || 0) >= 0;
   const isClosed = trade.is_closed;
+  const isOptions = trade.instrument_type === "options";
 
   const handleDelete = async () => {
     if (!confirm(`Delete trade for ${trade.symbol}?`)) return;
@@ -41,7 +42,7 @@ export default function TradeCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">{getInstrumentIcon(trade.instrument_type)}</span>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                 {trade.symbol}
               </h3>
@@ -54,9 +55,22 @@ export default function TradeCard({
               >
                 {trade.side.toUpperCase()}
               </span>
+              {/* Options Type Badge - NEW */}
+              {isOptions && trade.option_type && (
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    trade.option_type === "call"
+                      ? "bg-blue-500/20 text-blue-500"
+                      : "bg-purple-500/20 text-purple-500"
+                  }`}
+                >
+                  {trade.option_type.toUpperCase()}
+                </span>
+              )}
             </div>
             <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               {trade.instrument_type.charAt(0).toUpperCase() + trade.instrument_type.slice(1)}
+              {isOptions && trade.option_strike && ` • Strike: ₹${trade.option_strike}`}
             </p>
           </div>
         </div>
@@ -157,6 +171,32 @@ export default function TradeCard({
         </div>
       </div>
 
+      {/* Stop Loss / Take Profit (if set) */}
+      {(trade.stop_loss || trade.take_profit) && (
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {trade.stop_loss && (
+            <div className={`p-3 rounded-lg ${isDark ? "bg-red-900/20" : "bg-red-50"}`}>
+              <div className={`text-xs mb-1 ${isDark ? "text-red-400" : "text-red-600"}`}>
+                Stop Loss
+              </div>
+              <div className={`text-sm font-bold ${isDark ? "text-red-300" : "text-red-700"}`}>
+                {formatIndianCurrency(trade.stop_loss)}
+              </div>
+            </div>
+          )}
+          {trade.take_profit && (
+            <div className={`p-3 rounded-lg ${isDark ? "bg-green-900/20" : "bg-green-50"}`}>
+              <div className={`text-xs mb-1 ${isDark ? "text-green-400" : "text-green-600"}`}>
+                Take Profit
+              </div>
+              <div className={`text-sm font-bold ${isDark ? "text-green-300" : "text-green-700"}`}>
+                {formatIndianCurrency(trade.take_profit)}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Strategy Badge (if exists) */}
       {trade.strategy && (
         <div
@@ -166,10 +206,7 @@ export default function TradeCard({
               : "bg-indigo-50 text-indigo-600 border border-indigo-200"
           }`}
         >
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
-            <span className="font-medium">{trade.strategy.name}</span>
-          </div>
+          <div className="font-medium">{trade.strategy.name}</div>
         </div>
       )}
 
