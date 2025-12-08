@@ -1,4 +1,3 @@
-// src/app/dashboard/trading/backtest/components/BacktestCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -28,14 +27,23 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
   const profitPercentage = ((profit / backtest.initial_capital) * 100).toFixed(2);
   const isProfit = profit >= 0;
 
+  const formatCurrency = (n: number) => {
+    const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+    const abs = Math.abs(n);
+    const formatted = abs.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `${sign}₹${formatted}`;
+  };
+
   return (
     <div
       onClick={() => onView(backtest)}
-      className={`rounded-xl border p-4 sm:p-5 transition-all cursor-pointer ${
-        isDark
-          ? "bg-slate-800 border-slate-700 hover:border-indigo-500"
-          : "bg-white border-slate-200 hover:border-indigo-400"
-      }`}
+      className={`rounded-xl border p-4 sm:p-5 transition-all cursor-pointer ${isDark
+        ? "bg-slate-800 border-slate-700 hover:border-indigo-500"
+        : "bg-white border-slate-200 hover:border-indigo-400"
+        }`}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3 sm:mb-4">
@@ -54,11 +62,8 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className={`p-2 rounded-lg transition ${
-            isDark
-              ? "hover:bg-red-900/30 text-red-400"
-              : "hover:bg-red-50 text-red-600"
-          } disabled:opacity-50`}
+          className={`p-2 rounded-lg transition ${isDark ? "hover:bg-red-900/30 text-red-400" : "hover:bg-red-50 text-red-600"
+            } disabled:opacity-50`}
           title="Delete backtest"
         >
           <Trash2 className="w-4 h-4" />
@@ -67,15 +72,14 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
 
       {/* Profit Display */}
       <div
-        className={`p-3 sm:p-4 rounded-lg mb-3 sm:mb-4 ${
-          isProfit
-            ? isDark
-              ? "bg-green-900/20 border border-green-500/30"
-              : "bg-green-50 border border-green-200"
-            : isDark
+        className={`p-3 sm:p-4 rounded-lg mb-3 sm:mb-4 ${isProfit
+          ? isDark
+            ? "bg-green-900/20 border border-green-500/30"
+            : "bg-green-50 border border-green-200"
+          : isDark
             ? "bg-red-900/20 border border-red-500/30"
             : "bg-red-50 border border-red-200"
-        }`}
+          }`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -90,10 +94,11 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
           </div>
           <div className="text-right">
             <div className={`text-lg sm:text-xl font-bold ${isProfit ? "text-green-500" : "text-red-500"}`}>
-              {isProfit ? "+" : ""}${profit.toFixed(0)}
+              {formatCurrency(profit)}
             </div>
             <div className={`text-xs sm:text-sm ${isProfit ? "text-green-500" : "text-red-500"}`}>
-              {isProfit ? "+" : ""}{profitPercentage}%
+              {isProfit ? "+" : ""}
+              {profitPercentage}%
             </div>
           </div>
         </div>
@@ -105,9 +110,7 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
         <div className={`rounded-lg p-2 sm:p-3 ${isDark ? "bg-slate-700/50" : "bg-slate-50"}`}>
           <div className="flex items-center gap-1 sm:gap-2 mb-1">
             <Target className={`w-3 h-3 sm:w-4 sm:h-4 ${isDark ? "text-slate-400" : "text-slate-600"}`} />
-            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Win Rate
-            </div>
+            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>Win Rate</div>
           </div>
           <div className={`text-lg sm:text-xl font-bold ${backtest.win_rate >= 60 ? "text-green-500" : "text-orange-500"}`}>
             {backtest.win_rate.toFixed(1)}%
@@ -118,9 +121,7 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
         <div className={`rounded-lg p-2 sm:p-3 ${isDark ? "bg-slate-700/50" : "bg-slate-50"}`}>
           <div className="flex items-center gap-1 sm:gap-2 mb-1">
             <BarChart3 className={`w-3 h-3 sm:w-4 sm:h-4 ${isDark ? "text-slate-400" : "text-slate-600"}`} />
-            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-              Trades
-            </div>
+            <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>Trades</div>
           </div>
           <div className={`text-lg sm:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             {backtest.total_trades}
@@ -149,9 +150,10 @@ export default function BacktestCard({ backtest, onDelete, onView, isDark }: Bac
           </span>
         </div>
         <div className="flex justify-between">
-          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Max DD:</span>
-          <span className={`font-semibold ${isDark ? "text-orange-400" : "text-orange-600"}`}>
-            {backtest.max_drawdown.toFixed(1)}%
+          {/* Replaced Max DD with Expectancy (per-trade $) */}
+          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Expectancy:</span>
+          <span className={`font-semibold ${backtest.expectancy > 0 ? (isDark ? "text-green-400" : "text-green-600") : (isDark ? "text-red-400" : "text-red-600")}`}>
+            {formatCurrency(backtest.expectancy)}
           </span>
         </div>
       </div>

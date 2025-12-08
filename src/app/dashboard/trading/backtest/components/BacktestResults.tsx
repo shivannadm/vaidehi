@@ -1,7 +1,6 @@
-// src/app/dashboard/trading/backtest/components/BacktestResults.tsx
 "use client";
 
-import { X, TrendingUp, TrendingDown, Target, BarChart3, AlertTriangle, DollarSign } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Target, BarChart3, DollarSign, BadgeIndianRupee } from "lucide-react";
 import type { BacktestResult } from "@/types/database";
 
 interface BacktestResultsProps {
@@ -18,6 +17,17 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
   const profitPercentage = ((profit / backtest.initial_capital) * 100).toFixed(2);
   const isProfit = profit >= 0;
 
+  // helper to format currency as +₹1,234.56 or -₹1,234.56
+  const formatCurrency = (n: number) => {
+    const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+    const abs = Math.abs(n);
+    const formatted = abs.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `${sign}₹${formatted}`;
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto"
@@ -29,9 +39,8 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-4 sm:p-6 border-b ${
-            isDark ? "border-slate-700" : "border-slate-200"
-          }`}
+          className={`flex items-center justify-between p-4 sm:p-6 border-b ${isDark ? "border-slate-700" : "border-slate-200"
+            }`}
         >
           <div>
             <h2 className={`text-lg sm:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -43,9 +52,8 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
           </div>
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg transition ${
-              isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-600"
-            }`}
+            className={`p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-600"
+              }`}
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -55,15 +63,14 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Profit Summary */}
           <div
-            className={`p-4 sm:p-6 rounded-xl ${
-              isProfit
-                ? isDark
-                  ? "bg-green-900/20 border-2 border-green-500/30"
-                  : "bg-green-50 border-2 border-green-200"
-                : isDark
+            className={`p-4 sm:p-6 rounded-xl ${isProfit
+              ? isDark
+                ? "bg-green-900/20 border-2 border-green-500/30"
+                : "bg-green-50 border-2 border-green-200"
+              : isDark
                 ? "bg-red-900/20 border-2 border-red-500/30"
                 : "bg-red-50 border-2 border-red-200"
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -77,16 +84,15 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
                     Total Return
                   </div>
                   <div className={`text-2xl sm:text-3xl font-bold ${isProfit ? "text-green-500" : "text-red-500"}`}>
-                    {isProfit ? "+" : ""}${profit.toFixed(2)}
+                    {formatCurrency(profit)}
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <div className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                  ROI
-                </div>
+                <div className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>ROI</div>
                 <div className={`text-xl sm:text-2xl font-bold ${isProfit ? "text-green-500" : "text-red-500"}`}>
-                  {isProfit ? "+" : ""}{profitPercentage}%
+                  {isProfit ? "+" : ""}
+                  {profitPercentage}%
                 </div>
               </div>
             </div>
@@ -94,31 +100,25 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
 
           {/* Capital Details */}
           <div>
-            <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-slate-900"}`}>
-              Capital Overview
-            </h3>
+            <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-slate-900"}`}>Capital Overview</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className={`p-3 sm:p-4 rounded-lg ${isDark ? "bg-slate-700/50" : "bg-slate-50"}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className={`w-4 h-4 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-                  <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    Initial Capital
-                  </span>
+                  <BadgeIndianRupee className={`w-4 h-4 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
+                  <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>Initial Capital</span>
                 </div>
                 <div className={`text-lg sm:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  ${backtest.initial_capital.toLocaleString()}
+                  {formatCurrency(backtest.initial_capital)}
                 </div>
               </div>
 
               <div className={`p-3 sm:p-4 rounded-lg ${isDark ? "bg-slate-700/50" : "bg-slate-50"}`}>
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className={`w-4 h-4 ${isDark ? "text-green-400" : "text-green-600"}`} />
-                  <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    Final Capital
-                  </span>
+                  <BadgeIndianRupee className={`w-4 h-4 ${isDark ? "text-green-400" : "text-green-600"}`} />
+                  <span className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>Final Capital</span>
                 </div>
                 <div className={`text-lg sm:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  ${backtest.final_capital.toLocaleString()}
+                  {formatCurrency(backtest.final_capital)}
                 </div>
               </div>
             </div>
@@ -164,17 +164,11 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
                 color={backtest.profit_factor > 1 ? "green" : "red"}
                 isDark={isDark}
               />
-              <MetricBox
-                icon={<AlertTriangle className="w-4 h-4" />}
-                label="Max Drawdown"
-                value={`${backtest.max_drawdown.toFixed(1)}%`}
-                color="orange"
-                isDark={isDark}
-              />
+              {/* removed Max Drawdown as requested (unreliable calculation) */}
               <MetricBox
                 icon={<DollarSign className="w-4 h-4" />}
                 label="Expectancy"
-                value={`$${backtest.expectancy.toFixed(2)}`}
+                value={formatCurrency(backtest.expectancy)}
                 color={backtest.expectancy > 0 ? "green" : "red"}
                 isDark={isDark}
               />
@@ -184,12 +178,8 @@ export default function BacktestResults({ isOpen, onClose, backtest, isDark }: B
           {/* Notes */}
           {backtest.notes && (
             <div>
-              <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-slate-900"}`}>
-                Notes
-              </h3>
-              <div
-                className={`p-3 sm:p-4 rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-100"}`}
-              >
+              <h3 className={`text-sm font-semibold mb-3 ${isDark ? "text-white" : "text-slate-900"}`}>Notes</h3>
+              <div className={`p-3 sm:p-4 rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-100"}`}>
                 <p className={`text-sm whitespace-pre-wrap ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   {backtest.notes}
                 </p>
@@ -228,19 +218,14 @@ function MetricBox({ icon, label, value, color, isDark }: any) {
 
   return (
     <div
-      className={`p-3 rounded-lg border ${
-        color ? colors[color as keyof typeof colors] : isDark ? "bg-slate-700/50 border-slate-600" : "bg-slate-50 border-slate-200"
-      }`}
+      className={`p-3 rounded-lg border ${color ? colors[color as keyof typeof colors] : isDark ? "bg-slate-700/50 border-slate-600" : "bg-slate-50 border-slate-200"
+        }`}
     >
       <div className="flex items-center gap-2 mb-1">
         {icon}
-        <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-          {label}
-        </div>
+        <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>{label}</div>
       </div>
-      <div className={`text-base sm:text-lg font-bold ${color ? "" : isDark ? "text-white" : "text-slate-900"}`}>
-        {value}
-      </div>
+      <div className={`text-base sm:text-lg font-bold ${color ? "" : isDark ? "text-white" : "text-slate-900"}`}>{value}</div>
     </div>
   );
 }
