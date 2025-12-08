@@ -917,6 +917,7 @@ export const NOTE_COLORS: Record<
 // ============================================
 
 export interface Project {
+  actual_end_date: string;
   id: string;
   user_id: string;
   title: string;
