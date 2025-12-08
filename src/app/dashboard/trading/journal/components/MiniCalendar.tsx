@@ -43,16 +43,23 @@ export default function MiniCalendar({ trades, isDark, onDateClick }: MiniCalend
 
   const isToday = (date: Date) => {
     const today = new Date();
-    return date.toDateString() === today.toDateString();
+    return date.getFullYear() === today.getFullYear() &&
+           date.getMonth() === today.getMonth() &&
+           date.getDate() === today.getDate();
   };
 
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === month;
   };
 
-  // Get P&L for a specific date
+  // Get P&L for a specific date - FIX: Use local date string without timezone conversion
   const getPnLForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    // Create date string in YYYY-MM-DD format WITHOUT timezone conversion
+    const year = date.getFullYear();
+    const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(date.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${monthStr}-${dayStr}`;
+    
     const dayTrades = trades.filter(t => t.entry_date === dateStr && t.is_closed);
     if (dayTrades.length === 0) return null;
     
@@ -79,7 +86,11 @@ export default function MiniCalendar({ trades, isDark, onDateClick }: MiniCalend
   const handleDateClick = (date: Date) => {
     const pnl = getPnLForDate(date);
     if (pnl !== null && isCurrentMonth(date)) {
-      const dateStr = date.toISOString().split('T')[0];
+      // FIX: Create date string without timezone conversion
+      const year = date.getFullYear();
+      const monthStr = String(date.getMonth() + 1).padStart(2, '0');
+      const dayStr = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${monthStr}-${dayStr}`;
       onDateClick(dateStr);
     }
   };

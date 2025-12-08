@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import type { TradeWithStrategy, InstrumentType, TradeSide, CountryCode } from "@/types/database";
+import type { TradeWithStrategy, InstrumentType, TradeSide } from "@/types/database";
 
 interface EditTradeModalProps {
   isOpen: boolean;
@@ -18,21 +18,13 @@ const INSTRUMENTS: Array<{ value: InstrumentType; label: string }> = [
   { value: "futures", label: "Futures" },
   { value: "options", label: "Options" },
   { value: "forex", label: "Forex" },
-];
-
-const COUNTRIES: Array<{ value: CountryCode; label: string }> = [
-  { value: "US", label: "🇺🇸 United States" },
-  { value: "IN", label: "🇮🇳 India" },
-  { value: "UK", label: "🇬🇧 United Kingdom" },
-  { value: "EU", label: "🇪🇺 European Union" },
-  { value: "JP", label: "🇯🇵 Japan" },
-  { value: "OTHER", label: "🌍 Other" },
+  { value: "commodity", label: "Commodity" },
+  { value: "currency", label: "Currency" },
 ];
 
 export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDark }: EditTradeModalProps) {
   const [symbol, setSymbol] = useState("");
   const [instrumentType, setInstrumentType] = useState<InstrumentType>("stock");
-  const [country, setCountry] = useState<CountryCode>("US");
   const [side, setSide] = useState<TradeSide>("long");
   const [entryDate, setEntryDate] = useState("");
   const [entryTime, setEntryTime] = useState("");
@@ -42,6 +34,9 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
   const [takeProfit, setTakeProfit] = useState("");
   const [setupName, setSetupName] = useState("");
   const [preTradeNotes, setPreTradeNotes] = useState("");
+  const [optionType, setOptionType] = useState<"call" | "put">("call");
+  const [optionStrike, setOptionStrike] = useState("");
+  const [optionExpiry, setOptionExpiry] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   // Populate form when trade changes
@@ -58,6 +53,9 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
       setTakeProfit(trade.take_profit?.toString() || "");
       setSetupName(trade.setup_name || "");
       setPreTradeNotes(trade.pre_trade_notes || "");
+      setOptionType(trade.option_type || "call");
+      setOptionStrike(trade.option_strike?.toString() || "");
+      setOptionExpiry(trade.option_expiry || "");
     }
   }, [trade]);
 
@@ -74,7 +72,6 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
     const updates = {
       symbol: symbol.trim().toUpperCase(),
       instrument_type: instrumentType,
-      country,
       side,
       entry_date: entryDate,
       entry_time: entryTime || null,
@@ -84,6 +81,9 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
       take_profit: takeProfit ? parseFloat(takeProfit) : null,
       setup_name: setupName.trim() || null,
       pre_trade_notes: preTradeNotes.trim() || null,
+      option_type: instrumentType === "options" ? optionType : null,
+      option_strike: instrumentType === "options" && optionStrike ? parseFloat(optionStrike) : null,
+      option_expiry: instrumentType === "options" && optionExpiry ? optionExpiry : null,
     };
 
     const result = await onUpdate(trade.id, updates);
@@ -118,11 +118,11 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-6 border-b ${
+          className={`flex items-center justify-between p-4 md:p-6 border-b ${
             isDark ? "border-slate-700" : "border-slate-200"
           }`}
         >
-          <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+          <h2 className={`text-lg md:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             Edit Trade: {trade.symbol}
           </h2>
           <button
@@ -137,9 +137,9 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4 md:space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Basic Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Symbol *
@@ -149,7 +149,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value.toUpperCase())}
                 required
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -164,7 +164,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
               <select
                 value={instrumentType}
                 onChange={(e) => setInstrumentType(e.target.value as InstrumentType)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -180,34 +180,13 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
 
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                Country *
-              </label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value as CountryCode)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
-                }`}
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Side *
               </label>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setSide("long")}
-                  className={`flex-1 py-2 rounded-lg font-medium transition ${
+                  className={`flex-1 py-2.5 rounded-lg font-medium transition ${
                     side === "long"
                       ? "bg-green-600 text-white"
                       : isDark
@@ -220,7 +199,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 <button
                   type="button"
                   onClick={() => setSide("short")}
-                  className={`flex-1 py-2 rounded-lg font-medium transition ${
+                  className={`flex-1 py-2.5 rounded-lg font-medium transition ${
                     side === "short"
                       ? "bg-red-600 text-white"
                       : isDark
@@ -232,10 +211,47 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 </button>
               </div>
             </div>
+
+            {/* Options Type - NEW */}
+            {instrumentType === "options" && (
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  Option Type *
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOptionType("call")}
+                    className={`flex-1 py-2.5 rounded-lg font-medium transition ${
+                      optionType === "call"
+                        ? "bg-blue-600 text-white"
+                        : isDark
+                        ? "bg-slate-700 text-slate-300"
+                        : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    CALL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOptionType("put")}
+                    className={`flex-1 py-2.5 rounded-lg font-medium transition ${
+                      optionType === "put"
+                        ? "bg-purple-600 text-white"
+                        : isDark
+                        ? "bg-slate-700 text-slate-300"
+                        : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    PUT
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Entry Details */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                 Entry Date *
@@ -245,7 +261,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 value={entryDate}
                 onChange={(e) => setEntryDate(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -261,7 +277,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 type="time"
                 value={entryTime}
                 onChange={(e) => setEntryTime(e.target.value)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -279,10 +295,11 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 value={entryPrice}
                 onChange={(e) => setEntryPrice(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                placeholder="₹0.00"
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
+                    ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                    : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
                 }`}
               />
             </div>
@@ -297,7 +314,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 required
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -307,38 +324,79 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
 
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                Stop Loss
+                Stop Loss (Optional)
               </label>
               <input
                 type="number"
                 step="0.01"
                 value={stopLoss}
                 onChange={(e) => setStopLoss(e.target.value)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                placeholder="₹0.00"
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
+                    ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                    : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
                 }`}
               />
             </div>
 
             <div>
               <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                Take Profit
+                Take Profit (Optional)
               </label>
               <input
                 type="number"
                 step="0.01"
                 value={takeProfit}
                 onChange={(e) => setTakeProfit(e.target.value)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                placeholder="₹0.00"
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
+                    ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                    : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
                 }`}
               />
             </div>
           </div>
+
+          {/* Options Fields */}
+          {instrumentType === "options" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  Strike Price
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={optionStrike}
+                  onChange={(e) => setOptionStrike(e.target.value)}
+                  placeholder="₹0.00"
+                  className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    isDark
+                      ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                      : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                  Expiry Date
+                </label>
+                <input
+                  type="date"
+                  value={optionExpiry}
+                  onChange={(e) => setOptionExpiry(e.target.value)}
+                  className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                    isDark
+                      ? "bg-slate-700 border-slate-600 text-white"
+                      : "bg-white border-slate-300 text-slate-900"
+                  }`}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Additional Info */}
           <div className="space-y-4">
@@ -350,7 +408,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 type="text"
                 value={setupName}
                 onChange={(e) => setSetupName(e.target.value)}
-                className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -366,7 +424,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
                 value={preTradeNotes}
                 onChange={(e) => setPreTradeNotes(e.target.value)}
                 rows={3}
-                className={`w-full px-4 py-2 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`w-full px-4 py-2.5 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                   isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
@@ -376,7 +434,7 @@ export default function EditTradeModal({ isOpen, onClose, onUpdate, trade, isDar
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-4 border-t border-slate-700">
             <button
               type="button"
               onClick={handleClose}
