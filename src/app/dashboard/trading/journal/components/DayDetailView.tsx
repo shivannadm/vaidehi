@@ -2,12 +2,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, TrendingUp, Loader2 } from "lucide-react";
+import { ArrowLeft, TrendingUp, Plus } from "lucide-react";
 import { getTradesByDate, updateTrade, deleteTrade, closeTradeWithRules } from "@/lib/supabase/trading-helpers";
 import TradeCard from "./TradeCard";
 import EditTradeModal from "./EditTradeModal";
 import CloseTradeModal from "./CloseTradeModal";
 import TradeDetails from "./TradeDetails";
+import AddTradeModal from "./AddTradeModal";
 import { formatIndianCurrency } from "@/types/database";
 import type { TradeWithStrategy } from "@/types/database";
 
@@ -23,6 +24,7 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
   const [loading, setLoading] = useState(true);
   
   // Modals
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -41,6 +43,11 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
     const { data } = await getTradesByDate(userId, date);
     setTrades(data || []);
     setLoading(false);
+  };
+
+  const handleAddTrade = async (tradeData: any) => {
+    await fetchTrades();
+    return { success: true };
   };
 
   const handleCloseTrade = (trade: TradeWithStrategy) => {
@@ -102,34 +109,40 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
     year: 'numeric',
   });
 
-  if (loading) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
-      </div>
-    );
-  }
+  // Check if this is today
+  const isToday = date === new Date().toISOString().split('T')[0];
 
   return (
     <div className={`min-h-screen p-4 md:p-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        {/* Back Button and Header */}
-        <div>
-          <button
-            onClick={onBack}
-            className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-lg transition ${
-              isDark
-                ? "text-slate-400 hover:bg-slate-800 hover:text-white"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            }`}
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Journal</span>
-          </button>
+        {/* Header with Back Button and Log Trade */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="w-full sm:w-auto">
+            <button
+              onClick={onBack}
+              className={`flex items-center gap-2 mb-3 px-3 py-2 rounded-lg transition ${
+                isDark
+                  ? "text-slate-400 hover:bg-slate-800 hover:text-white"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back to Journal</span>
+            </button>
 
-          <h1 className={`text-2xl md:text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            {dateDisplay}
-          </h1>
+            <h1 className={`text-2xl md:text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+              {dateDisplay}
+            </h1>
+          </div>
+
+          {/* Log Trade Button - Always visible */}
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Log Trade</span>
+          </button>
         </div>
 
         {/* Stats Summary */}
@@ -184,13 +197,26 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
         </div>
 
         {/* Trades Grid */}
-        {trades.length === 0 ? (
+        {loading ? (
           <div className={`text-center py-16 rounded-xl border ${
             isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
           }`}>
-            <p className={`text-lg ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          </div>
+        ) : trades.length === 0 ? (
+          <div className={`text-center py-16 rounded-xl border ${
+            isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}>
+            <p className={`text-lg mb-4 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
               No trades found for this date
             </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+            >
+              <Plus className="w-5 h-5" />
+              Log Your First Trade
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -209,7 +235,17 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
         )}
       </div>
 
-      {/* Modals */}
+      {/* Add Trade Modal - Pre-fill with current date */}
+      <AddTradeModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={handleAddTrade}
+        userId={userId}
+        isDark={isDark}
+        prefilledDate={date}
+      />
+
+      {/* Edit Modal */}
       <EditTradeModal
         isOpen={isEditModalOpen}
         onClose={() => {
@@ -221,6 +257,7 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
         isDark={isDark}
       />
 
+      {/* Close Modal */}
       <CloseTradeModal
         isOpen={isCloseModalOpen}
         onClose={() => {
@@ -232,6 +269,7 @@ export default function DayDetailView({ date, userId, onBack, isDark }: DayDetai
         isDark={isDark}
       />
 
+      {/* Details Modal */}
       <TradeDetails
         isOpen={isDetailsModalOpen}
         onClose={() => {
