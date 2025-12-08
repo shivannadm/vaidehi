@@ -146,7 +146,7 @@ export default function CalendarHeatmap({ data, isDark }: CalendarHeatmapProps) 
       <div className="hidden sm:block">
         <div className="overflow-x-auto scrollbar-thin">
           <div className="flex mb-2 min-w-max">
-            <div className="w-10 flex-shrink-0"></div>
+            <div className="w-15 flex-shrink-0"></div>
             <div className="flex-1 flex justify-between px-1">
               {weeks.map((_, weekIndex) => (
                 <div key={weekIndex} className="flex-1 text-center min-w-[12px]">
