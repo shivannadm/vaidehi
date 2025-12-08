@@ -36,6 +36,17 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
     );
   }
 
+  // local currency formatter (INR) — +₹1,234.56 or -₹1,234.56
+  const formatCurrency = (n: number) => {
+    const sign = n > 0 ? "+" : n < 0 ? "-" : "";
+    const abs = Math.abs(n);
+    const formatted = abs.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `${sign}₹${formatted}`;
+  };
+
   return (
     <div
       className={`rounded-2xl p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
@@ -62,12 +73,11 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
               </h4>
               <div
                 className={`text-lg font-bold ${strategy.totalPnl >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-600 dark:text-red-400"
                   }`}
               >
-                ₹{strategy.totalPnl >= 0 ? "+" : ""}
-                {strategy.totalPnl.toLocaleString("en-IN")}
+                {formatCurrency(strategy.totalPnl)}
               </div>
             </div>
 
@@ -93,7 +103,7 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
                   Avg P&L:
                 </span>
                 <span className={`ml-2 font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  ₹{strategy.avgPnl.toLocaleString("en-IN")}
+                  {formatCurrency(strategy.avgPnl)}
                 </span>
               </div>
               <div>
@@ -172,8 +182,8 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
               <tr
                 key={index}
                 className={`border-b transition-colors ${isDark
-                    ? "border-slate-700 hover:bg-slate-700/30"
-                    : "border-slate-100 hover:bg-slate-50"
+                  ? "border-slate-700 hover:bg-slate-700/30"
+                  : "border-slate-100 hover:bg-slate-50"
                   }`}
               >
                 <td
@@ -191,10 +201,10 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
                 <td className="py-3 px-4 text-center">
                   <span
                     className={`px-2 py-1 rounded text-sm font-medium ${strategy.winRate >= 60
-                        ? "bg-green-500/20 text-green-500"
-                        : strategy.winRate >= 50
-                          ? "bg-blue-500/20 text-blue-500"
-                          : "bg-orange-500/20 text-orange-500"
+                      ? "bg-green-500/20 text-green-500"
+                      : strategy.winRate >= 50
+                        ? "bg-blue-500/20 text-blue-500"
+                        : "bg-orange-500/20 text-orange-500"
                       }`}
                   >
                     {strategy.winRate}%
@@ -203,27 +213,26 @@ export default function StrategyComparison({ data, isDark }: StrategyComparisonP
                 <td className="py-3 px-4 text-right">
                   <span
                     className={`font-bold ${strategy.totalPnl >= 0
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-600 dark:text-red-400"
                       }`}
                   >
-                    {strategy.totalPnl >= 0 ? "+" : ""}₹
-                    {strategy.totalPnl.toLocaleString("en-IN")}
+                    {formatCurrency(strategy.totalPnl)}
                   </span>
                 </td>
                 <td
                   className={`py-3 px-4 text-center ${isDark ? "text-slate-300" : "text-slate-700"
                     }`}
                 >
-                  ₹{strategy.avgPnl.toLocaleString("en-IN")}
+                  {formatCurrency(strategy.avgPnl)}
                 </td>
                 <td className="py-3 px-4 text-center">
                   <span
                     className={`font-semibold ${strategy.profitFactor >= 2
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : strategy.profitFactor >= 1
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-orange-600 dark:text-orange-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : strategy.profitFactor >= 1
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-orange-600 dark:text-orange-400"
                       }`}
                   >
                     {strategy.profitFactor}
