@@ -33,7 +33,7 @@ export interface ProgressOverview {
   totalHabitsTracked: number;
 
   // Averages
-  avgMeditationTime: number; // minutes
+  avgMeditationTime: number;
   avgExerciseTime: number;
   avgSleepQuality: number;
   avgMoodRating: number;
@@ -49,7 +49,6 @@ export async function getProgressOverview(
     thirtyDaysAgo.setDate(now.getDate() - 30);
     const startDate = thirtyDaysAgo.toISOString().split("T")[0];
 
-    // Fetch all routine data
     const [morningRes, eveningRes, healthRes, habitsRes] = await Promise.all([
       supabase
         .from("morning_routine_entries")
@@ -84,7 +83,6 @@ export async function getProgressOverview(
     const healthEntries = healthRes.data || [];
     const habits = habitsRes.data || [];
 
-    // Calculate streaks
     const currentMorningStreak =
       morningEntries.length > 0
         ? ((morningEntries[0] as any).morning_streak || 0)
@@ -98,12 +96,10 @@ export async function getProgressOverview(
         ? ((healthEntries[0] as any).health_streak || 0)
         : 0;
 
-    // Calculate completion rates
     const morningCompletionRate = (morningEntries.length / 30) * 100;
     const eveningCompletionRate = (eveningEntries.length / 30) * 100;
     const healthCompletionRate = (healthEntries.length / 30) * 100;
 
-    // Habit completion rate
     let habitCompletionRate = 0;
     if (habits.length > 0) {
       const completions = habits.flatMap(
@@ -116,7 +112,6 @@ export async function getProgressOverview(
       habitCompletionRate = (completedCount / totalExpected) * 100;
     }
 
-    // Calculate averages
     const avgMeditationTime =
       morningEntries.reduce(
         (sum, e: any) => sum + (e.meditation_time || 0),
@@ -148,17 +143,14 @@ export async function getProgressOverview(
         currentEveningStreak,
         currentHealthStreak
       ),
-
       morningCompletionRate: Math.round(morningCompletionRate),
       eveningCompletionRate: Math.round(eveningCompletionRate),
       healthCompletionRate: Math.round(healthCompletionRate),
       habitCompletionRate: Math.round(habitCompletionRate),
-
       totalMorningEntries: morningEntries.length,
       totalEveningEntries: eveningEntries.length,
       totalHealthEntries: healthEntries.length,
       totalHabitsTracked: habits.length,
-
       avgMeditationTime: Math.round(avgMeditationTime),
       avgExerciseTime: Math.round(avgExerciseTime),
       avgSleepQuality: Math.round(avgSleepQuality * 10) / 10,
@@ -174,7 +166,7 @@ export async function getProgressOverview(
 }
 
 // =====================================================
-// ROUTINE CONSISTENCY DATA (Timeline)
+// ROUTINE CONSISTENCY DATA
 // =====================================================
 
 export interface RoutineConsistencyDay {
@@ -182,8 +174,8 @@ export interface RoutineConsistencyDay {
   morningCompleted: boolean;
   eveningCompleted: boolean;
   healthCompleted: boolean;
-  habitsCompleted: number; // percentage
-  overallScore: number; // 0-100
+  habitsCompleted: number;
+  overallScore: number;
 }
 
 export async function getRoutineConsistency(
@@ -232,7 +224,6 @@ export async function getRoutineConsistency(
       if (h.completed) habitsByDate[h.date]++;
     });
 
-    // Get total habits count
     const { data: totalHabits } = await supabase
       .from("habits")
       .select("id")
@@ -240,8 +231,6 @@ export async function getRoutineConsistency(
       .eq("is_active", true);
 
     const totalHabitsCount = totalHabits?.length || 1;
-
-    // Generate consistency data
     const result: RoutineConsistencyDay[] = [];
     const currentDate = new Date(startDate);
 
@@ -317,7 +306,6 @@ export async function getHealthTrends(
 
     if (error) return { data: null, error };
 
-    // Get morning energy levels
     const { data: morningData } = await supabase
       .from("morning_routine_entries")
       .select("date, energy_level")
@@ -348,81 +336,176 @@ export async function getHealthTrends(
 }
 
 // =====================================================
-// HABIT HEATMAP DATA
+// ✅ HABIT HEATMAP DATA - COMPLETE 90-DAY FIX
 // =====================================================
+
+export interface HabitCompletion {
+  date: string;
+  completed: boolean;
+}
 
 export interface HabitHeatmapData {
   habitId: string;
   habitName: string;
   habitIcon: string;
   habitColor: string;
-  completions: {
-    date: string;
-    completed: boolean;
-  }[];
+  completions: HabitCompletion[];
   currentStreak: number;
   completionRate: number;
 }
 
+/**
+ * ✅ Generate complete 90-day array with actual completion status
+ */
+function generateComplete90DayArray(completedDates: Set<string>): HabitCompletion[] {
+  const completions: HabitCompletion[] = [];
+  const today = new Date();
+  
+  for (let i = 89; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    completions.push({
+      date: dateStr,
+      completed: completedDates.has(dateStr)
+    });
+  }
+  
+  return completions;
+}
+
+/**
+ * ✅ Calculate current streak from completion array
+ */
+function calculateCurrentStreak(completions: HabitCompletion[]): number {
+  let streak = 0;
+  
+  for (let i = completions.length - 1; i >= 0; i--) {
+    if (completions[i].completed) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+}
+
+/**
+ * ✅ Fetch habit heatmap with complete 90-day history
+ */
 export async function getHabitHeatmapData(
   userId: string,
   days: number = 90
 ): Promise<{ data: HabitHeatmapData[] | null; error: any }> {
   try {
-    const now = new Date();
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - days);
-    const startDateStr = startDate.toISOString().split("T")[0];
-
+    // 1. Fetch all active habits
     const { data: habits, error: habitsError } = await supabase
       .from("habits")
-      .select("*")
+      .select("id, name, icon, color")
       .eq("user_id", userId)
-      .eq("is_active", true);
+      .eq("is_active", true)
+      .order("created_at", { ascending: true });
 
-    if (habitsError || !habits) return { data: null, error: habitsError };
+    if (habitsError) throw habitsError;
+    if (!habits || habits.length === 0) return { data: [], error: null };
 
-    const heatmapData: HabitHeatmapData[] = [];
+    // 2. Calculate date range
+    const today = new Date();
+    const ninetyDaysAgo = new Date(today);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const startDate = ninetyDaysAgo.toISOString().split('T')[0];
 
-    for (const habit of habits) {
-      const { data: completions } = await supabase
-        .from("habit_completions")
-        .select("date, completed")
-        .eq("habit_id", habit.id)
-        .gte("date", startDateStr)
-        .order("date", { ascending: true });
+    // 3. Fetch ALL completions
+    const { data: completions, error: completionsError } = await supabase
+      .from('habit_completions')
+      .select('habit_id, date, completed')
+      .eq('user_id', userId)
+      .gte('date', startDate)
+      .eq('completed', true);
 
-      // Calculate streak
-      let currentStreak = 0;
-      const sortedCompletions = (completions || [])
-        .sort((a, b) => b.date.localeCompare(a.date));
+    if (completionsError) throw completionsError;
 
-      for (const c of sortedCompletions) {
-        if (c.completed) currentStreak++;
-        else break;
-      }
-
-      // Calculate completion rate
-      const completedCount = (completions || []).filter(
-        (c) => c.completed
-      ).length;
-      const completionRate = (completedCount / days) * 100;
-
-      heatmapData.push({
-        habitId: habit.id,
-        habitName: habit.name,
-        habitIcon: habit.icon,
-        habitColor: habit.color,
-        completions: completions || [],
-        currentStreak,
-        completionRate: Math.round(completionRate),
+    // 4. Group completions by habit_id
+    const completionsByHabit = new Map<string, Set<string>>();
+    
+    if (completions) {
+      completions.forEach((c: any) => {
+        if (!completionsByHabit.has(c.habit_id)) {
+          completionsByHabit.set(c.habit_id, new Set());
+        }
+        completionsByHabit.get(c.habit_id)!.add(c.date);
       });
     }
 
+    // 5. Build complete heatmap data
+    const heatmapData: HabitHeatmapData[] = habits.map(habit => {
+      const completedDates = completionsByHabit.get(habit.id) || new Set<string>();
+      
+      // ✅ Generate complete 90-day array
+      const completions = generateComplete90DayArray(completedDates);
+      
+      const currentStreak = calculateCurrentStreak(completions);
+      const completedCount = completions.filter(c => c.completed).length;
+      const completionRate = Math.round((completedCount / 90) * 100);
+
+      return {
+        habitId: habit.id,
+        habitName: habit.name,
+        habitIcon: habit.icon || '🎯',
+        habitColor: habit.color || '#6366F1',
+        currentStreak,
+        completionRate,
+        completions
+      };
+    });
+
     return { data: heatmapData, error: null };
   } catch (error) {
-    console.error("Error fetching habit heatmap data:", error);
+    console.error('Error fetching habit heatmap data:', error);
     return { data: null, error };
+  }
+}
+
+/**
+ * ✅ Ensure habit completion records exist (called daily)
+ */
+export async function ensureHabitCompletionRecords(userId: string, date: string) {
+  try {
+    const { data: habits } = await supabase
+      .from('habits')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('is_active', true);
+
+    if (!habits || habits.length === 0) return;
+
+    const { data: existingRecords } = await supabase
+      .from('habit_completions')
+      .select('habit_id')
+      .eq('user_id', userId)
+      .eq('date', date);
+
+    const existingHabitIds = new Set(existingRecords?.map(r => r.habit_id) || []);
+
+    const missingRecords = habits
+      .filter(h => !existingHabitIds.has(h.id))
+      .map(h => ({
+        user_id: userId,
+        habit_id: h.id,
+        date: date,
+        completed: false,
+        created_at: new Date().toISOString()
+      }));
+
+    if (missingRecords.length > 0) {
+      await supabase
+        .from('habit_completions')
+        .insert(missingRecords);
+    }
+  } catch (error) {
+    console.error('Error ensuring habit completion records:', error);
   }
 }
 
@@ -450,7 +533,7 @@ export async function getWeeklySummary(
   try {
     const now = new Date();
     const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay()); // Sunday
+    weekStart.setDate(now.getDate() - now.getDay());
     const weekStartStr = weekStart.toISOString().split("T")[0];
 
     const [morningRes, eveningRes, healthRes, habitsRes] = await Promise.all([
