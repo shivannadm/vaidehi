@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   getTrades,
   getStrategies,
@@ -20,6 +21,7 @@ export interface DashboardData {
   calendarData: { date: string; pnl: number }[];
   strategyPerformance: { name: string; winRate: number; pnl: number }[];
   bestTradingDays: { day: string; winRate: number; avgPnl: number }[];
+  initialCapital: number;
   loading: boolean;
   error: string | null;
 }
@@ -35,6 +37,7 @@ export function useDashboardData(userId: string | null) {
     calendarData: [],
     strategyPerformance: [],
     bestTradingDays: [],
+    initialCapital: 0,
     loading: true,
     error: null,
   });
@@ -47,6 +50,17 @@ export function useDashboardData(userId: string | null) {
 
     try {
       setData((prev) => ({ ...prev, loading: true, error: null }));
+
+      const supabase = createClient();
+
+      // Fetch user's initial capital from profile
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("initial_capital")
+        .eq("id", userId)
+        .single();
+
+      const initialCapital = profile?.initial_capital || 0;
 
       // Fetch all data in parallel
       const [statsResult, tradesResult, strategiesResult, notesResult] = await Promise.all([
@@ -70,14 +84,42 @@ export function useDashboardData(userId: string | null) {
         new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime()
       );
       
-      let runningBalance = 10000; // Starting balance
-      const equityCurve = closedTrades.map((trade) => {
-        runningBalance += trade.pnl || 0;
-        return {
-          date: trade.exit_date || trade.entry_date,
-          balance: Math.round(runningBalance),
-        };
-      });
+      let equityCurve: { date: string; balance: number }[] = [];
+
+      if (initialCapital > 0) {
+        // Show equity curve with initial capital
+        let runningBalance = initialCapital;
+        
+        // Add starting point
+        if (closedTrades.length > 0) {
+          equityCurve.push({
+            date: closedTrades[0].entry_date,
+            balance: Math.round(initialCapital),
+          });
+        }
+
+        // Add each trade
+        equityCurve = [
+          ...equityCurve,
+          ...closedTrades.map((trade) => {
+            runningBalance += trade.pnl || 0;
+            return {
+              date: trade.exit_date || trade.entry_date,
+              balance: Math.round(runningBalance),
+            };
+          })
+        ];
+      } else {
+        // Show cumulative P&L curve (no initial capital set)
+        let cumulativePnL = 0;
+        equityCurve = closedTrades.map((trade) => {
+          cumulativePnL += trade.pnl || 0;
+          return {
+            date: trade.exit_date || trade.entry_date,
+            balance: Math.round(cumulativePnL),
+          };
+        });
+      }
 
       // Calculate Monthly P&L
       const monthlyMap = new Map<string, number>();
@@ -90,7 +132,7 @@ export function useDashboardData(userId: string | null) {
       const monthlyPnL = Array.from(monthlyMap.entries())
         .map(([month, pnl]) => ({ month, pnl: Math.round(pnl) }))
         .sort((a, b) => a.month.localeCompare(b.month))
-        .slice(-6); // Last 6 months
+        .slice(-6);
 
       // Calculate Calendar Data (last 90 days)
       const calendarMap = new Map<string, number>();
@@ -151,7 +193,7 @@ export function useDashboardData(userId: string | null) {
 
       setData({
         stats,
-        trades: trades.slice(0, 10), // Recent 10 trades
+        trades: trades.slice(0, 10),
         strategies,
         recentNotes,
         equityCurve,
@@ -159,6 +201,7 @@ export function useDashboardData(userId: string | null) {
         calendarData,
         strategyPerformance,
         bestTradingDays,
+        initialCapital,
         loading: false,
         error: null,
       });
