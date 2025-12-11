@@ -30,6 +30,7 @@ export default function TradingDashboardPage() {
     calendarData,
     strategyPerformance,
     bestTradingDays,
+    initialCapital,
     loading,
     error,
     refresh,
@@ -93,7 +94,6 @@ export default function TradingDashboardPage() {
         appName: "Trading Dashboard",
       });
 
-      // Success notification (you can replace with toast)
       alert("📸 Screenshot saved successfully!");
     } catch (error) {
       console.error("Screenshot error:", error);
@@ -197,7 +197,13 @@ export default function TradingDashboardPage() {
 
             {/* Charts Row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <EquityCurve data={equityCurve} isDark={isDark} />
+              <EquityCurve 
+                data={equityCurve} 
+                isDark={isDark} 
+                initialCapital={initialCapital}
+                userId={userId}
+                onCapitalUpdate={refresh}
+              />
               <MonthlyPnLChart data={monthlyPnL} isDark={isDark} />
             </div>
 
