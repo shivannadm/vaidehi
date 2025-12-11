@@ -63,6 +63,7 @@ export default function AnalyticsPage() {
     loading,
     error,
     refresh,
+    closedTrades,
   } = useAnalytics(userId);
 
   useEffect(() => {
@@ -245,7 +246,7 @@ export default function AnalyticsPage() {
               {/* Charts Row 2 - Distribution Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <TradeDistribution data={tradeDistribution} isDark={isDark} />
-                <PnLHistogram data={pnlHistogram} isDark={isDark} />
+                <PnLHistogram closedTrades={closedTrades} isDark={isDark} />
               </div>
 
               {/* Strategy Comparison Table */}
