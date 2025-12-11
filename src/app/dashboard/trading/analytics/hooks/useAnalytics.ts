@@ -43,6 +43,9 @@ export interface AnalyticsData {
   largestWin: number;
   largestLoss: number;
   
+  // NEW: Raw closed trades for histogram
+  closedTrades: TradeWithStrategy[];
+  
   loading: boolean;
   error: string | null;
 }
@@ -67,6 +70,7 @@ export function useAnalytics(userId: string | null) {
     avgRiskPerTrade: 0,
     largestWin: 0,
     largestLoss: 0,
+    closedTrades: [], // NEW: Initialize
     loading: true,
     error: null,
   });
@@ -191,7 +195,7 @@ export function useAnalytics(userId: string | null) {
         ...(breakEven > 0 ? [{ name: 'Break-even', value: breakEven, color: '#6b7280' }] : []),
       ];
 
-      // P&L Histogram
+      // P&L Histogram - KEEP OLD FOR BACKWARDS COMPATIBILITY
       const pnlRanges = [
         { range: '<-₹500', min: -Infinity, max: -500 },
         { range: '-₹500 to -₹200', min: -500, max: -200 },
@@ -251,7 +255,7 @@ export function useAnalytics(userId: string | null) {
         trades: data.total,
       }));
 
-      // Hour Performance (if entry_time available)
+      // Hour Performance
       const hourMap = new Map<number, { wins: number; total: number; totalPnl: number }>();
       closedTrades.forEach((trade) => {
         if (trade.entry_time) {
@@ -307,6 +311,7 @@ export function useAnalytics(userId: string | null) {
         avgRiskPerTrade: Math.round(avgRiskPerTrade),
         largestWin: Math.round(largestWin),
         largestLoss: Math.round(largestLoss),
+        closedTrades, // NEW: Export raw closed trades
         loading: false,
         error: null,
       });
