@@ -50,14 +50,14 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                 {/* Rank Badge */}
                 <div
                   className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold ${index === 0
-                      ? "bg-yellow-500 text-white"
-                      : index === 1
-                        ? "bg-slate-400 text-white"
-                        : index === 2
-                          ? "bg-orange-600 text-white"
-                          : isDark
-                            ? "bg-slate-600 text-slate-300"
-                            : "bg-slate-200 text-slate-700"
+                    ? "bg-yellow-500 text-white"
+                    : index === 1
+                      ? "bg-slate-400 text-white"
+                      : index === 2
+                        ? "bg-orange-600 text-white"
+                        : isDark
+                          ? "bg-slate-600 text-slate-300"
+                          : "bg-slate-200 text-slate-700"
                     }`}
                 >
                   {index + 1}
@@ -70,7 +70,7 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <div className="flex items-center gap-1">
-                      <Target className="w-3 h-3" />
+                      <Target className={` ${isDark ? "text-slate-400" : "text-slate-600"} w-4 h-4`} />
                       <span className={isDark ? "text-slate-400" : "text-slate-600"}>
                         Win: {strategy.winRate}%
                       </span>
@@ -79,8 +79,8 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                     {/* INR Output */}
                     <div
                       className={`font-semibold ${strategy.pnl >= 0
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-red-600 dark:text-red-400"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-red-600 dark:text-red-400"
                         }`}
                     >
                       {formatCurrency(strategy.pnl)}
@@ -96,10 +96,10 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                   >
                     <div
                       className={`h-full transition-all duration-500 ${strategy.winRate >= 60
-                          ? "bg-green-500"
-                          : strategy.winRate >= 50
-                            ? "bg-blue-500"
-                            : "bg-orange-500"
+                        ? "bg-green-500"
+                        : strategy.winRate >= 50
+                          ? "bg-blue-500"
+                          : "bg-orange-500"
                         }`}
                       style={{ width: `${Math.min(strategy.winRate, 100)}%` }}
                     />
@@ -139,10 +139,10 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                   {/* Day Icon */}
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${index === 0
-                        ? "bg-green-500 text-white"
-                        : isDark
-                          ? "bg-slate-600 text-slate-300"
-                          : "bg-slate-200 text-slate-700"
+                      ? "bg-green-500 text-white"
+                      : isDark
+                        ? "bg-slate-600 text-slate-300"
+                        : "bg-slate-200 text-slate-700"
                       }`}
                   >
                     {day.day.slice(0, 3)}
@@ -161,8 +161,8 @@ export default function TopStrategies({ data, bestDays, isDark }: TopStrategiesP
                 {/* INR Output for Avg P&L */}
                 <div
                   className={`text-right font-bold ${day.avgPnl >= 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-600 dark:text-red-400"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400"
                     }`}
                 >
                   {formatCurrency(day.avgPnl)}
