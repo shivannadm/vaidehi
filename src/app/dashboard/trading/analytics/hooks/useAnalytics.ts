@@ -5,6 +5,22 @@ import { useState, useEffect, useCallback } from "react";
 import { getTrades, getStrategies, calculateTradingStats } from "@/lib/supabase/trading-helpers";
 import type { TradeWithStrategy, Strategy, TradingStats } from "@/types/database";
 
+// Enhanced trade distribution with metrics
+export interface TradeDistributionData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface TradeDistributionMetrics {
+  avgWin: number;
+  avgLoss: number;
+  winLossRatio: number;
+  largestWin: number;
+  largestLoss: number;
+  breakEven: number;
+}
+
 export interface AnalyticsData {
   // Core Stats
   stats: TradingStats | null;
@@ -21,7 +37,8 @@ export interface AnalyticsData {
   // Charts Data
   cumulativePnL: { date: string; pnl: number; cumulative: number }[];
   winRateTrend: { month: string; winRate: number }[];
-  tradeDistribution: { name: string; value: number; color: string }[];
+  tradeDistribution: TradeDistributionData[];
+  tradeDistributionMetrics: TradeDistributionMetrics; // NEW
   pnlHistogram: { range: string; count: number }[];
   
   // Strategy Analytics
@@ -43,9 +60,6 @@ export interface AnalyticsData {
   largestWin: number;
   largestLoss: number;
   
-  // NEW: Raw closed trades for histogram
-  closedTrades: TradeWithStrategy[];
-  
   loading: boolean;
   error: string | null;
 }
@@ -63,6 +77,14 @@ export function useAnalytics(userId: string | null) {
     cumulativePnL: [],
     winRateTrend: [],
     tradeDistribution: [],
+    tradeDistributionMetrics: {
+      avgWin: 0,
+      avgLoss: 0,
+      winLossRatio: 0,
+      largestWin: 0,
+      largestLoss: 0,
+      breakEven: 0,
+    },
     pnlHistogram: [],
     strategyComparison: [],
     dayPerformance: [],
@@ -70,7 +92,6 @@ export function useAnalytics(userId: string | null) {
     avgRiskPerTrade: 0,
     largestWin: 0,
     largestLoss: 0,
-    closedTrades: [], // NEW: Initialize
     loading: true,
     error: null,
   });
@@ -101,7 +122,8 @@ export function useAnalytics(userId: string | null) {
 
       // Calculate Performance Metrics
       const wins = closedTrades.filter((t) => (t.pnl || 0) > 0);
-      const losses = closedTrades.filter((t) => (t.pnl || 0) <= 0);
+      const losses = closedTrades.filter((t) => (t.pnl || 0) < 0);
+      const breakEvenTrades = closedTrades.filter((t) => (t.pnl || 0) === 0);
       
       const avgWin = wins.length > 0 
         ? wins.reduce((sum, t) => sum + (t.pnl || 0), 0) / wins.length 
@@ -187,15 +209,27 @@ export function useAnalytics(userId: string | null) {
         .sort((a, b) => a.month.localeCompare(b.month))
         .slice(-6);
 
-      // Trade Distribution (Pie Chart)
-      const breakEven = closedTrades.filter((t) => (t.pnl || 0) === 0).length;
-      const tradeDistribution = [
+      // Trade Distribution (Pie Chart) - ENHANCED
+      const tradeDistribution: TradeDistributionData[] = [
         { name: 'Wins', value: wins.length, color: '#10b981' },
         { name: 'Losses', value: losses.length, color: '#ef4444' },
-        ...(breakEven > 0 ? [{ name: 'Break-even', value: breakEven, color: '#6b7280' }] : []),
+        ...(breakEvenTrades.length > 0 ? [{ name: 'Break-even', value: breakEvenTrades.length, color: '#6b7280' }] : []),
       ];
 
-      // P&L Histogram - KEEP OLD FOR BACKWARDS COMPATIBILITY
+      // Trade Distribution Metrics - NEW
+      const largestWin = Math.max(...closedTrades.map((t) => t.pnl || 0), 0);
+      const largestLoss = Math.min(...closedTrades.map((t) => t.pnl || 0), 0);
+
+      const tradeDistributionMetrics: TradeDistributionMetrics = {
+        avgWin: Math.round(avgWin),
+        avgLoss: Math.round(avgLoss),
+        winLossRatio: Math.round(winLossRatio * 100) / 100,
+        largestWin: Math.round(largestWin),
+        largestLoss: Math.round(largestLoss),
+        breakEven: breakEvenTrades.length,
+      };
+
+      // P&L Histogram
       const pnlRanges = [
         { range: '<-₹500', min: -Infinity, max: -500 },
         { range: '-₹500 to -₹200', min: -500, max: -200 },
@@ -289,9 +323,6 @@ export function useAnalytics(userId: string | null) {
           }, 0) / closedTrades.length
         : 0;
 
-      const largestWin = Math.max(...closedTrades.map((t) => t.pnl || 0), 0);
-      const largestLoss = Math.min(...closedTrades.map((t) => t.pnl || 0), 0);
-
       setData({
         stats,
         avgWin: Math.round(avgWin),
@@ -304,6 +335,7 @@ export function useAnalytics(userId: string | null) {
         cumulativePnL,
         winRateTrend,
         tradeDistribution,
+        tradeDistributionMetrics, // NEW
         pnlHistogram,
         strategyComparison,
         dayPerformance,
@@ -311,7 +343,6 @@ export function useAnalytics(userId: string | null) {
         avgRiskPerTrade: Math.round(avgRiskPerTrade),
         largestWin: Math.round(largestWin),
         largestLoss: Math.round(largestLoss),
-        closedTrades, // NEW: Export raw closed trades
         loading: false,
         error: null,
       });
