@@ -35,20 +35,20 @@ export function FocusGoalCalendar({
     const firstDay = new Date(selectedYear, selectedMonth, 1);
     const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
-    
+
     let startDay = firstDay.getDay() - 1;
     if (startDay < 0) startDay = 6;
-    
+
     const days: (number | null)[] = [];
-    
+
     for (let i = 0; i < startDay; i++) {
       days.push(null);
     }
-    
+
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(i);
     }
-    
+
     return days;
   };
 
@@ -149,15 +149,14 @@ export function FocusGoalCalendar({
               <div
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                className={`aspect-square flex items-center justify-center relative cursor-pointer transition-all ${
-                  selectedDay === day ? (isDark ? "bg-slate-700" : "bg-slate-100") : (isDark ? "hover:bg-slate-700/50" : "hover:bg-slate-50")
-                } rounded-lg`}
+                className={`aspect-square flex items-center justify-center relative cursor-pointer transition-all ${selectedDay === day ? (isDark ? "bg-slate-700" : "bg-slate-100") : (isDark ? "hover:bg-slate-700/50" : "hover:bg-slate-50")
+                  } rounded-lg`}
               >
                 {hasGoal && (
                   <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="16" fill="none" stroke={isDark ? "#334155" : "#e2e8f0"} strokeWidth="2" />
-                    <circle cx="18" cy="18" r="16" fill="none" stroke={goalMet ? "#ef4444" : "#ff6900"} strokeWidth="2.5" strokeDasharray={`${percentage}, 100`} strokeLinecap="round" className="transition-all duration-300" />
-                    {goalMet && <circle cx="18" cy="18" r="16" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="100, 100" />}
+                    <circle cx="18" cy="18" r="16" fill="none" stroke={goalMet ? "#00ffccea" : "#ff6900"} strokeWidth="2.5" strokeDasharray={`${percentage}, 100`} strokeLinecap="round" className="transition-all duration-300" />
+                    {goalMet && <circle cx="18" cy="18" r="16" fill="none" stroke="#00ffccea" strokeWidth="2.5" strokeDasharray="100, 100" />}
                   </svg>
                 )}
                 <span className={`relative z-10 text-[10px] sm:text-xs md:text-sm font-medium ${hasGoal ? (isDark ? "text-white" : "text-slate-900") : (isDark ? "text-slate-500" : "text-slate-400")}`}>
@@ -171,7 +170,7 @@ export function FocusGoalCalendar({
         {/* Legend - Mobile: Smaller */}
         <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-[9px] sm:text-[10px] md:text-xs">
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full border-2 border-red-500" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 rounded-full border-2 border-[#00ffccea] border-2" />
             <span className={isDark ? "text-slate-400" : "text-slate-600"}>Goal Met</span>
           </div>
           <div className="flex items-center gap-1">
@@ -191,7 +190,7 @@ export function FocusGoalCalendar({
               <span className={`text-xs sm:text-sm md:text-base font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                 {monthNames[selectedMonth]} {selectedDay}, {selectedYear}
               </span>
-              <span className={`text-[9px] sm:text-[10px] md:text-xs px-2 py-1 rounded-full font-medium ${selectedDayData.goalMet ? "bg-red-500/20 text-red-500" : "bg-orange-500/20 text-orange-500"}`}>
+              <span className={`text-[9px] sm:text-[10px] md:text-xs px-2 py-1 rounded-full font-medium ${selectedDayData.goalMet ? "bg-blue-300/10 text-blue-200 border-[#00ffccea] border-2" : "bg-orange-500/10 text-orange-500 border-orange-500 border-2"}`}>
                 {selectedDayData.goalMet ? "✓ Goal Met" : "In Progress"}
               </span>
             </div>

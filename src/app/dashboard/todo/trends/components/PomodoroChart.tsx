@@ -136,7 +136,7 @@ export default function PomodoroChart({
 
   const dates = getLast30Days();
   // MOBILE: Only show 6, 12, 18, 24 on mobile
-  const timeLabels = [0, 6, 12, 18, 24];
+  const timeLabels = [0, 3, 6, 9, 12, 15, 18, 21, 24];
 
   const getSessionsForDate = (date: Date) => {
     const year = date.getFullYear();
