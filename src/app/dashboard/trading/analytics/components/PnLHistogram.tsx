@@ -193,7 +193,7 @@ export default function PnLHistogram({ closedTrades, isDark }: PnLHistogramProps
 
       {/* Chart */}
       <div className="h-80 sm:h-96">
-        <ResponsiveContainer width="100%" height="104%">
+        <ResponsiveContainer width="100%" height="105%">
           <BarChart data={histogramData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid
               strokeDasharray="3 3"
@@ -256,10 +256,10 @@ export default function PnLHistogram({ closedTrades, isDark }: PnLHistogramProps
       </div>
 
       {/* Info Footer */}
-      <div className={`mt-4 pt-4 border-t text-xs text-center ${isDark ? 'border-slate-700 text-slate-400' : 'border-slate-200 text-slate-600'
+      {/* <div className={`mt-4 pt-4 border-t text-xs text-center ${isDark ? 'border-slate-700 text-slate-400' : 'border-slate-200 text-slate-600'
         }`}>
         💡 Bins auto-scale: Small accounts get narrow ranges, large accounts get wider ranges
-      </div>
+      </div> */}
     </div>
   );
 }
