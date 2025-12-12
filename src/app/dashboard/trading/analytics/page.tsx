@@ -13,6 +13,7 @@ import TradeDistribution from "./components/TradeDistribution";
 import PnLHistogram from "./components/PnLHistogram";
 import StrategyComparison from "./components/StrategyComparison";
 import TimeAnalysis from "./components/TimeAnalysis";
+import { getTrades } from "@/lib/supabase/trading-helpers";
 
 // Helper function for Indian currency formatting
 export function formatIndianCurrency(amount: number): string {
@@ -41,6 +42,7 @@ export default function AnalyticsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [userName, setUserName] = useState<string>("Trader");
+  const [closedTrades, setClosedTrades] = useState<any[]>([]);
 
   const {
     avgWin,
@@ -56,14 +58,13 @@ export default function AnalyticsPage() {
     cumulativePnL,
     winRateTrend,
     tradeDistribution,
-    pnlHistogram,
+    tradeDistributionMetrics,
     strategyComparison,
     dayPerformance,
     hourPerformance,
     loading,
     error,
     refresh,
-    closedTrades,
   } = useAnalytics(userId);
 
   useEffect(() => {
@@ -86,6 +87,13 @@ export default function AnalyticsPage() {
 
         if (profile?.full_name) {
           setUserName(profile.full_name);
+        }
+
+        // Get closed trades for PnLHistogram
+        const tradesResult = await getTrades(user.id);
+        if (tradesResult.data) {
+          const closed = tradesResult.data.filter(t => t.is_closed && t.pnl !== null);
+          setClosedTrades(closed);
         }
       } else {
         window.location.href = "/login";
@@ -112,6 +120,16 @@ export default function AnalyticsPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await refresh();
+
+    // Refresh closed trades too
+    if (userId) {
+      const tradesResult = await getTrades(userId);
+      if (tradesResult.data) {
+        const closed = tradesResult.data.filter(t => t.is_closed && t.pnl !== null);
+        setClosedTrades(closed);
+      }
+    }
+
     setTimeout(() => setIsRefreshing(false), 500);
   };
 
@@ -123,7 +141,7 @@ export default function AnalyticsPage() {
         appName: "Trading Analytics",
       });
 
-      // Success notification (you can replace with toast)
+      // Success notification
       alert("📸 Screenshot saved successfully!");
     } catch (error) {
       console.error("Screenshot error:", error);
@@ -245,7 +263,11 @@ export default function AnalyticsPage() {
 
               {/* Charts Row 2 - Distribution Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                <TradeDistribution data={tradeDistribution} isDark={isDark} />
+                <TradeDistribution
+                  data={tradeDistribution}
+                  metrics={tradeDistributionMetrics}
+                  isDark={isDark}
+                />
                 <PnLHistogram closedTrades={closedTrades} isDark={isDark} />
               </div>
 
