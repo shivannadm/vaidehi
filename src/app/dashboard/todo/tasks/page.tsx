@@ -459,7 +459,7 @@ export default function TasksPage() {
           {/* CENTER - Timeline */}
           <div className="lg:col-span-4">
             <div className={`rounded-xl border p-3 sm:p-5 h-64 sm:h-96 lg:h-230 min-h-64 flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Today's Task time Record</h2>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task time Record</h2>
               <div className="flex-1 min-h-0">
                 <Timeline sessions={sessions} currentTime={currentTime} isDark={isDark} activeTaskId={timer.taskId} />
               </div>
