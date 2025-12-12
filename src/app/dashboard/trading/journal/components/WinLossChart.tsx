@@ -30,8 +30,7 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
 
     if (totalCount === 0) {
         return (
-            <div className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-                }`}>
+            <div className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
                 <h3 className={`text-sm font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"}`}>
                     Win/Loss Distribution
                 </h3>
@@ -43,29 +42,46 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
     }
 
     return (
-        <div className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-            }`}>
+        <div className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
             <h3 className={`text-sm font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
                 Win/Loss Distribution
             </h3>
 
-            {/* Donut Chart */}
+            {/* Donut Chart with Tooltips */}
             <div className="flex items-center justify-center mb-4 relative">
                 <div className="relative w-36 h-36">
-                    {/* Tooltip */}
-                    {hoveredSegment && (
-                        <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 px-3 py-2 rounded-lg shadow-xl border whitespace-nowrap z-50 ${isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"
-                            }`}>
-                            <div className={`text-xs font-medium mb-1 ${isDark ? "text-slate-400" : "text-slate-600"
-                                }`}>
-                                {hoveredSegment === 'win' ? 'Winning Trades' : 'Losing Trades'}
+                    {/* Tooltip - Left side for losses (pink marker) */}
+                    {hoveredSegment === 'loss' && (
+                        <div className={`absolute top-1/2 -translate-y-1/2 right-full mr-3 px-3 py-2 rounded-lg shadow-xl border whitespace-nowrap z-50 ${isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}>
+                            {/* Pink marker pointing to chart */}
+                            <div className="absolute top-1/2 -translate-y-1/2 left-full w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[8px] border-l-pink-500" />
+                            
+                            <div className={`text-xs font-medium mb-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                                Losing Trades
                             </div>
-                            <div className={`text-lg font-bold ${hoveredSegment === 'win' ? 'text-green-500' : 'text-red-500'
-                                }`}>
-                                {hoveredSegment === 'win' ? winCount : lossCount} trade{(hoveredSegment === 'win' ? winCount : lossCount) > 1 ? 's' : ''}
+                            <div className="text-lg font-bold text-red-500">
+                                {lossCount} trade{lossCount !== 1 ? 's' : ''}
                             </div>
                             <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                                ₹{(hoveredSegment === 'win' ? totalWinPnL : totalLossPnL).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                ₹{totalLossPnL.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tooltip - Right side for wins (green marker) */}
+                    {hoveredSegment === 'win' && (
+                        <div className={`absolute top-1/2 -translate-y-1/2 left-full ml-3 px-3 py-2 rounded-lg shadow-xl border whitespace-nowrap z-50 ${isDark ? "bg-slate-900 border-slate-700" : "bg-white border-slate-200"}`}>
+                            {/* Green marker pointing to chart */}
+                            <div className="absolute top-1/2 -translate-y-1/2 right-full w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[8px] border-r-green-500" />
+                            
+                            <div className={`text-xs font-medium mb-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                                Winning Trades
+                            </div>
+                            <div className="text-lg font-bold text-green-500">
+                                {winCount} trade{winCount !== 1 ? 's' : ''}
+                            </div>
+                            <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                                ₹{totalWinPnL.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
                         </div>
                     )}
@@ -81,7 +97,7 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
                             strokeWidth="20"
                         />
 
-                        {/* Win segment */}
+                        {/* Win segment (green) */}
                         <circle
                             cx="50"
                             cy="50"
@@ -96,7 +112,7 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
                             onMouseLeave={() => setHoveredSegment(null)}
                         />
 
-                        {/* Loss segment */}
+                        {/* Loss segment (red) */}
                         <circle
                             cx="50"
                             cy="50"
@@ -129,10 +145,11 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
             <div className="space-y-2">
                 {/* Wins */}
                 <div
-                    className={`flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer ${hoveredSegment === 'win'
-                        ? isDark ? 'bg-green-900/20' : 'bg-green-50'
-                        : ''
-                        }`}
+                    className={`flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer ${
+                        hoveredSegment === 'win'
+                            ? isDark ? 'bg-green-900/20' : 'bg-green-50'
+                            : ''
+                    }`}
                     onMouseEnter={() => setHoveredSegment('win')}
                     onMouseLeave={() => setHoveredSegment(null)}
                 >
@@ -154,10 +171,11 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
 
                 {/* Losses */}
                 <div
-                    className={`flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer ${hoveredSegment === 'loss'
-                        ? isDark ? 'bg-red-900/20' : 'bg-red-50'
-                        : ''
-                        }`}
+                    className={`flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer ${
+                        hoveredSegment === 'loss'
+                            ? isDark ? 'bg-red-900/20' : 'bg-red-50'
+                            : ''
+                    }`}
                     onMouseEnter={() => setHoveredSegment('loss')}
                     onMouseLeave={() => setHoveredSegment(null)}
                 >
@@ -179,8 +197,7 @@ export default function WinLossChart({ trades, isDark }: WinLossChartProps) {
 
                 {/* Horizontal bar */}
                 <div className="pt-2">
-                    <div className={`h-2 rounded-full overflow-hidden flex ${isDark ? "bg-slate-700" : "bg-slate-200"
-                        }`}>
+                    <div className={`h-2 rounded-full overflow-hidden flex ${isDark ? "bg-slate-700" : "bg-slate-200"}`}>
                         <div
                             className="bg-green-500 transition-all duration-500"
                             style={{ width: `${winPercentage}%` }}
