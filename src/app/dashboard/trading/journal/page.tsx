@@ -11,6 +11,7 @@ import MiniCalendar from "./components/MiniCalendar";
 import DayDetailView from "./components/DayDetailView";
 import AddTradeModal from "./components/AddTradeModal";
 import InsightsView from "./components/InsightsView";
+import WinLossChart from "./components/WinLossChart";
 import type { TradeWithStrategy, InstrumentType } from "@/types/database";
 
 export default function TradingJournalPage() {
@@ -92,7 +93,7 @@ export default function TradingJournalPage() {
     .filter(t => t.is_closed && t.pnl)
     .reduce((sum, t) => sum + (t.pnl || 0), 0);
 
-  // Filter and search (exclude today's trades from list)
+  // Filter and search (exclude today's trades from list) - LIMIT TO 7 ROWS
   const filteredGroupedTrades = useMemo(() => {
     let filtered = Object.entries(groupedTrades).filter(([date]) => date !== todayDate);
 
@@ -112,9 +113,10 @@ export default function TradingJournalPage() {
       );
     }
 
-    return filtered.sort(([dateA], [dateB]) => 
-      new Date(dateB).getTime() - new Date(dateA).getTime()
-    );
+    // Sort and limit to 7 rows
+    return filtered
+      .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+      .slice(0, 7);
   }, [groupedTrades, selectedInstrument, searchQuery, todayDate]);
 
   // Calculate net P&L
@@ -221,7 +223,7 @@ export default function TradingJournalPage() {
               isDark={isDark}
             />
 
-            {/* TODAY'S TRADES CARD - NEW */}
+            {/* TODAY'S TRADES CARD */}
             <button
               onClick={() => handleDateClick(todayDate)}
               className={`w-full rounded-xl border p-5 transition-all hover:shadow-lg text-left ${
@@ -282,7 +284,7 @@ export default function TradingJournalPage() {
               </div>
             </button>
 
-            {/* Previous Trades */}
+            {/* Previous Trades - LIMITED TO 7 WITH SCROLLING */}
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
@@ -306,7 +308,10 @@ export default function TradingJournalPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div 
+                className="space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50"
+                style={{ maxHeight: 'calc(170vh - 520px)', minHeight: '400px' }}
+              >
                 {filteredGroupedTrades.map(([date, dayTrades]) => (
                   <DailyTradeRow
                     key={date}
@@ -329,6 +334,7 @@ export default function TradingJournalPage() {
               isDark={isDark}
               onDateClick={handleDateClick}
             />
+            <WinLossChart trades={trades} isDark={isDark} />
           </div>
         </div>
       </div>
