@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { LayoutDashboard, Loader2, RefreshCw, Camera } from "lucide-react";
 import { useDashboardData } from "./hooks/useDashboardData";
-import { captureTradingScreenshot } from "@/lib/utils/tradingExportUtils";
+import { captureTradingScreenshot } from "@/lib/utils/tradingDashboardUtils";
 import HeroStats from "./components/HeroStats";
 import EquityCurve from "./components/EquityCurve";
 import MonthlyPnLChart from "./components/MonthlyPnLChart";
@@ -197,9 +197,9 @@ export default function TradingDashboardPage() {
 
             {/* Charts Row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <EquityCurve 
-                data={equityCurve} 
-                isDark={isDark} 
+              <EquityCurve
+                data={equityCurve}
+                isDark={isDark}
                 initialCapital={initialCapital}
                 userId={userId}
                 onCapitalUpdate={refresh}
