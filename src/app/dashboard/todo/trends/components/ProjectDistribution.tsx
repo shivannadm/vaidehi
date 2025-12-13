@@ -48,8 +48,8 @@ export default function ProjectDistribution({
   }, [initialData]);
 
   const createDonutPath = () => {
-    const size = 160; // Fixed size for consistency
-    const radius = 55;
+    const size = 200; // Increased from 180
+    const radius = 70;  // Increased from 65
     const center = size / 2;
     let currentAngle = -90;
 
@@ -92,6 +92,10 @@ export default function ProjectDistribution({
       case 'monthly': return 'This Month';
     }
   };
+
+  // Calculate hours and minutes
+  const hours = Math.floor(totalHours);
+  const minutes = Math.round((totalHours % 1) * 60);
 
   return (
     <div
@@ -163,11 +167,11 @@ export default function ProjectDistribution({
             </div>
           ) : (
             <>
-              {/* Donut & Legend - ALWAYS side by side */}
+              {/* Donut & Legend */}
               <div className="flex items-start gap-3 sm:gap-4 md:gap-8 mb-4 sm:mb-6 md:mb-8">
-                {/* Donut */}
+                {/* Donut - PERFECTLY CENTERED */}
                 <div className="flex-shrink-0">
-                  <svg width="160" height="160" viewBox="0 0 160 160" className="w-32 h-32 sm:w-40 sm:h-40 md:w-[160px] md:h-[160px]">
+                  <svg width="200" height="200" viewBox="0 0 200 200" className="w-40 h-40 sm:w-48 sm:h-48 md:w-[220px] md:h-[220px]">
                     {segments.map((seg, i) => (
                       <path
                         key={i}
@@ -181,17 +185,24 @@ export default function ProjectDistribution({
                         onClick={() => setHoveredProject(hoveredProject === seg.projectName ? null : seg.projectName)}
                       />
                     ))}
-                    <circle cx="80" cy="80" r="40" fill={isDark ? "#1e293b" : "#ffffff"} />
-                    <text x="80" y="75" textAnchor="middle" className={`text-lg sm:text-xl md:text-2xl font-bold ${isDark ? "fill-white" : "fill-slate-900"}`}>
-                      {totalHours.toFixed(0)}
-                    </text>
-                    <text x="80" y="90" textAnchor="middle" className={`text-[10px] sm:text-xs ${isDark ? "fill-slate-400" : "fill-slate-600"}`}>
-                      hours
+                    <circle cx="100" cy="100" r="50" fill={isDark ? "#1e293b" : "#ffffff"} />
+                    
+                    {/* ✅ PERFECTLY FITTED: "10h 44m" */}
+                    <text x="100" y="108" textAnchor="middle" className={`text-xl sm:text-2xl md:text-2xl font-bold ${isDark ? "fill-white" : "fill-slate-900"}`}>
+                      {hours}
+                      <tspan className="text-sm sm:text-base md:text-lg font-normal fill-slate-500">h</tspan>
+                      {minutes > 0 && (
+                        <>
+                          <tspan dx="2"> </tspan>
+                          {minutes}
+                          <tspan className="text-sm sm:text-base md:text-lg font-normal fill-slate-500">m</tspan>
+                        </>
+                      )}
                     </text>
                   </svg>
                 </div>
 
-                {/* Legend - Scrollable on mobile if needed */}
+                {/* Legend */}
                 <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5 md:space-y-2 max-h-40 overflow-y-auto scrollbar-thin">
                   {data.map((item, i) => (
                     <div
