@@ -115,8 +115,7 @@ export default function TradingJournalPage() {
 
     // Sort and limit to 7 rows
     return filtered
-      .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
-      .slice(0, 7);
+      .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime());
   }, [groupedTrades, selectedInstrument, searchQuery, todayDate]);
 
   // Calculate net P&L
@@ -310,7 +309,7 @@ export default function TradingJournalPage() {
             ) : (
               <div 
                 className="space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50"
-                style={{ maxHeight: 'calc(170vh - 520px)', minHeight: '400px' }}
+                style={{ maxHeight: 'calc(160vh - 520px)', minHeight: '400px' }}
               >
                 {filteredGroupedTrades.map(([date, dayTrades]) => (
                   <DailyTradeRow
