@@ -6,6 +6,7 @@ import { X, Camera, Loader2 } from "lucide-react";
 import { getProfile, updateProfile, uploadAvatar } from "@/lib/supabase/helpers";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile, Theme } from "@/types/database";
+import type { User } from "@supabase/supabase-js";
 
 interface ProfileModalProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ interface ProfileModalProps {
 
 export default function ProfileModal({ isOpen, onClose, theme }: ProfileModalProps) {
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [fullName, setFullName] = useState("");
     const [avatarUrl, setAvatarUrl] = useState("");
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -49,6 +51,8 @@ export default function ProfileModal({ isOpen, onClose, theme }: ProfileModalPro
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) return;
+
+            setUser(user); // Store user data
 
             const { data, error } = await getProfile(user.id);
 
@@ -252,7 +256,7 @@ export default function ProfileModal({ isOpen, onClose, theme }: ProfileModalPro
                                 </label>
                                 <input
                                     type="email"
-                                    value={profile?.id || ""}
+                                    value={user?.email || ""}
                                     className={`w-full px-4 py-2 border rounded-lg cursor-not-allowed ${isLight
                                             ? 'border-slate-300 bg-slate-50 text-slate-500'
                                             : 'border-slate-600 bg-slate-700/50 text-slate-400'
@@ -261,7 +265,7 @@ export default function ProfileModal({ isOpen, onClose, theme }: ProfileModalPro
                                 />
                                 <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'
                                     }`}>
-                                    Email cannot be changed
+                                    Email cannot be changed here. Contact support to change email.
                                 </p>
                             </div>
 
