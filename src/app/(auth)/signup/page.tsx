@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,37 +16,97 @@ export default function SignupPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        router.push("/dashboard");
+      }
+    };
+    checkUser();
+  }, [router, supabase.auth]);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setMessage("");
 
+    // Validate inputs
+    if (!fullName.trim()) {
+      setError("Please enter your full name");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      // Get the correct redirect URL
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/callback`
+        : 'http://localhost:3000/auth/callback';
+
+      console.log('Attempting signup with:', { email, redirectUrl });
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           data: {
-            full_name: fullName,
+            full_name: fullName.trim(),
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: redirectUrl,
         },
       });
 
-      if (error) throw error;
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        throw signUpError;
+      }
 
+      console.log('Signup response:', data);
+
+      // Check if email already exists
       if (data?.user?.identities?.length === 0) {
         setError("This email is already registered. Please sign in instead.");
         return;
       }
 
-      setMessage("Check your email for the confirmation link!");
+      // Check if email confirmation is required
+      if (data?.user && !data?.session) {
+        setMessage("Success! Please check your email to confirm your account.");
+      } else if (data?.session) {
+        // If auto-confirmed, redirect to dashboard
+        setMessage("Account created successfully! Redirecting...");
+        setTimeout(() => {
+          router.push("/dashboard");
+          router.refresh();
+        }, 1000);
+      }
+
+      // Clear form
       setEmail("");
       setPassword("");
       setFullName("");
     } catch (error: any) {
-      setError(error.message || "An error occurred during signup");
+      console.error('Signup error:', error);
+      
+      // Handle specific error messages
+      if (error.message?.includes("already registered")) {
+        setError("This email is already registered. Please sign in instead.");
+      } else if (error.message?.includes("Invalid email")) {
+        setError("Please enter a valid email address");
+      } else if (error.message?.includes("Password")) {
+        setError("Password must be at least 6 characters");
+      } else {
+        setError(error.message || "An error occurred during signup. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -55,18 +115,39 @@ export default function SignupPage() {
   const handleGoogleSignup = async () => {
     setLoading(true);
     setError("");
+    setMessage("");
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Get the correct redirect URL
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/callback`
+        : 'http://localhost:3000/auth/callback';
+
+      console.log('Attempting Google signup with redirect:', redirectUrl);
+
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
-      if (error) throw error;
+      if (oauthError) {
+        console.error('Google OAuth error:', oauthError);
+        throw oauthError;
+      }
+
+      console.log('Google OAuth response:', data);
+      
+      // The redirect will happen automatically
+      // No need to set loading to false as the page will redirect
     } catch (error: any) {
-      setError(error.message || "An error occurred with Google signup");
+      console.error('Google signup error:', error);
+      setError(error.message || "An error occurred with Google signup. Please try again.");
       setLoading(false);
     }
   };
@@ -87,6 +168,7 @@ export default function SignupPage() {
       <button
         onClick={handleGoogleSignup}
         disabled={loading}
+        type="button"
         className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border-2 border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed group"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -107,7 +189,9 @@ export default function SignupPage() {
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
         </svg>
-        <span className="font-medium text-slate-700">Continue with Google</span>
+        <span className="font-medium text-slate-700">
+          {loading ? "Connecting..." : "Continue with Google"}
+        </span>
       </button>
 
       {/* Divider */}
@@ -133,7 +217,8 @@ export default function SignupPage() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+            disabled={loading}
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="John Doe"
           />
         </div>
@@ -149,7 +234,8 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+            disabled={loading}
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="you@example.com"
           />
         </div>
@@ -166,7 +252,8 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+            disabled={loading}
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="••••••••"
           />
           <p className="mt-1 text-xs text-slate-500">Must be at least 6 characters</p>
