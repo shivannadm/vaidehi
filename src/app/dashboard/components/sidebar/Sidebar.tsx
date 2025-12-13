@@ -168,7 +168,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         <div>
           {isCollapsed ? (
             <div className="flex items-center justify-center py-2">
-              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500/20 to-pink-600/20 rounded-full" />
             </div>
           ) : (
             <button
@@ -240,7 +240,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         <div>
           {isCollapsed ? (
             <div className="flex items-center justify-center py-2">
-              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500/20 to-pink-600/20 rounded-full" />
             </div>
           ) : (
             <button
@@ -312,7 +312,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
         <div>
           {isCollapsed ? (
             <div className="flex items-center justify-center py-2">
-              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full" />
+              <div className="w-8 h-0.5 bg-gradient-to-r from-pink-500/20 to-pink-600/20 rounded-full" />
             </div>
           ) : (
             <button
@@ -374,14 +374,6 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Quick Notes'}
                 onClick={() => handleNavigation('Quick Notes', 'trading', '/dashboard/trading/quick-notes')}
-                isLight={isLight}
-              />
-              <SidebarItem
-                icon={<FileText className="w-4 h-4" />}
-                label="Reports"
-                isCollapsed={isCollapsed}
-                isActive={activeItem === 'Reports'}
-                onClick={() => handleNavigation('Reports', 'trading', '/dashboard/trading/reports')}
                 isLight={isLight}
               />
               <SidebarItem
@@ -460,8 +452,8 @@ function SidebarItem({
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition group text-sm ${isActive
-          ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
-          : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
+        ? (isLight ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-600 text-white')
+        : (isLight ? 'text-slate-600 hover:bg-slate-100' : 'text-slate-300 hover:bg-slate-800 hover:text-white')
         }`}
       title={isCollapsed ? label : undefined}
     >
