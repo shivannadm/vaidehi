@@ -91,7 +91,7 @@ export function FocusGoalCalendar({
       {/* Header */}
       <div className="mb-3 sm:mb-4 md:mb-6">
         <h2 className={`text-sm sm:text-base md:text-lg font-bold mb-2 sm:mb-3 md:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
-          Day's Focus Time
+          Focus Goal Calender
         </h2>
 
         {/* Stats - Mobile: Wrap */}

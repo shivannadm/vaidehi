@@ -149,16 +149,14 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
       {/* Upgrade Button */}
       <div className={`p-3 ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
-        {!isCollapsed ? (
-          <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition text-sm">
-            <Zap className="w-4 h-4" />
-            Upgrade 🚀
-          </button>
-        ) : (
-          <button className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 p-2 rounded-lg transition flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
-          </button>
-        )}
+        <button 
+          className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${
+            isCollapsed ? 'h-10 px-2' : 'h-10 px-3 py-2 gap-2'
+          }`}
+        >
+          <Zap className="w-4 h-4 flex-shrink-0" />
+          {!isCollapsed && <span className="text-sm whitespace-nowrap">Upgrade 🚀</span>}
+        </button>
       </div>
 
       {/* Navigation with Custom Scrollbar */}
@@ -413,7 +411,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
       {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:flex ${isLight ? 'bg-white border-r border-slate-200' : 'bg-slate-900'
-          } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-100 flex-col ${isCollapsed ? "w-16" : "w-56"
+          } text-${isLight ? 'slate-900' : 'white'} h-screen sticky top-0 transition-all duration-300 flex-col ${isCollapsed ? "w-16" : "w-56"
           }`}
         suppressHydrationWarning
       >

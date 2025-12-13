@@ -294,7 +294,7 @@ export default function PomodoroChart({
         {/* Header - MOBILE OPTIMIZED */}
         <div className="mb-3 sm:mb-4 flex-shrink-0">
           <h2 className={`text-sm sm:text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            Pomodoro Records
+            Timeline Records
           </h2>
           <p className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             Your focused work sessions timeline
