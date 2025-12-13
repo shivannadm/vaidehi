@@ -201,9 +201,9 @@ export default function PomodoroChart({
 
     // MOBILE: Shorter date format
     const isMobile = window.innerWidth < 640;
-    return date.toLocaleDateString('en-US', { 
-      month: isMobile ? 'numeric' : 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: isMobile ? 'numeric' : 'short',
+      day: 'numeric'
     });
   };
 
@@ -273,9 +273,8 @@ export default function PomodoroChart({
 
   if (loading) {
     return (
-      <div className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex items-center justify-center ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}>
+      <div className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex items-center justify-center ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}>
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-indigo-600"></div>
           <p className={`mt-2 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
@@ -289,9 +288,8 @@ export default function PomodoroChart({
   return (
     <>
       <div
-        className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex flex-col ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         {/* Header - MOBILE OPTIMIZED */}
         <div className="mb-3 sm:mb-4 flex-shrink-0">
@@ -344,23 +342,20 @@ export default function PomodoroChart({
                   <div key={index} className="flex items-center">
                     {/* MOBILE: Narrower date label */}
                     <div className="w-12 sm:w-16 md:w-20 flex-shrink-0 pr-1.5 sm:pr-2 md:pr-3 text-right">
-                      <span className={`text-[10px] sm:text-xs font-medium ${
-                        isDark ? "text-slate-400" : "text-slate-600"
-                      }`}>
+                      <span className={`text-[10px] sm:text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-600"
+                        }`}>
                         {formatDateLabel(date)}
                       </span>
                     </div>
 
                     {/* MOBILE: Smaller height */}
-                    <div className={`flex-1 h-6 sm:h-8 md:h-10 rounded relative ${
-                      isDark ? "bg-slate-700/30" : "bg-slate-100"
-                    }`}>
+                    <div className={`flex-1 h-6 sm:h-8 md:h-10 rounded relative ${isDark ? "bg-slate-700/30" : "bg-slate-100"
+                      }`}>
                       {timeLabels.map((hour) => (
                         <div
                           key={hour}
-                          className={`absolute top-0 bottom-0 border-l ${
-                            isDark ? "border-slate-700" : "border-slate-200"
-                          }`}
+                          className={`absolute top-0 bottom-0 border-l ${isDark ? "border-slate-700" : "border-slate-200"
+                            }`}
                           style={{ left: `${(hour / 24) * 100}%` }}
                         />
                       ))}
@@ -386,12 +381,10 @@ export default function PomodoroChart({
 
         {/* Legend - MOBILE: Wrap, show fewer */}
         {sessions.length > 0 && (
-          <div className={`mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2 flex-shrink-0 border-t pt-2 sm:pt-3 ${
-            isDark ? 'border-slate-700' : 'border-slate-200'
-          }`}>
-            <span className={`text-[10px] sm:text-xs font-medium ${
-              isDark ? "text-slate-400" : "text-slate-600"
+          <div className={`mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2 flex-shrink-0 border-t pt-2 sm:pt-3 ${isDark ? 'border-slate-700' : 'border-slate-200'
             }`}>
+            <span className={`text-[10px] sm:text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-600"
+              }`}>
               Tags:
             </span>
             {getUniqueTags().slice(0, 7).map((tag, i) => (
@@ -400,9 +393,8 @@ export default function PomodoroChart({
                   className="w-2 h-2 sm:w-3 sm:h-3 rounded"
                   style={{ backgroundColor: getTagColor(tag.color) }}
                 />
-                <span className={`text-[10px] sm:text-xs ${
-                  isDark ? "text-slate-300" : "text-slate-700"
-                }`}>
+                <span className={`text-[10px] sm:text-xs ${isDark ? "text-slate-300" : "text-slate-700"
+                  }`}>
                   #{tag.name}
                 </span>
               </div>
@@ -426,9 +418,8 @@ export default function PomodoroChart({
             transform: 'translate(-50%, -100%)',
           }}
         >
-          <div className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-2xl text-[10px] sm:text-xs whitespace-nowrap border-2 max-w-[200px] ${
-            isDark ? 'bg-slate-900 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-200'
-          }`}>
+          <div className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-2xl text-[10px] sm:text-xs whitespace-nowrap border-2 max-w-[200px] ${isDark ? 'bg-slate-900 text-white border-slate-700' : 'bg-white text-slate-900 border-slate-200'
+            }`}>
             <div className="font-bold mb-1 truncate">{tooltip.task.title}</div>
             {tooltip.task.tag && (
               <div className="opacity-75 mb-1">#{tooltip.task.tag.name}</div>
