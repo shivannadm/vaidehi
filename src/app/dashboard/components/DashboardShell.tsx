@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "./sidebar/Sidebar";
 import TopHeader from "./header/TopHeader";
 import ProfileModal from "./modals/ProfileModal";
@@ -9,10 +10,12 @@ import SettingsModal from "./modals/SettingsModal";
 import type { Theme } from "@/types/database";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [currentSection, setCurrentSection] = useState("Dashboard");
-  const [activeItem, setActiveItem] = useState("Dashboard");
+  const [currentSection, setCurrentSection] = useState("Home");
+  const [activeItem, setActiveItem] = useState("Home");
+  
   // Initialize theme from localStorage immediately (no flash)
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
@@ -22,6 +25,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     return 'dark';
   });
   const [mounted, setMounted] = useState(false);
+  
   // Initialize actualTheme from localStorage
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -55,6 +59,36 @@ export default function DashboardShell({ children }: { children: React.ReactNode
     
     return () => observer.disconnect();
   }, []);
+
+  // Update section based on pathname
+  useEffect(() => {
+    if (pathname === '/dashboard') {
+      setCurrentSection('Home');
+      setActiveItem('Home');
+    } else if (pathname.includes('/todo/')) {
+      // Extract the page name from path
+      const pageName = pathname.split('/').pop();
+      const formattedName = pageName
+        ?.split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      setCurrentSection(formattedName || 'Tasks');
+    } else if (pathname.includes('/routine/')) {
+      const pageName = pathname.split('/').pop();
+      const formattedName = pageName
+        ?.split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      setCurrentSection(formattedName || 'Morning');
+    } else if (pathname.includes('/trading/')) {
+      const pageName = pathname.split('/').pop();
+      const formattedName = pageName
+        ?.split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      setCurrentSection(formattedName || 'Dashboard');
+    }
+  }, [pathname]);
 
   // Load saved theme from Supabase and sync with localStorage
   useEffect(() => {

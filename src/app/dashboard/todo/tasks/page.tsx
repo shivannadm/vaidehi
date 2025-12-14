@@ -35,16 +35,16 @@ import { useTimer } from "../../components/TimerContext";
 // ============================================
 // CUSTOM DROPDOWN COMPONENT
 // ============================================
-function FocusGoalDropdown({ 
-  value, 
-  onChange, 
-  disabled, 
-  isDark 
-}: { 
-  value: number; 
-  onChange: (v: number) => void; 
-  disabled: boolean; 
-  isDark: boolean; 
+function FocusGoalDropdown({
+  value,
+  onChange,
+  disabled,
+  isDark
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  disabled: boolean;
+  isDark: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -69,11 +69,10 @@ function FocusGoalDropdown({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`px-2 sm:px-3 py-1 rounded-lg font-bold border-2 text-center flex items-center gap-1 min-w-[50px] sm:min-w-[60px] justify-between transition text-xs sm:text-sm ${
-          isDark
+        className={`px-2 sm:px-3 py-1 rounded-lg font-bold border-2 text-center flex items-center gap-1 min-w-[50px] sm:min-w-[60px] justify-between transition text-xs sm:text-sm ${isDark
             ? "bg-slate-700 border-lime-500 text-lime-400 hover:bg-slate-600"
             : "bg-lime-50 border-lime-400 text-lime-700 hover:bg-lime-100"
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <span>{value}h</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -81,9 +80,8 @@ function FocusGoalDropdown({
 
       {isOpen && (
         <div
-          className={`absolute right-0 mt-1 rounded-lg border-2 shadow-xl z-50 overflow-y-auto ${
-            isDark ? "bg-slate-800 border-slate-600" : "bg-white border-slate-200"
-          }`}
+          className={`absolute right-0 mt-1 rounded-lg border-2 shadow-xl z-50 overflow-y-auto ${isDark ? "bg-slate-800 border-slate-600" : "bg-white border-slate-200"
+            }`}
           style={{ maxHeight: "280px", width: "80px" }}
         >
           <div className="py-1">
@@ -95,15 +93,14 @@ function FocusGoalDropdown({
                   onChange(h);
                   setIsOpen(false);
                 }}
-                className={`w-full px-3 py-2 text-left text-sm font-medium transition ${
-                  h === value
+                className={`w-full px-3 py-2 text-left text-sm font-medium transition ${h === value
                     ? isDark
                       ? "bg-lime-600 text-white"
                       : "bg-lime-500 text-white"
                     : isDark
                       ? "hover:bg-slate-700 text-slate-300"
                       : "hover:bg-slate-100 text-slate-700"
-                }`}
+                  }`}
               >
                 {h}h
               </button>
@@ -231,7 +228,7 @@ export default function TasksPage() {
   const loadAllData = async (uid: string, date: string) => {
     try {
       await ensureRecurringTasks(uid, date);
-      
+
       const [
         tasksRes,
         tagsRes,
@@ -338,9 +335,8 @@ export default function TasksPage() {
                   <button
                     key={i}
                     onClick={() => handleDateSelect(date)}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-semibold transition text-xs sm:text-sm flex-shrink-0 ${
-                      selected ? "bg-cyan-500 text-white" : isDark ? "text-slate-400 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100"
-                    }`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center font-semibold transition text-xs sm:text-sm flex-shrink-0 ${selected ? "bg-cyan-500 text-white" : isDark ? "text-slate-400 hover:bg-slate-700" : "text-slate-600 hover:bg-slate-100"
+                      }`}
                   >
                     {date.getDate()}
                   </button>
@@ -459,7 +455,7 @@ export default function TasksPage() {
           {/* CENTER - Timeline */}
           <div className="lg:col-span-4">
             <div className={`rounded-xl border p-3 sm:p-5 h-64 sm:h-96 lg:h-230 min-h-64 flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
-              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Task time Record</h2>
+              <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Tasks Time Record</h2>
               <div className="flex-1 min-h-0">
                 <Timeline sessions={sessions} currentTime={currentTime} isDark={isDark} activeTaskId={timer.taskId} />
               </div>

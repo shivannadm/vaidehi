@@ -17,7 +17,6 @@ import {
   Heart,
   Target,
   Activity,
-  BarChart3,
   BookOpen,
   TestTube,
   Layers,
@@ -25,7 +24,6 @@ import {
   FileText,
   Zap,
   Shield,
-  LayoutDashboard,
   Menu,
   X
 } from "lucide-react";
@@ -54,7 +52,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
     if (pathname.includes('/todo/tasks')) {
       onItemClick('Tasks', 'todo');
     } else if (pathname === '/dashboard') {
-      onItemClick('Dashboard', 'trading');
+      onItemClick('Home', 'home');
     }
   }, [pathname]);
 
@@ -80,7 +78,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
   };
 
   const handleLogoClick = () => {
-    onItemClick('Dashboard', 'trading');
+    onItemClick('Home', 'home');
     router.push('/dashboard');
   };
 
@@ -149,10 +147,9 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
 
       {/* Upgrade Button */}
       <div className={`p-3 ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
-        <button 
-          className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${
-            isCollapsed ? 'h-10 px-2' : 'h-10 px-3 py-2 gap-2'
-          }`}
+        <button
+          className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${isCollapsed ? 'h-10 px-2' : 'h-10 px-3 py-2 gap-2'
+            }`}
         >
           <Zap className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span className="text-sm whitespace-nowrap">Upgrade 🚀</span>}
@@ -327,7 +324,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
           {openSections.trading && (
             <div className="mt-1 space-y-0.5">
               <SidebarItem
-                icon={<LayoutDashboard className="w-4 h-4" />}
+                icon={<TrendingUp className="w-4 h-4" />}
                 label="Dashboard"
                 isCollapsed={isCollapsed}
                 isActive={activeItem === 'Dashboard'}

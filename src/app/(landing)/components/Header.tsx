@@ -1,15 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
-const NAV = [
-  { id: "how-it-works", title: "How It Works" },
-  { id: "pricing", title: "Pricing" },
-  { id: "about", title: "About" },
-];
-
-export default function Header() {
+const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -20,80 +14,121 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const mainNavItems = [
+    { label: 'Docs', href: '/docs' },
+    { label: 'P&L Report', href: '/pnl-report' },
+    { label: 'TODO', href: '/todo' },
+    { label: 'Routine', href: '/routine' },
+    { label: 'Trading', href: '/trading' }
+  ];
+
   return (
-    <header className={`w-full z-30 top-0 sticky transition-shadow ${scrolled ? "shadow-sm bg-white/80 backdrop-blur" : "bg-transparent"}`}>
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-4">
-          <a href="/">
-            <span className="font-bold text-lg sm:text-xl md:text-2xl text-indigo-600">V<span className="text-black">aidehi</span></span>
-          </a>
-          <ul className="hidden md:flex items-center gap-6 ml-8">
-            <li>
-              <a href="#how-it-works" className="text-sm hover:text-indigo-600 transition">
-                How it works
-              </a>
-            </li>
-            <li>
-              <a href="#pricing" className="text-sm hover:text-indigo-600 transition">
-                Pricing
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <a href="/login" className="hidden sm:inline-block px-3 sm:px-4 py-2 rounded-md text-sm hover:bg-slate-50 transition">
-            Sign in
-          </a>
-          <a href="/signup" className="px-3 sm:px-4 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700 transition">
-            Sign up
-          </a>
-          
-          {/* Mobile menu button */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-md hover:bg-slate-100 transition"
-            aria-label="Toggle menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-slate-200 shadow-lg">
-          <div className="px-4 py-3 space-y-3">
-            <a 
-              href="#how-it-works" 
-              className="block py-2 text-sm hover:text-indigo-600 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              How it works
+    <header 
+      className={`w-full z-50 top-0 sticky transition-all duration-300 ${
+        scrolled ? "shadow-md bg-white/95 backdrop-blur-sm" : "bg-white"
+      }`}
+    >
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo - Left Side */}
+          <div className="flex-shrink-0">
+            <a href="/" className="flex items-center gap-2 group">
+              <div className="relative w-10 h-10 transition-transform group-hover:scale-110 overflow-hidden rounded-lg">
+                <img
+                  src="/assets/logo/logo.png"
+                  alt="Vaidehi Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="font-bold text-xl">
+                <span className="text-indigo-600">V</span>
+                <span className="text-slate-900">aidehi</span>
+              </span>
             </a>
-            <a 
-              href="#pricing" 
-              className="block py-2 text-sm hover:text-indigo-600 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Pricing
-            </a>
-            <a 
-              href="/login" 
-              className="block py-2 text-sm hover:text-indigo-600 transition sm:hidden"
-              onClick={() => setMobileMenuOpen(false)}
+          </div>
+
+          {/* Main Navigation - Center (Hidden on mobile) */}
+          <div className="hidden lg:flex items-center justify-center flex-1 px-8">
+            <ul className="flex items-center space-x-1">
+              {mainNavItems.map((item, index) => (
+                <li key={index}>
+                  <a
+                    href={item.href}
+                    className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Auth Buttons - Right Side */}
+          <div className="hidden lg:flex items-center gap-3">
+            <a
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all"
             >
               Sign in
             </a>
+            <a
+              href="/signup"
+              className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
+            >
+              Sign up
+            </a>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-slate-700" />
+            ) : (
+              <Menu className="w-6 h-6 text-slate-700" />
+            )}
+          </button>
         </div>
-      )}
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-slate-200 bg-white shadow-lg">
+            <div className="px-4 py-4 space-y-1">
+              {mainNavItems.map((item, index) => (
+                <a
+                  key={index}
+                  href={item.href}
+                  className="block px-4 py-3 text-base font-medium text-slate-700 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <div className="pt-4 space-y-2 border-t border-slate-200 mt-4">
+                <a
+                  href="/login"
+                  className="block px-4 py-3 text-base font-medium text-slate-700 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign in
+                </a>
+                <a
+                  href="/signup"
+                  className="block px-4 py-3 text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-all text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign up
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
     </header>
   );
-}
+};
+
+export default Header;
