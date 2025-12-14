@@ -416,7 +416,7 @@ export function getGoalCardColor(percentage: number): {
 // =====================================================
 
 // Event Types
-export type EventType = 'trading' | 'routine' | 'personal' | 'meeting' | 'break';
+export type EventType = 'trading' | 'project' | 'routine' | 'personal' | 'meeting' | 'other';
 export type RecurrencePattern = 'daily' | 'weekly' | 'monthly';
 
 // Event Type Colors Configuration
@@ -506,6 +506,15 @@ export const EVENT_TYPE_CONFIG: Record<EventType, EventTypeConfig> = {
     darkText: '#DBEAFE',
     icon: '📈',
   },
+  project: {
+    type: 'project',
+    label: 'Project',
+    lightBg: '#E0E7FF', // Indigo
+    darkBg: '#6366F1',
+    lightText: '#3730A3',
+    darkText: '#E0E7FF',
+    icon: '📁'
+  },
   routine: {
     type: 'routine',
     label: 'Routine',
@@ -533,14 +542,14 @@ export const EVENT_TYPE_CONFIG: Record<EventType, EventTypeConfig> = {
     darkText: '#FFEDD5',
     icon: '👥',
   },
-  break: {
-    type: 'break',
-    label: 'Break',
+  other: {
+    type: 'other',
+    label: 'Other',
     lightBg: '#F3F4F6', // Gray
     darkBg: '#6B7280',
     lightText: '#374151',
     darkText: '#F3F4F6',
-    icon: '☕',
+    icon: '📌',
   },
 };
 
@@ -1749,7 +1758,7 @@ export interface Trade {
   option_strike: number | null;     // NEW
   option_type: 'call' | 'put' | null; // NEW
 
-  
+
 }
 
 export interface TradeWithStrategy extends Trade {
