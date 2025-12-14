@@ -1,6 +1,6 @@
 // src/lib/supabase/schedule-helpers.ts
 // ============================================
-// SCHEDULE OPERATIONS
+// SCHEDULE OPERATIONS - FIXED
 // ============================================
 
 import { createClient } from "@/lib/supabase/client";
@@ -110,13 +110,45 @@ export async function getRecurringEvents(userId: string) {
 
 // Create a new event
 export async function createScheduleEvent(eventData: CreateScheduleEvent) {
-    const { data, error } = await supabase
-        .from('schedule_events')
-        .insert(eventData)
-        .select()
-        .single();
+    try {
+        console.log("📝 Creating event with data:", eventData);
 
-    return { data: data as ScheduleEvent | null, error };
+        // Ensure all required fields are present and properly formatted
+        const cleanData = {
+            user_id: eventData.user_id,
+            title: eventData.title,
+            event_type: eventData.event_type,
+            date: eventData.date,
+            start_time: eventData.start_time,
+            end_time: eventData.end_time,
+            description: eventData.description || null,
+            is_recurring: eventData.is_recurring || false,
+            recurrence_pattern: eventData.recurrence_pattern || null,
+            recurrence_end_date: eventData.recurrence_end_date || null,
+        };
+
+        console.log("🧹 Cleaned data:", cleanData);
+
+        const { data, error } = await supabase
+            .from('schedule_events')
+            .insert(cleanData)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("❌ Supabase error:", error);
+            return { data: null, error };
+        }
+
+        console.log("✅ Event created successfully:", data);
+        return { data: data as ScheduleEvent | null, error: null };
+    } catch (err) {
+        console.error("❌ Caught exception:", err);
+        return { 
+            data: null, 
+            error: err instanceof Error ? err : new Error('Unknown error occurred')
+        };
+    }
 }
 
 // Create multiple events (for recurring events)
@@ -138,17 +170,33 @@ export async function updateScheduleEvent(
     eventId: string,
     updates: UpdateScheduleEvent
 ) {
-    const { data, error } = await supabase
-        .from('schedule_events')
-        .update({
-            ...updates,
-            updated_at: new Date().toISOString()
-        })
-        .eq('id', eventId)
-        .select()
-        .single();
+    try {
+        console.log("📝 Updating event:", eventId, "with:", updates);
 
-    return { data: data as ScheduleEvent | null, error };
+        const { data, error } = await supabase
+            .from('schedule_events')
+            .update({
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', eventId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("❌ Update error:", error);
+            return { data: null, error };
+        }
+
+        console.log("✅ Event updated successfully:", data);
+        return { data: data as ScheduleEvent | null, error: null };
+    } catch (err) {
+        console.error("❌ Caught exception:", err);
+        return { 
+            data: null, 
+            error: err instanceof Error ? err : new Error('Unknown error occurred')
+        };
+    }
 }
 
 // Update event time
@@ -214,43 +262,55 @@ export async function checkEventConflict(
     endTime: string,
     excludeEventId?: string
 ) {
-    let query = supabase
-        .from('schedule_events')
-        .select('id, title, start_time, end_time')
-        .eq('user_id', userId)
-        .eq('date', date);
+    try {
+        let query = supabase
+            .from('schedule_events')
+            .select('id, title, start_time, end_time')
+            .eq('user_id', userId)
+            .eq('date', date);
 
-    // Exclude current event if editing
-    if (excludeEventId) {
-        query = query.neq('id', excludeEventId);
+        // Exclude current event if editing
+        if (excludeEventId) {
+            query = query.neq('id', excludeEventId);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error("Error checking conflicts:", error);
+            return { hasConflict: false, conflictingEvent: null, error };
+        }
+
+        // Check for time overlaps
+        const hasConflict = data?.some(event => {
+            return (
+                (startTime >= event.start_time && startTime < event.end_time) ||
+                (endTime > event.start_time && endTime <= event.end_time) ||
+                (startTime <= event.start_time && endTime >= event.end_time)
+            );
+        });
+
+        const conflictingEvent = hasConflict
+            ? data?.find(event =>
+                (startTime >= event.start_time && startTime < event.end_time) ||
+                (endTime > event.start_time && endTime <= event.end_time) ||
+                (startTime <= event.start_time && endTime >= event.end_time)
+            )
+            : null;
+
+        return {
+            hasConflict: hasConflict || false,
+            conflictingEvent,
+            error: null
+        };
+    } catch (err) {
+        console.error("Exception in checkEventConflict:", err);
+        return {
+            hasConflict: false,
+            conflictingEvent: null,
+            error: err instanceof Error ? err : new Error('Unknown error')
+        };
     }
-
-    const { data, error } = await query;
-
-    if (error) return { hasConflict: false, conflictingEvent: null, error };
-
-    // Check for time overlaps
-    const hasConflict = data?.some(event => {
-        return (
-            (startTime >= event.start_time && startTime < event.end_time) ||
-            (endTime > event.start_time && endTime <= event.end_time) ||
-            (startTime <= event.start_time && endTime >= event.end_time)
-        );
-    });
-
-    const conflictingEvent = hasConflict
-        ? data?.find(event =>
-            (startTime >= event.start_time && startTime < event.end_time) ||
-            (endTime > event.start_time && endTime <= event.end_time) ||
-            (startTime <= event.start_time && endTime >= event.end_time)
-        )
-        : null;
-
-    return {
-        hasConflict: hasConflict || false,
-        conflictingEvent,
-        error: null
-    };
 }
 
 // Get event count for date (for calendar dots)
