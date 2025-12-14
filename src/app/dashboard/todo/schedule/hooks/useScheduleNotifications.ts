@@ -66,7 +66,7 @@ export function useScheduleNotifications(events: ScheduleEvent[]) {
               const notifKey = `${event.id}-${todayDate}`;
 
               if (notifiedEvents.current.has(notifKey)) {
-                console.log(`⏭️ Already notified: ${event.title}`);
+                console.log(`⭕ Already notified: ${event.title}`);
                 continue;
               }
 
@@ -78,13 +78,17 @@ export function useScheduleNotifications(events: ScheduleEvent[]) {
 
               // 1. In-app notification
               try {
+                // Calculate expires_at (2 hours from now)
+                const expiresAt = new Date();
+                expiresAt.setHours(expiresAt.getHours() + 2);
+
                 const { data, error } = await supabase
                   .from('notifications')
                   .insert({
                     user_id: user.id,
                     message: message,
                     read: false,
-                    expires_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+                    expires_at: expiresAt.toISOString()
                   })
                   .select()
                   .single();

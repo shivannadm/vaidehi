@@ -1,13 +1,13 @@
 // src/app/dashboard/todo/schedule/components/EventCard.tsx
-// ✅ MOBILE RESPONSIVE - Always show action buttons on mobile
+// ✅ MOBILE RESPONSIVE - Always show action buttons on mobile - FIXED
 "use client";
 
 import { Clock, Edit2, Trash2, ArrowRight } from "lucide-react";
-import type { ScheduleEvent } from "@/types/database";
+import type { ScheduleEvent, EventType } from "@/types/database";
 import {
   formatEventTimeRange,
   formatEventDuration,
-  getEventTypeConfig,
+  EVENT_TYPE_CONFIG,
   isEventToday,
 } from "@/types/database";
 
@@ -26,6 +26,23 @@ export default function EventCard({
   onMoveToTask,
   isDark,
 }: EventCardProps) {
+  // Helper function to safely get event type config
+  const getEventTypeConfig = (eventType: EventType) => {
+    const config = EVENT_TYPE_CONFIG[eventType];
+    // Fallback config if undefined
+    if (!config) {
+      return {
+        label: 'Other',
+        icon: '📌',
+        lightBg: '#F3F4F6',
+        darkBg: '#6B7280',
+        lightText: '#374151',
+        darkText: '#F3F4F6',
+      };
+    }
+    return config;
+  };
+
   const typeConfig = getEventTypeConfig(event.event_type);
   const canMoveToTask = isEventToday(event.date) && onMoveToTask;
   const duration = formatEventDuration(event.start_time, event.end_time);

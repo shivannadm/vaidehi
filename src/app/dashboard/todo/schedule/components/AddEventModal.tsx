@@ -1,5 +1,5 @@
 // src/app/dashboard/todo/schedule/components/AddEventModal.tsx
-// ✅ MOBILE RESPONSIVE VERSION
+// ✅ MOBILE RESPONSIVE VERSION - FIXED
 "use client";
 
 import { useState, useEffect } from "react";
@@ -60,7 +60,7 @@ export default function AddEventModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.end_time <= formData.start_time) {
       alert("End time must be after start time");
       return;
@@ -95,6 +95,9 @@ export default function AddEventModal({
 
   if (!isOpen) return null;
 
+  // Available event types
+  const eventTypes: EventType[] = ['trading', 'project', 'routine', 'personal', 'meeting', 'other'];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
@@ -105,34 +108,30 @@ export default function AddEventModal({
 
       {/* Modal */}
       <div
-        className={`relative w-full max-w-lg rounded-xl shadow-2xl border max-h-[95vh] overflow-y-auto scrollbar-custom ${
-          isDark
-            ? "bg-slate-800 border-slate-700"
-            : "bg-white border-slate-200"
-        }`}
+        className={`relative w-full max-w-lg rounded-xl shadow-2xl border max-h-[95vh] overflow-y-auto scrollbar-custom ${isDark
+          ? "bg-slate-800 border-slate-700"
+          : "bg-white border-slate-200"
+          }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-3 sm:p-5 border-b sticky top-0 z-10 ${
-            isDark 
-              ? "border-slate-700 bg-slate-800" 
-              : "border-slate-200 bg-white"
-          }`}
+          className={`flex items-center justify-between p-3 sm:p-5 border-b sticky top-0 z-10 ${isDark
+            ? "border-slate-700 bg-slate-800"
+            : "border-slate-200 bg-white"
+            }`}
         >
           <h2
-            className={`text-base sm:text-lg font-bold ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-base sm:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             {editingEvent ? "Edit Event" : "Add New Event"}
           </h2>
           <button
             onClick={handleClose}
-            className={`p-1 sm:p-1 rounded-lg transition ${
-              isDark
-                ? "hover:bg-slate-700 text-slate-400"
-                : "hover:bg-slate-100 text-slate-600"
-            }`}
+            className={`p-1 sm:p-1 rounded-lg transition ${isDark
+              ? "hover:bg-slate-700 text-slate-400"
+              : "hover:bg-slate-100 text-slate-600"
+              }`}
           >
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
@@ -143,9 +142,8 @@ export default function AddEventModal({
           {/* Title */}
           <div>
             <label
-              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               <Type className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
               Event Title *
@@ -158,20 +156,18 @@ export default function AddEventModal({
               }
               required
               placeholder="Enter event title"
-              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                isDark
-                  ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                  : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
             />
           </div>
 
           {/* Date */}
           <div>
             <label
-              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
               Date *
@@ -184,11 +180,10 @@ export default function AddEventModal({
               }
               min={editingEvent ? undefined : today}
               required
-              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                isDark
-                  ? "bg-slate-700 border-slate-600 text-white"
-                  : "bg-white border-slate-300 text-slate-900"
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                ? "bg-slate-700 border-slate-600 text-white"
+                : "bg-white border-slate-300 text-slate-900"
+                } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
             />
           </div>
 
@@ -196,9 +191,8 @@ export default function AddEventModal({
           <div className="grid grid-cols-2 gap-2 sm:gap-4">
             <div>
               <label
-                className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                  isDark ? "text-white" : "text-slate-900"
-                }`}
+                className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                  }`}
               >
                 <Clock className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
                 Start Time *
@@ -210,18 +204,16 @@ export default function AddEventModal({
                   setFormData({ ...formData, start_time: e.target.value + ":00" })
                 }
                 required
-                className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                  isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
-                } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-slate-300 text-slate-900"
+                  } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             </div>
             <div>
               <label
-                className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                  isDark ? "text-white" : "text-slate-900"
-                }`}
+                className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                  }`}
               >
                 End Time *
               </label>
@@ -232,11 +224,10 @@ export default function AddEventModal({
                   setFormData({ ...formData, end_time: e.target.value + ":00" })
                 }
                 required
-                className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                  isDark
-                    ? "bg-slate-700 border-slate-600 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
-                } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                  ? "bg-slate-700 border-slate-600 text-white"
+                  : "bg-white border-slate-300 text-slate-900"
+                  } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             </div>
           </div>
@@ -244,37 +235,38 @@ export default function AddEventModal({
           {/* Event Type */}
           <div>
             <label
-              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               Event Type *
             </label>
             <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-              {(Object.keys(EVENT_TYPE_CONFIG) as EventType[]).map((type) => {
+              {eventTypes.map((type) => {
                 const config = EVENT_TYPE_CONFIG[type];
+                // Safety check - if config is undefined, skip this type
+                if (!config) return null;
+
                 const isSelected = formData.event_type === type;
                 return (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setFormData({ ...formData, event_type: type })}
-                    className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition border-2 ${
-                      isSelected
-                        ? isDark
-                          ? "border-indigo-500 text-white"
-                          : "border-indigo-500 text-indigo-600"
-                        : isDark
+                    className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs font-medium transition border-2 ${isSelected
+                      ? isDark
+                        ? "border-indigo-500 text-white"
+                        : "border-indigo-500 text-indigo-600"
+                      : isDark
                         ? "border-slate-700 text-slate-400 hover:border-slate-600"
                         : "border-slate-200 text-slate-600 hover:border-slate-300"
-                    }`}
+                      }`}
                     style={
                       isSelected
                         ? {
-                            backgroundColor: isDark
-                              ? config.darkBg + "20"
-                              : config.lightBg,
-                          }
+                          backgroundColor: isDark
+                            ? config.darkBg + "20"
+                            : config.lightBg,
+                        }
                         : {}
                     }
                   >
@@ -289,9 +281,8 @@ export default function AddEventModal({
           {/* Description */}
           <div>
             <label
-              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`block text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               <AlignLeft className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1.5 sm:mr-2" />
               Description (Optional)
@@ -303,11 +294,10 @@ export default function AddEventModal({
               }
               placeholder="Add details about this event"
               rows={3}
-              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm resize-none ${
-                isDark
-                  ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                  : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm resize-none ${isDark
+                ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
             />
           </div>
 
@@ -323,9 +313,8 @@ export default function AddEventModal({
                 className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
               />
               <span
-                className={`text-xs sm:text-sm font-semibold ${
-                  isDark ? "text-white" : "text-slate-900"
-                }`}
+                className={`text-xs sm:text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"
+                  }`}
               >
                 <Repeat className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1" />
                 Recurring Event
@@ -342,11 +331,10 @@ export default function AddEventModal({
                       recurrence_pattern: e.target.value as RecurrencePattern,
                     })
                   }
-                  className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDark
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-slate-300 text-slate-900"
-                  } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                  className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-slate-300 text-slate-900"
+                    } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 >
                   <option value="">Select pattern</option>
                   <option value="daily">Daily</option>
@@ -365,11 +353,10 @@ export default function AddEventModal({
                   }
                   min={formData.date}
                   placeholder="End date (optional)"
-                  className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${
-                    isDark
-                      ? "bg-slate-700 border-slate-600 text-white"
-                      : "bg-white border-slate-300 text-slate-900"
-                  } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                  className={`w-full px-3 py-2 sm:px-4 sm:py-2 rounded-lg border text-xs sm:text-sm ${isDark
+                    ? "bg-slate-700 border-slate-600 text-white"
+                    : "bg-white border-slate-300 text-slate-900"
+                    } focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
               </div>
             )}
@@ -380,28 +367,26 @@ export default function AddEventModal({
             <button
               type="button"
               onClick={handleClose}
-              className={`flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition ${
-                isDark
-                  ? "bg-slate-700 hover:bg-slate-600 text-white"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-              }`}
+              className={`flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition ${isDark
+                ? "bg-slate-700 hover:bg-slate-600 text-white"
+                : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+                }`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className={`flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition ${
-                isDark
-                  ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-                  : "bg-indigo-500 hover:bg-indigo-600 text-white"
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`flex-1 px-3 py-2 sm:px-4 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm transition ${isDark
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white"
+                : "bg-indigo-500 hover:bg-indigo-600 text-white"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {submitting
                 ? "Saving..."
                 : editingEvent
-                ? "Update Event"
-                : "Add Event"}
+                  ? "Update Event"
+                  : "Add Event"}
             </button>
           </div>
         </form>

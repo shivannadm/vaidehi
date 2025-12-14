@@ -47,26 +47,35 @@ export function useEventActions() {
         return { success: false, data: null };
       }
 
-      const { data, error: createError } = await createScheduleEvent({
+      // Prepare event data with proper null handling
+      const eventData = {
         user_id: user.id,
-        title: formData.title,
+        title: formData.title.trim(),
         event_type: formData.event_type,
         date: formData.date,
         start_time: formData.start_time,
         end_time: formData.end_time,
-        description: formData.description || null,
-        is_recurring: formData.is_recurring,
-        recurrence_pattern: formData.recurrence_pattern || null,
-        recurrence_end_date: formData.recurrence_end_date || null,
-      });
+        description: formData.description?.trim() || null,
+        is_recurring: formData.is_recurring || false,
+        recurrence_pattern: formData.is_recurring ? (formData.recurrence_pattern || null) : null,
+        recurrence_end_date: formData.is_recurring ? (formData.recurrence_end_date || null) : null,
+      };
+
+      console.log("Creating event with data:", eventData);
+
+      const { data, error: createError } = await createScheduleEvent(eventData);
 
       if (createError) {
-        setError(createError.message);
+        console.error("Create error:", createError);
+        const errorMsg = createError.message || 'Failed to create event';
+        setError(errorMsg);
+        alert(`Error creating event: ${errorMsg}`);
         return { success: false, data: null };
       }
 
       return { success: true, data };
     } catch (err) {
+      console.error("Caught error:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create event";
       setError(errorMessage);
@@ -110,25 +119,34 @@ export function useEventActions() {
         }
       }
 
-      const { data, error: updateError } = await updateScheduleEvent(eventId, {
-        title: formData.title,
-        event_type: formData.event_type,
-        date: formData.date,
-        start_time: formData.start_time,
-        end_time: formData.end_time,
-        description: formData.description,
-        is_recurring: formData.is_recurring,
-        recurrence_pattern: formData.recurrence_pattern,
-        recurrence_end_date: formData.recurrence_end_date,
-      });
+      // Prepare update data with proper null handling
+      const updateData: any = {};
+      
+      if (formData.title !== undefined) updateData.title = formData.title.trim();
+      if (formData.event_type !== undefined) updateData.event_type = formData.event_type;
+      if (formData.date !== undefined) updateData.date = formData.date;
+      if (formData.start_time !== undefined) updateData.start_time = formData.start_time;
+      if (formData.end_time !== undefined) updateData.end_time = formData.end_time;
+      if (formData.description !== undefined) updateData.description = formData.description?.trim() || null;
+      if (formData.is_recurring !== undefined) {
+        updateData.is_recurring = formData.is_recurring;
+        updateData.recurrence_pattern = formData.is_recurring ? (formData.recurrence_pattern || null) : null;
+        updateData.recurrence_end_date = formData.is_recurring ? (formData.recurrence_end_date || null) : null;
+      }
+
+      console.log("Updating event with data:", updateData);
+
+      const { data, error: updateError } = await updateScheduleEvent(eventId, updateData);
 
       if (updateError) {
+        console.error("Update error:", updateError);
         setError(updateError.message);
         return { success: false, data: null };
       }
 
       return { success: true, data };
     } catch (err) {
+      console.error("Caught error:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to update event";
       setError(errorMessage);

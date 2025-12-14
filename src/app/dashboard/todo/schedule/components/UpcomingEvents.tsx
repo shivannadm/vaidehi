@@ -1,12 +1,12 @@
 // src/app/dashboard/todo/schedule/components/UpcomingEvents.tsx
-// ✅ MOBILE OPTIMIZED
+// ✅ MOBILE OPTIMIZED - FIXED
 "use client";
 
 import { Clock, ChevronRight } from "lucide-react";
-import type { ScheduleEvent } from "@/types/database";
+import type { ScheduleEvent, EventType } from "@/types/database";
 import {
   formatEventTimeRange,
-  getEventTypeConfig,
+  EVENT_TYPE_CONFIG,
 } from "@/types/database";
 
 interface UpcomingEventsProps {
@@ -48,6 +48,23 @@ export default function UpcomingEvents({
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
     return `${dayNames[date.getDay()]}, ${monthNames[date.getMonth()]} ${date.getDate()}`;
+  };
+
+  // Helper function to safely get event type config
+  const getEventTypeConfig = (eventType: EventType) => {
+    const config = EVENT_TYPE_CONFIG[eventType];
+    // Fallback config if undefined
+    if (!config) {
+      return {
+        label: 'Other',
+        icon: '📌',
+        lightBg: '#F3F4F6',
+        darkBg: '#6B7280',
+        lightText: '#374151',
+        darkText: '#F3F4F6',
+      };
+    }
+    return config;
   };
 
   return (
