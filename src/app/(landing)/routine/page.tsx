@@ -22,7 +22,7 @@ export default function RoutinePage() {
     {
       icon: <Heart className="w-10 h-10" />,
       title: "Health Tracking",
-      description: "Monitor sleep, exercise, and wellness metrics that impact your trading performance.",
+      description: "Monitor sleep, exercise, and wellness metrics that impact your performance.",
       color: "from-pink-500 to-rose-500"
     },
     {
