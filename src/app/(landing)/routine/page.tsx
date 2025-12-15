@@ -10,13 +10,13 @@ export default function RoutinePage() {
     {
       icon: <Coffee className="w-10 h-10" />,
       title: "Morning Routine",
-      description: "Start your day right with a structured pre-market routine that sets you up for success.",
+      description: "Start your day right with a fresh routine/habit that sets you up for success.",
       color: "from-amber-500 to-orange-500"
     },
     {
       icon: <Moon className="w-10 h-10" />,
       title: "Evening Routine",
-      description: "Wind down with post-market analysis and reflection to continuously improve.",
+      description: "Wind down with days analysis and reflection to continuously improve.",
       color: "from-indigo-500 to-purple-500"
     },
     {
