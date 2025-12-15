@@ -1,6 +1,7 @@
 // ====================
 // FILE: src/app/(landing)/trading/page.tsx
 // ====================
+"use client";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { TrendingUp, BookOpen, TestTube, PieChart, Shield, Layers, BarChart3, Target } from "lucide-react";
@@ -190,8 +191,27 @@ export default function TradingPage() {
                       <div className="text-2xl font-bold text-blue-600">68.5%</div>
                     </div>
                   </div>
-                  <div className="h-40 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg flex items-center justify-center">
-                    <span className="text-sm text-slate-500">Equity Curve Chart</span>
+                  <div className="h-40 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-4 relative">
+                    <svg className="w-full h-full" viewBox="0 0 400 140" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 0.3 }} />
+                          <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0 }} />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d="M 0 120 L 20 110 L 40 100 L 60 105 L 80 90 L 100 85 L 120 80 L 140 70 L 160 75 L 180 60 L 200 55 L 220 50 L 240 45 L 260 40 L 280 35 L 300 30 L 320 25 L 340 20 L 360 15 L 380 10 L 400 5 L 400 140 L 0 140 Z"
+                        fill="url(#curveGradient)"
+                      />
+                      <path
+                        d="M 0 120 L 20 110 L 40 100 L 60 105 L 80 90 L 100 85 L 120 80 L 140 70 L 160 75 L 180 60 L 200 55 L 220 50 L 240 45 L 260 40 L 280 35 L 300 30 L 320 25 L 340 20 L 360 15 L 380 10 L 400 5"
+                        fill="none"
+                        stroke="#6366f1"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                    <div className="absolute bottom-2 left-2 text-xs text-slate-500">Jan</div>
+                    <div className="absolute bottom-2 right-2 text-xs text-slate-500">Dec</div>
                   </div>
                 </div>
               </div>
