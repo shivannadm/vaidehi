@@ -16,7 +16,7 @@ export default function TradingPage() {
     {
       icon: <BookOpen className="w-10 h-10" />,
       title: "Trading Journal",
-      description: "Log every trade with detailed notes, screenshots, and emotional state tracking.",
+      description: "Log every trade with detailed notes, and emotional state tracking.",
       color: "bg-gradient-to-br from-blue-400 to-indigo-500"
     },
     {
@@ -57,12 +57,12 @@ export default function TradingPage() {
     }
   ];
 
-  const stats = [
-    { label: "Active Traders", value: "1,200+" },
-    { label: "Trades Logged", value: "50K+" },
-    { label: "Avg Win Rate", value: "65%" },
-    { label: "Success Rate", value: "89%" }
-  ];
+  // const stats = [
+  //   { label: "Active Traders", value: "1,200+" },
+  //   { label: "Trades Logged", value: "50K+" },
+  //   { label: "Avg Win Rate", value: "65%" },
+  //   { label: "Success Rate", value: "89%" }
+  // ];
 
   const benefits = [
     "Track unlimited trades with detailed entry/exit data",
@@ -70,7 +70,6 @@ export default function TradingPage() {
     "Identify patterns in your winning and losing trades",
     "Test strategies with historical backtesting",
     "Monitor risk metrics and drawdowns",
-    "Export data for tax reporting and analysis"
   ];
 
   return (
@@ -111,7 +110,7 @@ export default function TradingPage() {
         </div>
 
         {/* Stats Section */}
-        <div className="bg-slate-50 py-12 border-b border-slate-200">
+        {/* <div className="bg-slate-50 py-12 border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat, index) => (
@@ -122,7 +121,7 @@ export default function TradingPage() {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Features Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -184,7 +183,7 @@ export default function TradingPage() {
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                       <div className="text-xs text-green-700 mb-1">Total P&L</div>
-                      <div className="text-2xl font-bold text-green-600">+$12,450</div>
+                      <div className="text-2xl font-bold text-green-600">+₹12,450</div>
                     </div>
                     <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                       <div className="text-xs text-blue-700 mb-1">Win Rate</div>
@@ -201,7 +200,7 @@ export default function TradingPage() {
         </div>
 
         {/* Testimonial Section */}
-        <div className="py-16">
+        {/* <div className="py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold text-slate-900 mb-12">
               Trusted by Traders Worldwide
@@ -248,7 +247,7 @@ export default function TradingPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 py-16">
@@ -266,7 +265,7 @@ export default function TradingPage() {
               Get Started Free
             </a>
             <p className="text-sm text-indigo-200 mt-4">
-              No credit card required • 14-day free trial • Cancel anytime
+              No credit card required • 7-day free trial • Cancel anytime
             </p>
           </div>
         </div>
