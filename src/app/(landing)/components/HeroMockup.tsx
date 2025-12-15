@@ -70,23 +70,23 @@ export default function HeroMockup() {
                                 <div className="bg-white rounded-lg p-3 border border-purple-200">
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-xs text-slate-600 font-medium">Entry #127</span>
-                                        <span className="text-xs text-green-600 font-bold">+$450</span>
+                                        <span className="text-xs text-green-600 font-bold">+₹12150</span>
                                     </div>
-                                    <div className="text-xs text-slate-500">AAPL • Long • 2:30 PM</div>
+                                    <div className="text-xs text-slate-500">TATA • Long • 2:30 PM</div>
                                 </div>
                                 <div className="bg-white rounded-lg p-3 border border-purple-200">
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-xs text-slate-600 font-medium">Entry #126</span>
-                                        <span className="text-xs text-blue-600 font-bold">+$280</span>
+                                        <span className="text-xs text-blue-600 font-bold">+₹2180</span>
                                     </div>
-                                    <div className="text-xs text-slate-500">TSLA • Short • 11:45 AM</div>
+                                    <div className="text-xs text-slate-500">BEL • Short • 11:45 AM</div>
                                 </div>
                                 <div className="bg-white rounded-lg p-3 border border-purple-200">
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-xs text-slate-600 font-medium">Entry #125</span>
-                                        <span className="text-xs text-red-600 font-bold">-$120</span>
+                                        <span className="text-xs text-red-600 font-bold">-₹1970</span>
                                     </div>
-                                    <div className="text-xs text-slate-500">NVDA • Long • 9:20 AM</div>
+                                    <div className="text-xs text-slate-500">WIPRO • Long • 9:20 AM</div>
                                 </div>
                             </div>
                         </div>
@@ -156,7 +156,7 @@ export default function HeroMockup() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="font-bold text-lg">Today's Performance</h3>
-                                    <p className="text-sm text-indigo-100">+2.4% · $1,240 profit</p>
+                                    <p className="text-sm text-indigo-100">+2.4% · ₹9,240 profit</p>
                                 </div>
                                 <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-semibold">
                                     5 trades
@@ -196,7 +196,7 @@ export default function HeroMockup() {
                             </div>
                             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-200">
                                 <div className="text-xs text-blue-700 font-medium">Avg Win</div>
-                                <div className="text-xl font-bold text-blue-800 mt-1">$248</div>
+                                <div className="text-xl font-bold text-blue-800 mt-1">₹5048</div>
                             </div>
                             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200">
                                 <div className="text-xs text-purple-700 font-medium">Streak</div>
@@ -220,7 +220,7 @@ export default function HeroMockup() {
                         </div>
                         <div>
                             <div className="text-xs text-slate-500">Latest Trade</div>
-                            <div className="font-semibold text-green-600">+$320</div>
+                            <div className="font-semibold text-green-600">+₹920</div>
                         </div>
                     </div>
                 </div>
