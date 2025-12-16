@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/page.tsx
-// ✅ MOBILE RESPONSIVE VERSION
+// ✅ ADDED: Dispatch header update event on mount
 // ============================================
 
 "use client";
@@ -36,7 +36,15 @@ export default function ProjectsPage() {
     toggleFavorite,
   } = useProjects(userId);
 
-  // Initialize - Load view mode from localStorage
+  // ✅ FIX: Update header to show "Projects"
+  useEffect(() => {
+    // Dispatch event to update header section
+    window.dispatchEvent(new CustomEvent('updateHeaderSection', {
+      detail: { section: 'Projects' }
+    }));
+  }, []); // Run once on mount
+
+  // Initialize
   useEffect(() => {
     setMounted(true);
     
@@ -153,7 +161,7 @@ export default function ProjectsPage() {
       <div className="h-full overflow-y-auto p-3 md:p-6">
         <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
           
-          {/* Header - Mobile Optimized */}
+          {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
               <h1 className={`text-xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -173,7 +181,7 @@ export default function ProjectsPage() {
             </button>
           </div>
 
-          {/* Filters & Actions Bar - Mobile Optimized */}
+          {/* Filters & Actions Bar */}
           <div className={`rounded-xl border p-3 md:p-4 ${
             isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
           }`}>
@@ -370,7 +378,7 @@ export default function ProjectsPage() {
             </div>
           )}
 
-          {/* Stats Footer - Mobile Optimized */}
+          {/* Stats Footer */}
           {projects.length > 0 && (
             <div className={`rounded-xl border p-3 md:p-4 ${
               isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'

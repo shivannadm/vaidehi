@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/[id]/page.tsx
-// ✅ UPDATED: Shows completion date when completed, overdue status when applicable
+// ✅ FIX: Keep "Projects" in header when viewing project details
 // ============================================
 
 "use client";
@@ -20,7 +20,6 @@ import MilestoneSection from "../components/MilestoneSection";
 import { toggleProjectFavorite, deleteProject, updateProject } from "@/lib/supabase/project-helpers";
 import { calculateDaysRemaining, isProjectOverdue, PROJECT_STATUS_CONFIG, PROJECT_PRIORITY_CONFIG } from "@/types/database";
 
-// Helper function to format date display
 const formatDateDisplay = (date: string) => {
   const d = new Date(date);
   return d.toLocaleDateString('en-US', { 
@@ -28,6 +27,66 @@ const formatDateDisplay = (date: string) => {
     day: 'numeric',
     year: 'numeric'
   });
+};
+
+const getDueInDisplay = (project: any) => {
+  if (!project.target_end_date) {
+    return null;
+  }
+
+  const isCompleted = project.status === 'completed';
+  const targetDate = new Date(project.target_end_date);
+  targetDate.setHours(23, 59, 59, 999);
+
+  if (isCompleted) {
+    const completionDate = project.actual_end_date 
+      ? new Date(project.actual_end_date) 
+      : new Date(project.updated_at);
+    
+    completionDate.setHours(0, 0, 0, 0);
+    
+    if (completionDate <= targetDate) {
+      return {
+        label: 'Completed on',
+        text: formatDateDisplay(project.actual_end_date || project.updated_at),
+        color: 'text-green-500',
+        bgColor: 'bg-green-900/20 border-green-700',
+        icon: <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" />
+      };
+    } else {
+      const daysLate = Math.ceil((completionDate.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24));
+      return {
+        label: 'Completed (Late)',
+        text: `${daysLate}d after deadline`,
+        color: 'text-orange-500',
+        bgColor: 'bg-orange-900/20 border-orange-700',
+        icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+      };
+    }
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const daysRemaining = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining < 0) {
+    return {
+      label: 'Overdue by',
+      text: `${Math.abs(daysRemaining)}d`,
+      color: 'text-red-500',
+      bgColor: 'bg-red-900/20 border-red-600',
+      icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+    };
+  }
+
+  return {
+    label: 'Due in',
+    text: daysRemaining === 0 ? 'Today' : `${daysRemaining}d`,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-900/20 border-blue-600',
+    icon: <Calendar className="w-5 h-5 md:w-6 md:h-6" />
+  };
 };
 
 export default function ProjectDetailPage() {
@@ -39,7 +98,14 @@ export default function ProjectDetailPage() {
 
   const { project, loading, error, refetch } = useProjectDetail(projectId as string);
 
-  // Theme detection
+  // ✅ FIX: Update header to show "Projects" instead of project ID
+  useEffect(() => {
+    // Dispatch event to update header section to "Projects"
+    window.dispatchEvent(new CustomEvent('updateHeaderSection', {
+      detail: { section: 'Projects' }
+    }));
+  }, []); // Run once on mount
+
   useEffect(() => {
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -98,7 +164,6 @@ export default function ProjectDetailPage() {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
@@ -114,7 +179,6 @@ export default function ProjectDetailPage() {
     );
   }
 
-  // Error state
   if (!project || error) {
     return (
       <div className={`min-h-screen flex items-center justify-center p-4 ${
@@ -138,7 +202,6 @@ export default function ProjectDetailPage() {
     );
   }
 
-  // Calculate stats
   const progress = project.total_tasks > 0
     ? Math.round((project.completed_tasks / project.total_tasks) * 100)
     : 0;
@@ -146,93 +209,47 @@ export default function ProjectDetailPage() {
   const statusConfig = PROJECT_STATUS_CONFIG[project.status as keyof typeof PROJECT_STATUS_CONFIG];
   const priorityConfig = PROJECT_PRIORITY_CONFIG[project.priority as keyof typeof PROJECT_PRIORITY_CONFIG];
   
-  // Enhanced Due Date Logic
-  const getDueInDisplay = () => {
-    if (!project.target_end_date) {
-      return null;
-    }
-
-    const daysRemaining = calculateDaysRemaining(project.target_end_date);
-    const overdue = isProjectOverdue(project.target_end_date);
-    const isCompleted = project.status === 'completed';
-
-    if (isCompleted) {
-      // Check if completed within due date
-      if (!overdue || daysRemaining! >= 0) {
-        const completionDate = project.actual_end_date || project.updated_at;
-        return {
-          label: 'Completed on',
-          text: formatDateDisplay(completionDate),
-          color: 'text-green-500',
-          bgColor: isDark ? 'bg-green-900/20 border-green-700' : 'bg-green-50 border-green-300',
-          icon: <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" />
-        };
-      } else {
-        // Completed but was overdue
-        const completionDate = project.actual_end_date || project.updated_at;
-        return {
-          label: 'Completed (Overdue)',
-          text: formatDateDisplay(completionDate),
-          color: 'text-orange-500',
-          bgColor: isDark ? 'bg-orange-900/20 border-orange-700' : 'bg-orange-50 border-orange-300',
-          icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
-        };
-      }
-    }
-
-    // Not completed
-    if (overdue) {
-      return {
-        label: 'Overdue by',
-        text: `${Math.abs(daysRemaining!)}d`,
-        color: 'text-red-500',
-        bgColor: isDark ? 'bg-red-900/20 border-red-600' : 'bg-red-50 border-red-400',
-        icon: <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
-      };
-    }
-
-    return {
-      label: 'Due in',
-      text: daysRemaining === 0 ? 'Today' : `${daysRemaining}d`,
-      color: isDark ? 'text-white' : 'text-slate-900',
-      bgColor: isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200',
-      icon: <Calendar className="w-5 h-5 md:w-6 md:h-6" />
-    };
-  };
-
-  const dueInDisplay = getDueInDisplay();
+  const dueInDisplay = getDueInDisplay(project);
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
       <div className="max-w-7xl mx-auto p-3 md:p-6 space-y-4 md:space-y-8">
 
-        {/* Header - Mobile Optimized */}
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center gap-2 text-sm">
+          <button
+            onClick={() => router.push("/dashboard/todo/projects")}
+            className={`hover:underline ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+          >
+            Projects
+          </button>
+          <span className={isDark ? 'text-slate-600' : 'text-slate-400'}>›</span>
+          <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>Project Details</span>
+        </div>
+
+        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
           <div className="flex items-start gap-2 md:gap-4 flex-1 min-w-0 w-full">
-            {/* Back Button */}
             <button 
-              onClick={() => router.back()} 
+              onClick={() => router.push("/dashboard/todo/projects")} 
               className={`p-2 md:p-3 rounded-xl transition flex-shrink-0 ${
                 isDark 
                   ? 'hover:bg-slate-800 text-white' 
                   : 'hover:bg-slate-200 text-slate-900'
               }`}
-              title="Go back"
+              title="Back to Projects"
             >
               <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
             </button>
 
-            {/* Title Section */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 md:gap-3 mb-1">
-                {/* Project Title */}
                 <h1 className={`text-xl md:text-3xl font-bold truncate ${
                   isDark ? 'text-white' : 'text-slate-900'
                 }`}>
                   {project.title}
                 </h1>
                 
-                {/* Favorite Star */}
                 <button 
                   onClick={handleToggleFavorite} 
                   className={`p-1.5 md:p-2 rounded-lg transition flex-shrink-0 ${
@@ -248,14 +265,12 @@ export default function ProjectDetailPage() {
                 </button>
               </div>
               
-              {/* Description */}
               <p className={`text-xs md:text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 {project.description || "No description"}
               </p>
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-2 md:gap-3 flex-shrink-0 w-full sm:w-auto">
             <button 
               onClick={() => setIsEditorOpen(true)} 
@@ -278,9 +293,8 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Stats Cards - Mobile Optimized */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-          {/* Progress Card */}
           <div className="col-span-2 lg:col-span-1">
             <ProgressBar 
               progress={progress} 
@@ -290,7 +304,6 @@ export default function ProjectDetailPage() {
             />
           </div>
           
-          {/* Status Card */}
           <div className={`rounded-xl p-4 md:p-6 border ${
             isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
           }`}>
@@ -307,7 +320,6 @@ export default function ProjectDetailPage() {
             </p>
           </div>
           
-          {/* Priority Card */}
           <div className={`rounded-xl p-4 md:p-6 border ${
             isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
           }`}>
@@ -324,9 +336,10 @@ export default function ProjectDetailPage() {
             </p>
           </div>
           
-          {/* Due Date Card - Enhanced */}
           {dueInDisplay && (
-            <div className={`rounded-xl p-4 md:p-6 border-2 ${dueInDisplay.bgColor}`}>
+            <div className={`rounded-xl p-4 md:p-6 border-2 ${
+              isDark ? dueInDisplay.bgColor : dueInDisplay.bgColor
+            }`}>
               <p className={`text-xs md:text-sm font-medium ${
                 isDark ? 'text-slate-400' : 'text-slate-600'
               }`}>
@@ -340,11 +353,10 @@ export default function ProjectDetailPage() {
           )}
         </div>
 
-        {/* Tabs Section - Mobile Optimized */}
+        {/* Tabs Section */}
         <div className={`rounded-2xl border overflow-hidden ${
           isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
         }`}>
-          {/* Tab Navigation - Scrollable on Mobile */}
           <div className={`flex overflow-x-auto border-b scrollbar-hide ${
             isDark ? 'border-slate-700' : 'border-slate-200'
           }`}>
@@ -371,7 +383,6 @@ export default function ProjectDetailPage() {
             ))}
           </div>
 
-          {/* Tab Content */}
           <div className="min-h-[300px] md:min-h-96">
             {activeTab === "tasks" && (
               <ProjectTaskList 
@@ -406,7 +417,6 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* Project Editor Modal */}
       <ProjectEditor
         isOpen={isEditorOpen}
         onClose={() => setIsEditorOpen(false)}

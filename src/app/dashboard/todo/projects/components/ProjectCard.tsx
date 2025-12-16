@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/dashboard/todo/projects/components/ProjectCard.tsx
-// ✅ UPDATED: Shows completion date when completed within due date
+// ✅ FIXED: Overdue calculation for completed projects
 // ============================================
 
 "use client";
@@ -14,16 +14,14 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Target
+  Target,
+  AlertCircle
 } from "lucide-react";
 import type { Project } from "@/types/database";
 import {
   PROJECT_STATUS_CONFIG,
   PROJECT_PRIORITY_CONFIG,
   PROJECT_COLORS,
-  calculateDaysRemaining,
-  isProjectOverdue,
-  formatProjectDateRange,
 } from "@/types/database";
 
 interface ProjectCardProps {
@@ -36,7 +34,6 @@ interface ProjectCardProps {
   isDark: boolean;
 }
 
-// Helper function to format date display
 const formatDateDisplay = (date: string) => {
   const d = new Date(date);
   return d.toLocaleDateString('en-US', { 
@@ -46,7 +43,7 @@ const formatDateDisplay = (date: string) => {
   });
 };
 
-// Helper function to get timeline status and text
+// ✅ FIXED: Timeline display logic
 const getTimelineDisplay = (project: Project) => {
   const isCompleted = project.status === 'completed';
   const hasTargetDate = !!project.target_end_date;
@@ -55,36 +52,46 @@ const getTimelineDisplay = (project: Project) => {
     return { text: '', color: '', icon: null, showClock: false };
   }
 
-  const daysRemaining = calculateDaysRemaining(project.target_end_date);
-  const overdue = isProjectOverdue(project.target_end_date);
+  const targetDate = new Date(project.target_end_date!);
+  targetDate.setHours(23, 59, 59, 999); // End of target day
 
-  // If completed
+  // ✅ FIX: For completed projects
   if (isCompleted) {
-    // Check if completed within due date
-    if (!overdue || daysRemaining! >= 0) {
-      // Show completion date (using actual_end_date if available, otherwise use updated_at)
-      const completionDate = project.actual_end_date || project.updated_at;
+    const completionDate = project.actual_end_date 
+      ? new Date(project.actual_end_date) 
+      : new Date(project.updated_at);
+    
+    completionDate.setHours(0, 0, 0, 0); // Start of completion day
+    
+    // Check if completed BEFORE or ON the target date
+    if (completionDate <= targetDate) {
       return {
-        text: formatDateDisplay(completionDate),
+        text: formatDateDisplay(project.actual_end_date || project.updated_at),
         color: 'text-green-500',
         icon: <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-green-500" />,
         showClock: false
       };
     } else {
-      // Completed but was overdue
+      // Completed AFTER the target date
+      const daysLate = Math.ceil((completionDate.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24));
       return {
-        text: `Overdue by ${Math.abs(daysRemaining!)}d`,
-        color: 'text-red-500',
-        icon: <Clock className="w-3 h-3 md:w-4 md:h-4 text-red-500" />,
+        text: `${daysLate}d late`,
+        color: 'text-orange-500',
+        icon: <AlertCircle className="w-3 h-3 md:w-4 md:h-4 text-orange-500" />,
         showClock: true
       };
     }
   }
 
-  // Not completed - show days remaining or overdue
-  if (overdue) {
+  // ✅ For active projects, calculate from TODAY
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const daysRemaining = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining < 0) {
     return {
-      text: `${Math.abs(daysRemaining!)}d overdue`,
+      text: `${Math.abs(daysRemaining)}d overdue`,
       color: 'text-red-500',
       icon: <Clock className="w-3 h-3 md:w-4 md:h-4 text-red-500" />,
       showClock: true
@@ -146,7 +153,6 @@ export default function ProjectCard({
         }`}
       >
         <div className="flex items-start md:items-center gap-3 md:gap-4">
-          {/* Color Indicator */}
           <div
             className="w-0.5 md:w-1 h-12 md:h-16 rounded-full flex-shrink-0"
             style={{
@@ -154,7 +160,6 @@ export default function ProjectCard({
             }}
           />
 
-          {/* Main Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-1.5 md:mb-2">
               <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
@@ -170,7 +175,6 @@ export default function ProjectCard({
                 )}
               </div>
 
-              {/* Priority Badge */}
               <div className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-xs font-medium flex-shrink-0">
                 <span className="text-xs md:text-sm">{priorityConfig.icon}</span>
                 <span className="hidden sm:inline text-xs md:text-sm" style={{ color: priorityConfig.color }}>
@@ -179,7 +183,6 @@ export default function ProjectCard({
               </div>
             </div>
 
-            {/* Description */}
             {project.description && (
               <p
                 className={`text-xs md:text-sm line-clamp-1 mb-1.5 md:mb-2 ${
@@ -190,9 +193,7 @@ export default function ProjectCard({
               </p>
             )}
 
-            {/* Stats Row */}
             <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm">
-              {/* Status */}
               <div
                 className="flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 rounded-lg text-[10px] md:text-xs"
                 style={{
@@ -204,7 +205,6 @@ export default function ProjectCard({
                 <span className="font-medium hidden sm:inline">{statusConfig.label}</span>
               </div>
 
-              {/* Progress */}
               <div className="flex items-center gap-1 md:gap-1.5">
                 <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
                 <span className={`text-[10px] md:text-xs ${isDark ? "text-slate-300" : "text-slate-700"}`}>
@@ -213,7 +213,6 @@ export default function ProjectCard({
                 <span className="font-bold text-green-500 text-[10px] md:text-sm">{project.progress}%</span>
               </div>
 
-              {/* Timeline - Updated Logic */}
               {timelineDisplay.text && (
                 <div className="flex items-center gap-1 md:gap-1.5">
                   <span className={timelineDisplay.color}>
@@ -229,7 +228,6 @@ export default function ProjectCard({
             </div>
           </div>
 
-          {/* Actions - Always visible on mobile, hover on desktop */}
           <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0">
             <button
               onClick={handleToggleFavorite}
@@ -272,7 +270,6 @@ export default function ProjectCard({
           </div>
         </div>
 
-        {/* Progress Bar */}
         <div className="mt-2 md:mt-3">
           <div
             className={`h-1.5 md:h-2 rounded-full overflow-hidden ${
@@ -289,7 +286,7 @@ export default function ProjectCard({
     );
   }
 
-  // GRID VIEW - Mobile Optimized
+  // GRID VIEW
   return (
     <div
       onClick={() => onClick(project.id)}
@@ -301,7 +298,6 @@ export default function ProjectCard({
         borderColor: isDark ? colorTheme.darkBorder : colorTheme.lightBorder,
       }}
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-2 md:mb-3">
         <div className="flex-1 min-w-0 pr-2">
           <h3
@@ -322,7 +318,6 @@ export default function ProjectCard({
           </div>
         </div>
 
-        {/* Favorite Star - Always visible on mobile */}
         <button
           onClick={handleToggleFavorite}
           className={`p-1 md:p-1.5 rounded-lg transition md:opacity-0 md:group-hover:opacity-100 ${
@@ -344,7 +339,6 @@ export default function ProjectCard({
         </button>
       </div>
 
-      {/* Description */}
       {project.description && (
         <p
           className="text-xs md:text-sm mb-3 md:mb-4 line-clamp-2"
@@ -356,9 +350,7 @@ export default function ProjectCard({
         </p>
       )}
 
-      {/* Stats */}
       <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
-        {/* Progress */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <span
@@ -389,7 +381,6 @@ export default function ProjectCard({
           </div>
         </div>
 
-        {/* Tasks Count */}
         <div className="flex items-center justify-between text-[11px] md:text-sm">
           <span
             style={{ color: isDark ? colorTheme.darkText : colorTheme.lightText }}
@@ -404,7 +395,6 @@ export default function ProjectCard({
           </span>
         </div>
 
-        {/* Timeline - Updated Logic */}
         {timelineDisplay.text && (
           <div className="flex items-center justify-between text-[11px] md:text-sm">
             <span
@@ -421,14 +411,12 @@ export default function ProjectCard({
         )}
       </div>
 
-      {/* Priority Badge & Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-0.5 md:gap-1 text-[10px] md:text-xs font-medium">
           <span>{priorityConfig.icon}</span>
           <span style={{ color: priorityConfig.color }}>{priorityConfig.label}</span>
         </div>
 
-        {/* Actions Menu - Always visible on mobile */}
         <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleEdit}
