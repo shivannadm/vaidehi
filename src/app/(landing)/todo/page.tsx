@@ -384,7 +384,7 @@ export default function TodoPage() {
               Start Organizing Now
             </a>
             <p className="text-sm text-indigo-200 mt-4">
-              Free forever • No credit card required • Start in seconds
+              • No credit card required • Start in seconds
             </p>
           </div>
         </div>
