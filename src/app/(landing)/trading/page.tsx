@@ -285,7 +285,7 @@ export default function TradingPage() {
               Get Started Free
             </a>
             <p className="text-sm text-indigo-200 mt-4">
-              No credit card required • 7-day free trial • Cancel anytime
+              • No credit card require  • Cancel anytime
             </p>
           </div>
         </div>
