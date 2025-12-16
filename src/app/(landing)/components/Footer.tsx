@@ -10,13 +10,11 @@ const Footer = () => {
       { label: 'TODO', href: '/todo' },
       { label: 'Routine', href: '/routine' },
       { label: 'Trading', href: '/trading' },
-      { label: 'Pricing', href: '/#pricing' }
+      // { label: 'Pricing', href: '/#pricing' }
     ],
     resources: [
-      { label: 'How it works', href: '/#how-it-works' },
       { label: 'FAQ', href: '/faq' },
       { label: 'Support', href: '/support' },
-      { label: 'API', href: '/api' }
     ],
     company: [
       { label: 'About', href: '/about' },
