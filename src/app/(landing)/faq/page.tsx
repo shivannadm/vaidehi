@@ -21,7 +21,7 @@ export default function FAQPage() {
         },
         {
           q: "Is there a free trial?",
-          a: "Yes! We offer a 14-day free trial of our Pro plan with no credit card required. You can also use our free Starter plan indefinitely with basic features."
+          a: "Yes! We offer a 7-day free trial of our Pro plan with no credit card required."
         },
         {
           q: "Do I need to install any software?",
@@ -38,11 +38,11 @@ export default function FAQPage() {
         },
         {
           q: "Can I import trades from my broker?",
-          a: "Yes, we support CSV imports from most major brokers. You can also use our API to automatically sync trades from supported platforms."
+          a: "No! Currently we working with brokers to enable direct import. Meanwhile, you can easily import trades using CSV files from most brokers."
         },
         {
           q: "How secure is my trading data?",
-          a: "Your data is encrypted with 256-bit SSL and stored in secure data centers. We never share your trading data with third parties. You can also enable two-factor authentication for extra security."
+          a: "Firstly, we are not collecting any high valued data for transperency. Your data is stored in secure data centers. We never share your trading data with third parties. You can also enable two-factor authentication for extra security."
         }
       ]
     },
@@ -55,7 +55,7 @@ export default function FAQPage() {
         },
         {
           q: "Can I export my data?",
-          a: "Yes, Pro users can export their data in CSV and PDF formats for tax reporting, external analysis, or backup purposes."
+          a: "Yes, Users can export their data in CSV and PDF formats for tax reporting, external analysis, or backup purposes."
         },
         {
           q: "How often are analytics updated?",
@@ -68,7 +68,7 @@ export default function FAQPage() {
       questions: [
         {
           q: "What payment methods do you accept?",
-          a: "We accept all major credit cards (Visa, Mastercard, American Express) through our secure payment processor Stripe. We also offer annual billing for a 20% discount."
+          a: "We accept all major credit cards (Visa, Mastercard) through our secure payment processor Stripe. We also offer annual billing for a 20% discount."
         },
         {
           q: "Can I cancel anytime?",
@@ -76,7 +76,7 @@ export default function FAQPage() {
         },
         {
           q: "Do you offer refunds?",
-          a: "Yes, we offer a 14-day money-back guarantee for new subscriptions. If you're not satisfied, contact us for a full refund."
+          a: "Yes, we offer a 7-day money-back guarantee for new subscriptions. If you're not satisfied, contact us for a full refund."
         }
       ]
     },
@@ -85,11 +85,11 @@ export default function FAQPage() {
       questions: [
         {
           q: "Can I use Vaidehi for multiple accounts?",
-          a: "Yes, Pro users can track multiple trading accounts within a single Vaidehi account. You can filter and analyze each account separately or view combined performance."
+          a: "Yes, It will act as a combined journal."
         },
         {
           q: "Do you offer customer support?",
-          a: "Yes! Free users get email support, while Pro users get priority support with faster response times. We typically respond within 24 hours on weekdays."
+          a: "Yes!  We typically respond within 24 hours on weekdays."
         },
         {
           q: "Can I use Vaidehi for different markets?",
