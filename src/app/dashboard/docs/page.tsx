@@ -12,19 +12,19 @@ export default function DocsPage() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
     };
-    
+
     checkTheme();
-    
+
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
@@ -41,7 +41,7 @@ export default function DocsPage() {
   return (
     <div className={`min-h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'} py-8 px-4 sm:px-6 lg:px-8`}>
       <div className={`max-w-4xl mx-auto ${isLight ? 'bg-white' : 'bg-slate-800'} rounded-xl shadow-lg p-6 sm:p-8 lg:p-12`}>
-        
+
         <div className="mb-8 sm:mb-12">
           <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 ${isLight ? 'text-slate-900' : 'text-white'}`}>
             🚀 Welcome to Vaidehi
@@ -56,7 +56,7 @@ export default function DocsPage() {
           <h2 className={`text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
             📋 TO DO Features
           </h2>
-          
+
           <div className="space-y-4 sm:space-y-6">
             <div>
               <h3 className={`text-lg sm:text-xl font-semibold mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -83,7 +83,7 @@ export default function DocsPage() {
           <h2 className={`text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 ${isLight ? 'text-blue-600' : 'text-blue-400'}`}>
             🏋️ ROUTINE Features
           </h2>
-          
+
           <div className="space-y-4 sm:space-y-6">
             <div>
               <h3 className={`text-lg sm:text-xl font-semibold mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -110,7 +110,7 @@ export default function DocsPage() {
           <h2 className={`text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 ${isLight ? 'text-green-600' : 'text-green-400'}`}>
             📊 TRADING Features
           </h2>
-          
+
           <div className="space-y-4 sm:space-y-6">
             <div>
               <h3 className={`text-lg sm:text-xl font-semibold mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -128,6 +128,9 @@ export default function DocsPage() {
               <p className={`${isLight ? 'text-slate-700' : 'text-slate-300'} leading-relaxed`}>
                 Log every trade with detailed notes, strategies, and emotional states. Learn from every position.
               </p>
+              <a href="/docs" className="text-center text-indigo-600 hover:text-indigo-700">
+                more
+              </a>
             </div>
           </div>
         </section>
@@ -135,7 +138,10 @@ export default function DocsPage() {
         {/* Footer */}
         <div className={`pt-8 border-t ${isLight ? 'border-slate-200' : 'border-slate-700'}`}>
           <p className={`text-center text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-            Need help? Have questions? Contact support or join our community.
+            Need help? Have questions? Contact support or join our community.{" "} 
+            <a href="/docs" className="text-indigo-600 hover:text-indigo-700">
+               More
+            </a>
           </p>
         </div>
       </div>
