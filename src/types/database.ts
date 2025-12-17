@@ -2232,3 +2232,22 @@ export const HELP_PRIORITIES = {
   medium: 'Medium - Need Assistance',
   high: 'High - Urgent Issue'
 } as const;
+
+// ============================================
+// CONTACT MESSAGE TYPES
+// ============================================
+
+export type ContactMessageStatus = 'pending' | 'resolved';
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  created_at: string;
+}
+
+export type CreateContactMessage = Omit<ContactMessage, 'id' | 'created_at' | 'status'>;
+export type UpdateContactMessage = Partial<Pick<ContactMessage, 'status'>>;

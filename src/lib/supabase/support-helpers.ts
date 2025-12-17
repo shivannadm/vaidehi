@@ -4,7 +4,7 @@
 // ============================================
 
 import { createClient } from "./client";
-import type { Feedback, HelpRequest, FeedbackCategory, HelpPriority } from "@/types/database";
+import type { Feedback, HelpRequest, FeedbackCategory, HelpPriority, ContactMessage } from "@/types/database";
 
 // ============================================
 // ADMIN CHECK
@@ -178,6 +178,66 @@ export async function updateHelpRequestStatus(requestId: string, status: 'pendin
     .from("help_requests")
     .update({ status })
     .eq("id", requestId)
+    .select()
+    .single();
+
+  return { data, error };
+}
+
+// ============================================
+// CONTACT MESSAGE OPERATIONS
+// ============================================
+
+/**
+ * Submit contact message (public - no auth required)
+ */
+export async function submitContactMessage(data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) {
+  const supabase = createClient();
+
+  const { data: contactMessage, error } = await supabase
+    .from("contact_messages")
+    .insert({
+      name: data.name,
+      email: data.email,
+      subject: data.subject,
+      message: data.message,
+      status: 'pending',
+    })
+    .select()
+    .single();
+
+  return { data: contactMessage, error };
+}
+
+/**
+ * Get all contact messages (admin only)
+ */
+export async function getAllContactMessages() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("contact_messages")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  return { data, error };
+}
+
+/**
+ * Update contact message status (admin only)
+ */
+export async function updateContactMessageStatus(messageId: string, status: 'pending' | 'resolved') {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("contact_messages")
+    .update({ status })
+    .eq("id", messageId)
     .select()
     .single();
 
