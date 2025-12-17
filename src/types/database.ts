@@ -2180,3 +2180,55 @@ export interface TradingResponse<T> {
 // ============================================
 // END OF TRADING TYPES
 // ============================================
+
+// ============================================
+// ADD THESE TO: src/types/database.ts
+// Place after existing type definitions
+// ============================================
+
+// Feedback Types
+export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'improvement' | 'other';
+export type FeedbackStatus = 'pending' | 'resolved';
+
+export interface Feedback {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  category: FeedbackCategory;
+  message: string;
+  status: FeedbackStatus;
+  created_at: string;
+}
+
+// Help Request Types
+export type HelpPriority = 'low' | 'medium' | 'high';
+export type HelpStatus = 'pending' | 'resolved';
+
+export interface HelpRequest {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  priority: HelpPriority;
+  subject: string;
+  message: string;
+  status: HelpStatus;
+  created_at: string;
+}
+
+// Category Labels
+export const FEEDBACK_CATEGORIES = {
+  general: 'General Feedback',
+  bug: 'Bug Report',
+  feature: 'Feature Request',
+  improvement: 'Improvement Suggestion',
+  other: 'Other'
+} as const;
+
+// Priority Labels
+export const HELP_PRIORITIES = {
+  low: 'Low - General Question',
+  medium: 'Medium - Need Assistance',
+  high: 'High - Urgent Issue'
+} as const;
