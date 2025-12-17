@@ -317,7 +317,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
               <main className={`flex-1 ${isLight ? 'bg-slate-50' : 'bg-slate-900'} p-4 sm:p-6`}>
                 {children}
               </main>
-              <DashboardFooter theme={theme} />
+              {/* <DashboardFooter theme={theme} /> */}
             </div>
           ) : (
             // Other pages: just scrollable content, no footer
