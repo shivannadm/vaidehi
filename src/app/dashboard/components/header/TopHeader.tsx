@@ -166,37 +166,6 @@ export default function TopHeader({
         {/* Right: Docs, Go Pro, Streak, Notifications, Profile */}
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
           
-          {/* Docs Button - NEW */}
-          <button
-            onClick={() => window.open('/dashboard/docs', '_blank')}
-            className={`hidden sm:flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition text-xs sm:text-sm ${
-              isLight 
-                ? 'border-slate-300 text-slate-700 hover:bg-slate-100' 
-                : 'border-slate-600 text-slate-300 hover:bg-slate-700'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="font-medium hidden lg:inline">Docs</span>
-          </button>
-
-          {/* Mobile Docs Button - Icon Only */}
-          <button
-            onClick={() => window.open('/dashboard/docs', '_blank')}
-            className={`sm:hidden p-2 rounded-lg transition ${
-              isLight ? 'hover:bg-slate-100' : 'hover:bg-slate-700'
-            }`}
-          >
-            <BookOpen className={`w-4 h-4 ${isLight ? 'text-slate-600' : 'text-slate-300'}`} />
-          </button>
-
-          {/* Go Pro Button - NEW */}
-          <button
-            onClick={() => window.open('/dashboard/go-pro', '_blank')}
-            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition shadow-lg shadow-orange-500/20 text-xs sm:text-sm"
-          >
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="font-semibold">Pro</span>
-          </button>
           
           {/* Streak Counter - Responsive */}
           <div className="hidden sm:block">
