@@ -163,7 +163,7 @@ export default function TopHeader({
           )}
         </div>
 
-        {/* Right: Docs, Go Pro, Streak, Notifications, Profile */}
+        {/* Right: Streak, Notifications, Profile */}
         <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
           
           
