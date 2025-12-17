@@ -304,7 +304,7 @@ export default function SupportPage() {
                     Get Help
                   </h2>
                   <p className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                    We'll respond within 24 hours
+                    We'll respond within 48 hours
                   </p>
                 </div>
               </div>

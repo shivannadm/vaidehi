@@ -1,10 +1,32 @@
 // ============================================
 // FILE: src/lib/supabase/support-helpers.ts
-// Create this new file
+// ✅ UPDATED: Added admin check function
 // ============================================
 
 import { createClient } from "./client";
 import type { Feedback, HelpRequest, FeedbackCategory, HelpPriority } from "@/types/database";
+
+// ============================================
+// ADMIN CHECK
+// ============================================
+
+/**
+ * Check if current user is admin
+ */
+export async function isUserAdmin() {
+  const supabase = createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .single();
+
+  return !error && !!data;
+}
 
 // ============================================
 // FEEDBACK OPERATIONS
@@ -39,7 +61,7 @@ export async function submitFeedback(data: {
 }
 
 /**
- * Get all feedback (admin only)
+ * Get all feedback (admin can see all, users see only their own)
  */
 export async function getAllFeedback() {
   const supabase = createClient();
@@ -68,7 +90,7 @@ export async function getUserFeedback(userId: string) {
 }
 
 /**
- * Update feedback status
+ * Update feedback status (admin only)
  */
 export async function updateFeedbackStatus(feedbackId: string, status: 'pending' | 'resolved') {
   const supabase = createClient();
@@ -118,7 +140,7 @@ export async function submitHelpRequest(data: {
 }
 
 /**
- * Get all help requests (admin only)
+ * Get all help requests (admin can see all, users see only their own)
  */
 export async function getAllHelpRequests() {
   const supabase = createClient();
@@ -147,7 +169,7 @@ export async function getUserHelpRequests(userId: string) {
 }
 
 /**
- * Update help request status
+ * Update help request status (admin only)
  */
 export async function updateHelpRequestStatus(requestId: string, status: 'pending' | 'resolved') {
   const supabase = createClient();
@@ -158,6 +180,55 @@ export async function updateHelpRequestStatus(requestId: string, status: 'pendin
     .eq("id", requestId)
     .select()
     .single();
+
+  return { data, error };
+}
+
+// ============================================
+// ADMIN MANAGEMENT
+// ============================================
+
+/**
+ * Add user as admin
+ */
+export async function addAdmin(userId: string) {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .insert({ user_id: userId })
+    .select()
+    .single();
+
+  return { data, error };
+}
+
+/**
+ * Remove admin status
+ */
+export async function removeAdmin(userId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("admin_users")
+    .delete()
+    .eq("user_id", userId);
+
+  return { error };
+}
+
+/**
+ * Get all admins
+ */
+export async function getAllAdmins() {
+  const supabase = createClient();
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select(`
+      user_id,
+      created_at
+    `);
 
   return { data, error };
 }

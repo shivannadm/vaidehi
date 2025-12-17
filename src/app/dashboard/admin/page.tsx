@@ -1,21 +1,29 @@
 // ============================================
 // FILE: src/app/dashboard/admin/page.tsx
-// âœ… FIXED: Theme support + Real Supabase data
+// ✅ FINAL: Proper admin check + shows all users' data
 // ============================================
 
 "use client";
 import { useState, useEffect } from "react";
 import { 
   MessageCircle, HelpCircle, User, Mail, Clock, 
-  AlertCircle, CheckCircle, Filter, Lock, Eye, EyeOff, RefreshCw
+  AlertCircle, CheckCircle, Filter, Lock, Eye, EyeOff, RefreshCw, Shield
 } from "lucide-react";
-import { getAllFeedback, getAllHelpRequests, updateFeedbackStatus, updateHelpRequestStatus } from "@/lib/supabase/support-helpers";
+import { 
+  getAllFeedback, 
+  getAllHelpRequests, 
+  updateFeedbackStatus, 
+  updateHelpRequestStatus,
+  isUserAdmin 
+} from "@/lib/supabase/support-helpers";
 import type { Feedback, HelpRequest } from "@/types/database";
 
 export default function AdminDashboard() {
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isActualAdmin, setIsActualAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -60,9 +68,23 @@ export default function AdminDashboard() {
     const isAuth = sessionStorage.getItem('admin_authenticated');
     if (isAuth === 'true') {
       setIsAuthenticated(true);
-      fetchAllData();
+      checkAdminStatusAndLoadData();
     }
   }, [mounted]);
+
+  const checkAdminStatusAndLoadData = async () => {
+    setCheckingAdmin(true);
+    
+    // Check if user is actually an admin in the database
+    const isAdmin = await isUserAdmin();
+    setIsActualAdmin(isAdmin);
+    
+    if (isAdmin) {
+      await fetchAllData();
+    }
+    
+    setCheckingAdmin(false);
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -96,7 +118,7 @@ export default function AdminDashboard() {
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
       sessionStorage.setItem('admin_authenticated', 'true');
-      await fetchAllData();
+      await checkAdminStatusAndLoadData();
     } else {
       setLoginError("Invalid credentials. Please try again.");
     }
@@ -105,9 +127,12 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setIsActualAdmin(false);
     sessionStorage.removeItem('admin_authenticated');
     setUsername("");
     setPassword("");
+    setFeedbackData([]);
+    setHelpData([]);
   };
 
   const markAsResolved = async (type: 'feedback' | 'help', id: string) => {
@@ -264,7 +289,52 @@ export default function AdminDashboard() {
     );
   }
 
-  // Admin Dashboard
+  // Checking admin status
+  if (checkingAdmin) {
+    return (
+      <div className={`min-h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'} flex items-center justify-center`}>
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Verifying admin permissions...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not an actual admin
+  if (!isActualAdmin) {
+    return (
+      <div className={`min-h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'} flex items-center justify-center p-4`}>
+        <div className={`max-w-md w-full ${isLight ? 'bg-white' : 'bg-slate-800'} rounded-2xl shadow-2xl p-8 text-center`}>
+          <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-red-500" />
+          </div>
+          <h1 className={`text-2xl font-bold mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            Access Denied
+          </h1>
+          <p className={`text-sm mb-6 ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+            Your account does not have admin privileges. Please contact the system administrator to grant you admin access.
+          </p>
+          <button
+            onClick={handleLogout}
+            className="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg font-semibold transition-all"
+          >
+            Back to Login
+          </button>
+          
+          <div className={`mt-6 p-4 rounded-lg ${isLight ? 'bg-blue-50' : 'bg-blue-900/20'}`}>
+            <p className={`text-xs ${isLight ? 'text-blue-800' : 'text-blue-300'}`}>
+              <strong>Note:</strong> To grant admin access, contact us from <a href="/dashboard/support?tab=help" className="text-red-600">Get help</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin Dashboard (user is verified admin)
   return (
     <div className={`min-h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'} p-4 sm:p-6 lg:p-8`}>
       
@@ -279,8 +349,9 @@ export default function AdminDashboard() {
               <h1 className={`text-3xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
                 Admin Dashboard
               </h1>
-              <p className={`${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                Manage user feedback and help requests
+              <p className={`${isLight ? 'text-slate-600' : 'text-slate-400'} flex items-center gap-2`}>
+                <Shield className="w-4 h-4 text-green-500" />
+                Viewing all users' feedback and help requests
               </p>
             </div>
           </div>
