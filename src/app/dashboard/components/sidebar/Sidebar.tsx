@@ -152,6 +152,7 @@ export default function Sidebar({ activeItem, onItemClick, theme = 'dark' }: Sid
       {/* Upgrade Button */}
       <div className={`p-3 ${isLight ? 'border-b border-slate-200' : 'border-b border-slate-800'}`}>
         <button
+          onClick={() => router.push('/dashboard/go-pro')}
           className={`w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${isCollapsed ? 'h-10 px-2' : 'h-10 px-3 py-2 gap-2'
             }`}
         >
