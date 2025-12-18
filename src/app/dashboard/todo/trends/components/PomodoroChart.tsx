@@ -158,6 +158,8 @@ export default function PomodoroChart({
     return colors[color] || '#94a3b8';
   };
 
+  // ✅ FIXED: Replace the getBlockStyle function (around line 180-210)
+
   const getBlockStyle = (session: Session) => {
     const timeStr = session.start_time;
     let hours = 0, minutes = 0;
@@ -174,8 +176,13 @@ export default function PomodoroChart({
 
     const startHours = hours + minutes / 60;
     const durationHours = session.duration / 3600;
+
+    // ✅ FIXED: Cap end time at 24:00 (midnight boundary)
+    const endHours = Math.min(startHours + durationHours, 24);
+    const actualDuration = endHours - startHours;
+
     const left = (startHours / 24) * 100;
-    const width = Math.max((durationHours / 24) * 100, 0.5);
+    const width = Math.max((actualDuration / 24) * 100, 0.5);
 
     let color = '#94a3b8';
 
@@ -187,7 +194,6 @@ export default function PomodoroChart({
 
     return { left: `${left}%`, width: `${width}%`, backgroundColor: color };
   };
-
   const formatDateLabel = (date: Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

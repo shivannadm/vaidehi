@@ -647,7 +647,7 @@ export async function getDailyReportStats(
 
   const completedCount = tasks?.filter((t) => t.is_completed).length || 0;
   const inProgressCount = tasks?.filter((t) => !t.is_completed).length || 0;
-  
+
   // ✅ Use sessions data (more accurate than task total_time_spent)
   const totalFocusedTime = sessions?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
 
@@ -656,13 +656,22 @@ export async function getDailyReportStats(
     ? Math.round((totalFocusedTime / goalSeconds) * 100)
     : 0;
 
+  // ✅ Validation: Ensure we never show more than 24 hours per day
+  const maxSecondsPerDay = 24 * 3600; // 86,400 seconds
+  const validatedTime = Math.min(totalFocusedTime, maxSecondsPerDay);
+  if (totalFocusedTime > maxSecondsPerDay) {
+    console.warn(
+      `⚠️ Total time (${totalFocusedTime}s) exceeds 24h limit for ${date}. ` +
+      `Capping at 24h. Check for duplicate sessions or missing date filters.`
+    );
+  }
   return {
     data: {
       completedCount,
       inProgressCount,
-      totalFocusedTime,
+      totalFocusedTime: validatedTime, // ✅ Use validated time,
       goalHours,
-      goalPercentage,
+      goalPercentage: Math.min(goalPercentage, 100) // ✅ Cap at 100%,
     },
     error: null,
   };
@@ -760,7 +769,7 @@ export default {
   uncompleteTask,
   deleteTask,
   addTimeToTask,
-  
+
   // 🔥 NEW: Midnight crossing helpers
   ensureTaskExistsOnDate,
   getOrCreateTaskForDate,

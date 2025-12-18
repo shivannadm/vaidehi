@@ -177,12 +177,11 @@ export async function getFocusTimeData(
   try {
     const supabase = createClient();
     
-    // ✅ CRITICAL FIX: Calculate INCLUSIVE date range with local timezone
+    // Calculate INCLUSIVE date range with local timezone
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - (days - 1)); // INCLUSIVE: includes today
+    startDate.setDate(today.getDate() - (days - 1));
     
-    // Reset to start of day for accurate comparison
     startDate.setHours(0, 0, 0, 0);
     today.setHours(23, 59, 59, 999);
 
@@ -191,21 +190,26 @@ export async function getFocusTimeData(
 
     console.log('📅 Focus Time Data Range:', { startDateStr, endDateStr, today: getLocalDateString() });
 
-    // ✅ Fetch ALL tasks within date range (including today)
-    const { data: tasks, error } = await supabase
-      .from('tasks')
+    // ✅ FIX: Query task_sessions instead of tasks
+    // This ensures we get the CORRECT duration per day (already split at midnight)
+    const { data: sessions, error } = await supabase
+      .from('task_sessions')
       .select(`
         date,
-        total_time_spent,
-        project_id,
-        projects (
-          title,
-          color
+        duration,
+        task_id,
+        tasks!inner (
+          project_id,
+          projects (
+            title,
+            color
+          )
         )
       `)
       .eq('user_id', userId)
       .gte('date', startDateStr)
       .lte('date', endDateStr)
+      .not('end_time', 'is', null) // Only completed sessions
       .order('date', { ascending: true });
 
     if (error) {
@@ -213,36 +217,37 @@ export async function getFocusTimeData(
       return { data: [], error };
     }
 
-    console.log('✅ Fetched tasks:', tasks?.length || 0, 'records');
+    console.log('✅ Fetched sessions:', sessions?.length || 0, 'records');
 
-    if (!tasks) return { data: [], error: null };
+    if (!sessions) return { data: [], error: null };
 
-    // ✅ Group by date with type-safe handling
+    // ✅ Group by date with correct duration
     const grouped: { [key: string]: FocusTimeData } = {};
 
-    tasks.forEach(task => {
-      const taskData = task as any;
-      const project = taskData.projects;
+    sessions.forEach(session => {
+      const sessionData = session as any;
+      const project = sessionData.tasks?.projects;
 
-      if (!grouped[task.date]) {
-        grouped[task.date] = {
-          date: task.date,
+      if (!grouped[session.date]) {
+        grouped[session.date] = {
+          date: session.date,
           totalHours: 0,
           projects: []
         };
       }
 
-      const hours = (task.total_time_spent || 0) / 3600;
-      grouped[task.date].totalHours += hours;
+      // ✅ CRITICAL: Use session.duration (already split at midnight)
+      const hours = (session.duration || 0) / 3600;
+      grouped[session.date].totalHours += hours;
 
       const projectName = project?.title || 'No Project';
       const projectColor = project?.color ? getProjectColor(project.color) : '#94a3b8';
-      const existing = grouped[task.date].projects.find(p => p.name === projectName);
+      const existing = grouped[session.date].projects.find(p => p.name === projectName);
 
       if (existing) {
         existing.hours += hours;
       } else {
-        grouped[task.date].projects.push({
+        grouped[session.date].projects.push({
           name: projectName,
           hours,
           color: projectColor
@@ -250,7 +255,7 @@ export async function getFocusTimeData(
       }
     });
 
-    // ✅ CRITICAL: Fill in ALL dates from start to TODAY (inclusive)
+    // Fill in ALL dates from start to TODAY (inclusive)
     const result: FocusTimeData[] = [];
     const currentDate = new Date(startDate);
     
@@ -267,7 +272,13 @@ export async function getFocusTimeData(
     }
 
     console.log('✅ Generated', result.length, 'days of data');
-    console.log('📊 Last 3 dates:', result.slice(-3).map(r => r.date));
+    console.log('📊 Last 3 dates:', result.slice(-3).map(r => ({ date: r.date, hours: r.totalHours })));
+
+    // ✅ VALIDATION: Check for impossible hours
+    const invalidDays = result.filter(r => r.totalHours > 24);
+    if (invalidDays.length > 0) {
+      console.error('❌ IMPOSSIBLE HOURS DETECTED:', invalidDays);
+    }
 
     return { data: result, error: null };
   } catch (error) {

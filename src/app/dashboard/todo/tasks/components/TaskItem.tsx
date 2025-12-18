@@ -21,6 +21,7 @@ interface TaskItemProps {
   isPast?: boolean;
   isFuture?: boolean;
   isRunning?: boolean;
+  selectedDate: string;
 }
 
 export default function TaskItem({
@@ -32,7 +33,8 @@ export default function TaskItem({
   isCompleted = false,
   isPast = false,
   isFuture = false,
-  isRunning = false
+  isRunning = false,
+  selectedDate
 }: TaskItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
@@ -41,64 +43,52 @@ export default function TaskItem({
 
   // ✅ CRITICAL FIX: Fetch ONLY today's session time
   useEffect(() => {
-    const fetchTodayTime = async () => {
-      if (!task.project_id) {
-        // Non-project tasks use total_time_spent as before
-        setTodayTime(task.total_time_spent);
-        setLoadingTime(false);
-        return;
-      }
+  const fetchTodayTime = async () => {
+    try {
+      setLoadingTime(true);
+      const supabase = createClient();
 
-      try {
-        setLoadingTime(true);
-        const supabase = createClient();
-        
-        // Get today's date in LOCAL timezone
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayDate = `${year}-${month}-${day}`;
+      console.log('📊 Fetching sessions for task:', task.id, 'on date:', selectedDate);
 
-        console.log('📊 Fetching today sessions for task:', task.id, 'on date:', todayDate);
+      // ✅ Fetch ONLY sessions for the selected date (works for ALL tasks)
+      const { data, error } = await supabase
+        .from('task_sessions')
+        .select('duration')
+        .eq('task_id', task.id)
+        .eq('date', selectedDate); // ✅ Use selectedDate directly
 
-        // ✅ Fetch ONLY today's sessions
-        const { data, error } = await supabase
-          .from('task_sessions')
-          .select('duration')
-          .eq('task_id', task.id)
-          .eq('date', todayDate);
-
-        if (error) {
-          console.error('Error fetching today sessions:', error);
-          setTodayTime(0);
-        } else {
-          const time = data?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
-          console.log('✅ Today sessions time:', time, 'seconds');
-          setTodayTime(time);
-        }
-      } catch (err) {
-        console.error('Error:', err);
+      if (error) {
+        console.error('Error fetching sessions:', error);
         setTodayTime(0);
-      } finally {
-        setLoadingTime(false);
+      } else {
+        const time = data?.reduce((sum, s) => sum + (s.duration || 0), 0) || 0;
+        console.log('✅ Sessions time for', selectedDate, ':', time, 'seconds');
+        setTodayTime(time);
       }
-    };
+    } catch (err) {
+      console.error('Error:', err);
+      setTodayTime(0);
+    } finally {
+      setLoadingTime(false);
+    }
+  };
 
-    fetchTodayTime();
+  fetchTodayTime();
 
-    // ✅ Refresh when project timer events occur
-    const handleRefresh = () => fetchTodayTime();
-    window.addEventListener('projectTimerStarted', handleRefresh);
-    window.addEventListener('projectTimerStopped', handleRefresh);
-    window.addEventListener('projectTaskUpdated', handleRefresh);
+  // ✅ Refresh when timer events occur
+  const handleRefresh = () => fetchTodayTime();
+  window.addEventListener('projectTimerStarted', handleRefresh);
+  window.addEventListener('projectTimerStopped', handleRefresh);
+  window.addEventListener('projectTaskUpdated', handleRefresh);
+  window.addEventListener('taskCrossedMidnight', handleRefresh); // ✅ Add this too
 
-    return () => {
-      window.removeEventListener('projectTimerStarted', handleRefresh);
-      window.removeEventListener('projectTimerStopped', handleRefresh);
-      window.removeEventListener('projectTaskUpdated', handleRefresh);
-    };
-  }, [task.id, task.project_id, task.total_time_spent]);
+  return () => {
+    window.removeEventListener('projectTimerStarted', handleRefresh);
+    window.removeEventListener('projectTimerStopped', handleRefresh);
+    window.removeEventListener('projectTaskUpdated', handleRefresh);
+    window.removeEventListener('taskCrossedMidnight', handleRefresh);
+  };
+}, [task.id, selectedDate]); // ✅ Remove project_id and total_time_spent from deps
 
   const handleToggleComplete = async () => {
     setIsToggling(true);

@@ -70,8 +70,8 @@ function FocusGoalDropdown({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={`px-2 sm:px-3 py-1 rounded-lg font-bold border-2 text-center flex items-center gap-1 min-w-[50px] sm:min-w-[60px] justify-between transition text-xs sm:text-sm ${isDark
-            ? "bg-slate-700 border-lime-500 text-lime-400 hover:bg-slate-600"
-            : "bg-lime-50 border-lime-400 text-lime-700 hover:bg-lime-100"
+          ? "bg-slate-700 border-lime-500 text-lime-400 hover:bg-slate-600"
+          : "bg-lime-50 border-lime-400 text-lime-700 hover:bg-lime-100"
           } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <span>{value}h</span>
@@ -94,12 +94,12 @@ function FocusGoalDropdown({
                   setIsOpen(false);
                 }}
                 className={`w-full px-3 py-2 text-left text-sm font-medium transition ${h === value
-                    ? isDark
-                      ? "bg-lime-600 text-white"
-                      : "bg-lime-500 text-white"
-                    : isDark
-                      ? "hover:bg-slate-700 text-slate-300"
-                      : "hover:bg-slate-100 text-slate-700"
+                  ? isDark
+                    ? "bg-lime-600 text-white"
+                    : "bg-lime-500 text-white"
+                  : isDark
+                    ? "hover:bg-slate-700 text-slate-300"
+                    : "hover:bg-slate-100 text-slate-700"
                   }`}
               >
                 {h}h
@@ -408,7 +408,9 @@ export default function TasksPage() {
                 </button>
 
                 {incompleteTasks.length === 0 ? (
-                  <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No tasks yet. Add one to get started!</p>
+                  <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    No tasks yet. Add one to get started!
+                  </p>
                 ) : (
                   incompleteTasks.map(task => (
                     <TaskItem
@@ -421,6 +423,7 @@ export default function TasksPage() {
                       isPast={isPast}
                       isFuture={isFuture}
                       isRunning={timer.taskId === task.id}
+                      selectedDate={formatDateToString(selectedDate)} // ✅ Pass current viewing date
                     />
                   ))
                 )}
@@ -431,7 +434,9 @@ export default function TasksPage() {
             <div className={`rounded-xl border p-3 sm:p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
               <h2 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Completed tasks</h2>
               {completedTasks.length === 0 ? (
-                <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>No completed tasks yet</p>
+                <p className={`text-center py-6 sm:py-8 text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  No completed tasks yet
+                </p>
               ) : (
                 <div className="space-y-2">
                   {completedTasks.map(task => (
@@ -445,6 +450,7 @@ export default function TasksPage() {
                       isCompleted
                       isPast={isPast}
                       isFuture={isFuture}
+                      selectedDate={formatDateToString(selectedDate)} // ✅ Pass current viewing date
                     />
                   ))}
                 </div>
