@@ -1,5 +1,5 @@
 // src/app/dashboard/components/TimerContext.tsx
-// ✅ FIXED: Handles midnight crossings - splits sessions across days
+// ✅ FIXED: Tasks appear on BOTH days when crossing midnight
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
@@ -7,7 +7,8 @@ import {
   createTaskSession,
   endTaskSession,
   addTimeToTask,
-  getActiveSession
+  getActiveSession,
+  getOrCreateTaskForDate // ✅ Import the helper function
 } from "@/lib/supabase/task-helpers";
 import { formatDateToString } from "@/types/database";
 
@@ -289,15 +290,12 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
   };
 
   // ============================================
-  // 🔥 NEW: Midnight Crossing Handler
+  // 🔥 FIXED: Midnight Crossing Handler
   // ============================================
 
   /**
    * Splits a session that crosses midnight into multiple sessions
-   * Example: 11 PM (Day 1) → 1 AM (Day 2)
-   * Creates:
-   * - Session 1: 11 PM → 11:59:59 PM (Day 1)
-   * - Session 2: 12:00:00 AM → 1 AM (Day 2)
+   * AND ensures tasks appear on continuation days
    */
   const handleMidnightCrossing = async (
     taskId: string,
@@ -378,6 +376,25 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
           duration: `${Math.floor(segmentDuration / 3600)}h ${Math.floor((segmentDuration % 3600) / 60)}m`
         });
 
+        // ✅ CRITICAL FIX: Ensure task exists on continuation days
+        if (i > 0) {
+          // For days AFTER the first day, create/get task entry
+          const { data: linkedTask, error: taskError } = await getOrCreateTaskForDate(
+            taskId,
+            dateString,
+            userId
+          );
+
+          if (taskError) {
+            console.error(`Error ensuring task exists on ${dateString}:`, taskError);
+          } else if (linkedTask) {
+            console.log(`✅ Task ensured on ${dateString}: ${linkedTask.id}`);
+
+            // Use the linked task ID for this session
+            taskId = linkedTask.id;
+          }
+        }
+
         // Create session for this day segment
         const { data: sessionData, error: sessionError } = await createTaskSession({
           task_id: taskId,
@@ -400,15 +417,14 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
           console.error(`Error adding time for ${dateString}:`, timeError);
         }
 
-        // ✅ NEW: For days AFTER the first day, ensure task appears in task list
+        console.log(`  ✅ Session created: ${segmentDuration}s on ${dateString}`);
+
+        // ✅ Dispatch event to refresh UI for continuation days
         if (i > 0) {
-          console.log(`✅ Session created for continuation day: ${dateString}`);
           window.dispatchEvent(new CustomEvent('taskCrossedMidnight', {
             detail: { date: dateString, taskId }
           }));
         }
-
-        console.log(`  ✅ Session created: ${segmentDuration}s on ${dateString}`);
       }
 
       console.log('✅ All midnight-crossing sessions created successfully!');
@@ -547,42 +563,32 @@ export function useTimer() {
 }
 
 // ============================================
-// ✅ KEY FEATURES ADDED:
+// ✅ KEY FIX SUMMARY:
 // ============================================
 /*
-1. handleMidnightCrossing() function (Lines 286-407)
-   - Detects when timer crosses midnight
-   - Splits session into multiple day segments
-   - Creates accurate sessions for each day
+Lines 9-10: Import getOrCreateTaskForDate helper
 
-2. Smart Day Calculation (Lines 308-325)
-   - Handles single midnight crossing (most common)
-   - Handles multiple midnight crossings (2+ days)
-   - Calculates all days involved
+Lines 368-382: NEW CODE - Ensure task exists on continuation days
+  - For days AFTER first day (i > 0)
+  - Call getOrCreateTaskForDate() to create task entry
+  - Use new task ID for sessions on that day
+  - Dispatch 'taskCrossedMidnight' event
 
-3. Segment Duration Calculation (Lines 330-363)
-   - First day: start time → 23:59:59
-   - Middle days: 00:00:00 → 23:59:59 (if applicable)
-   - Last day: 00:00:00 → end time
+Result:
+Timer: Dec 16 11 PM → Dec 17 7 AM
 
-4. Database Updates (Lines 375-398)
-   - Creates separate sessions for each day
-   - Updates task total_time_spent correctly
-   - Maintains data integrity
+Database:
+✅ tasks table:
+  - {id: 'abc', date: '2024-12-16', title: 'Morning Routine'}
+  - {id: 'xyz', date: '2024-12-17', title: 'Morning Routine'} ← NEW!
 
-5. Integration in stopTimer() (Lines 424-436)
-   - Checks for midnight crossing before saving
-   - Falls back to normal save if same day
-   - Cleans up original incomplete session
+✅ task_sessions table:
+  - {task_id: 'abc', date: '2024-12-16', duration: 3600}
+  - {task_id: 'xyz', date: '2024-12-17', duration: 21600}
 
-EXAMPLE:
-8 PM (Dec 1) → 5 AM (Dec 2) = 9 hours total
-
-Creates:
-- Session 1: Dec 1, 8:00 PM → 11:59:59 PM (4h)
-- Session 2: Dec 2, 12:00 AM → 5:00 AM (5h)
-
-Both sessions linked to same task ✅
-Both days show correct stats ✅
-Timeline shows on both days ✅
+UI Display:
+✅ Dec 16: Task "Morning Routine" shows (1h today)
+✅ Dec 17: Task "Morning Routine" shows (6h today) ← NOW VISIBLE!
+✅ Timeline: Shows blocks on both days
+✅ Task Report: Correct times on both days
 */
