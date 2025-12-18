@@ -35,7 +35,7 @@ export interface TrendsStats {
 export async function getTrendsStats(userId: string): Promise<{ data: TrendsStats | null; error: any }> {
   try {
     const supabase = createClient();
-    
+
     // ✅ FIXED: Use local date helper
     const today = getLocalDateString();
     const weekStart = getLocalDateString(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
@@ -176,12 +176,12 @@ export async function getFocusTimeData(
 ): Promise<{ data: FocusTimeData[] | null; error: any }> {
   try {
     const supabase = createClient();
-    
+
     // Calculate INCLUSIVE date range with local timezone
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - (days - 1));
-    
+
     startDate.setHours(0, 0, 0, 0);
     today.setHours(23, 59, 59, 999);
 
@@ -258,16 +258,16 @@ export async function getFocusTimeData(
     // Fill in ALL dates from start to TODAY (inclusive)
     const result: FocusTimeData[] = [];
     const currentDate = new Date(startDate);
-    
+
     while (currentDate <= today) {
       const dateStr = getLocalDateString(currentDate);
-      
+
       result.push(grouped[dateStr] || {
         date: dateStr,
         totalHours: 0,
         projects: []
       });
-      
+
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -275,9 +275,18 @@ export async function getFocusTimeData(
     console.log('📊 Last 3 dates:', result.slice(-3).map(r => ({ date: r.date, hours: r.totalHours })));
 
     // ✅ VALIDATION: Check for impossible hours
+    // ✅ VALIDATION: Check for impossible hours
     const invalidDays = result.filter(r => r.totalHours > 24);
     if (invalidDays.length > 0) {
       console.error('❌ IMPOSSIBLE HOURS DETECTED:', invalidDays);
+
+      // ✅ QUICK FIX: Cap hours at 24 for display
+      result.forEach(day => {
+        if (day.totalHours > 24) {
+          console.warn(`⚠️ Capping ${day.date} from ${day.totalHours.toFixed(1)}h to 24h`);
+          day.totalHours = 24;
+        }
+      });
     }
 
     return { data: result, error: null };

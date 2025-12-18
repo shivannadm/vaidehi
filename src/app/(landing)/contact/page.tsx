@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/app/(landing)/contact/page.tsx
-// ✅ FIXED: Removed hydration error by using CSS animations
+// ✅ FIXED: Removed styled-jsx to fix hydration error
 // ============================================
 "use client";
 
@@ -60,11 +60,11 @@ export default function ContactPage() {
       <Header />
 
       <main className="flex-1 relative overflow-hidden">
-        {/* Animated Background - Fixed with CSS */}
+        {/* Animated Background - Using Tailwind instead of styled-jsx */}
         <div className="absolute inset-0 overflow-hidden opacity-30 pointer-events-none">
-          <div className="blob blob-1" />
-          <div className="blob blob-2" />
-          <div className="blob blob-3" />
+          <div className="absolute top-20 left-10 w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full bg-purple-300 mix-blend-multiply filter blur-3xl animate-blob" />
+          <div className="absolute top-40 right-10 w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full bg-yellow-300 mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+          <div className="absolute -bottom-20 left-40 w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full bg-pink-300 mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
         </div>
 
         {/* Hero Section */}
@@ -236,64 +236,6 @@ export default function ContactPage() {
       </main>
 
       <Footer />
-
-      <style jsx>{`
-        @keyframes blob {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-        }
-
-        .blob {
-          position: absolute;
-          width: 18rem;
-          height: 18rem;
-          border-radius: 9999px;
-          mix-blend-mode: multiply;
-          filter: blur(48px);
-          animation: blob 7s infinite;
-        }
-
-        .blob-1 {
-          top: 5rem;
-          left: 2.5rem;
-          background-color: rgb(196, 181, 253);
-        }
-
-        .blob-2 {
-          top: 10rem;
-          right: 2.5rem;
-          background-color: rgb(252, 211, 77);
-          animation-delay: 2s;
-        }
-
-        .blob-3 {
-          bottom: -5rem;
-          left: 10rem;
-          background-color: rgb(251, 207, 232);
-          animation-delay: 4s;
-        }
-
-        @media (min-width: 640px) {
-          .blob {
-            width: 20rem;
-            height: 20rem;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .blob {
-            width: 24rem;
-            height: 24rem;
-          }
-        }
-      `}</style>
     </div>
   );
 }

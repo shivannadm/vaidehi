@@ -342,13 +342,8 @@ export default function AdminDashboard() {
 
           <div className={`mt-6 p-4 rounded-lg ${isLight ? 'bg-blue-50' : 'bg-blue-900/20'}`}>
             <p className={`text-xs ${isLight ? 'text-blue-800' : 'text-blue-300'}`}>
-              <strong>Note:</strong> To grant admin access, run this SQL in Supabase:
+              <strong>Note:</strong> To grant admin access, <a href="/dashboard/support?tab=help" className="text-red-400"> click here to reach us:</a>
             </p>
-            <code className={`block mt-2 text-xs p-2 rounded ${isLight ? 'bg-slate-100' : 'bg-slate-900'}`}>
-              INSERT INTO admin_users (user_id)<br />
-              SELECT id FROM auth.users<br />
-              WHERE email = &apos;your@email.com&apos;;
-            </code>
           </div>
         </div>
       </div>
