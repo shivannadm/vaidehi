@@ -47,7 +47,7 @@ const Footer = () => {
               </span>
             </a>
             <p className="text-sm text-slate-600 leading-relaxed max-w-sm mx-auto md:mx-0">
-              Minimal trading journal & routine optimizer. Built for traders who want to improve consistently.
+              Your all-in-one platform for building consistency across every area of life. Track tasks, optimize routines, and analyze performance - all in one place.
             </p>
             {/* Social Icons: centered on mobile, left-aligned on desktop */}
             <div className="flex gap-4 mt-6 justify-center md:justify-start">
