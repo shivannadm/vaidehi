@@ -662,7 +662,7 @@ export default function DocsPage() {
                 <div className="bg-white border border-slate-200 rounded-lg p-6">
                   <h4 className="font-semibold text-slate-900 mb-2">Can I import trades from my broker?</h4>
                   <p className="text-slate-600">
-                    No! We currently working on it.
+                    No! We are currently working on it.
                   </p>
                 </div>
 
