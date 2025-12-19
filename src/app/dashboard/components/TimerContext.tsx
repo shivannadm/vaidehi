@@ -3,6 +3,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   createTaskSession,
   endTaskSession,
@@ -10,6 +11,7 @@ import {
   getActiveSession,
   getOrCreateTaskForDate // ✅ Import the helper function
 } from "@/lib/supabase/task-helpers";
+
 import { formatDateToString } from "@/types/database";
 
 interface TimerState {
@@ -467,19 +469,25 @@ export function TimerProvider({ children, userId }: { children: ReactNode; userI
       );
 
       if (crossedMidnight) {
-        // Sessions already created by handleMidnightCrossing
-        // Just delete the original incomplete session
-        const { error: deleteError } = await endTaskSession(
-          timer.sessionId,
-          endTime.toISOString(),
-          0 // Mark as 0 since we created new sessions
-        );
+        // ✅ FIX: DELETE the original session instead of updating it
+        // The split sessions have already been created by handleMidnightCrossing
+
+        console.log('🗑️ Deleting original unsplit session:', timer.sessionId);
+
+        const supabase = createClient();
+        const { error: deleteError } = await supabase
+          .from('task_sessions')
+          .delete()
+          .eq('id', timer.sessionId);
 
         if (deleteError) {
-          console.warn("Error marking original session:", deleteError);
+          console.error("❌ Error deleting original session:", deleteError);
+          // Don't fail - the split sessions are already created
+        } else {
+          console.log('✅ Original unsplit session deleted successfully');
         }
 
-        console.log('🌙 Midnight crossing handled - sessions split across days');
+        console.log('🌙 Midnight crossing complete - sessions properly split');
 
       } else {
         // Normal single-day session
