@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/lib/supabase/support-helpers.ts
-// ✅ UPDATED: Added admin check function
+// ✅ UPDATED: Added sendNotificationToAllUsers function
 // ============================================
 
 import { createClient } from "./client";
@@ -26,6 +26,79 @@ export async function isUserAdmin() {
     .single();
 
   return !error && !!data;
+}
+
+// ============================================
+// NOTIFICATION OPERATIONS
+// ============================================
+
+/**
+ * Send notification to all users in the system
+ * @param message - The notification message to send
+ * @returns Object with data (sent status and count) or error
+ */
+export async function sendNotificationToAllUsers(message: string) {
+  try {
+    const supabase = createClient();
+    
+    // Get current admin user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      return { data: null, error: new Error('Not authenticated') };
+    }
+
+    // Check if user is admin
+    const isAdmin = await isUserAdmin();
+    if (!isAdmin) {
+      return { data: null, error: new Error('Unauthorized: Admin access required') };
+    }
+
+    // Get all user IDs from profiles table
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id');
+
+    if (profilesError) {
+      console.error('Error fetching profiles:', profilesError);
+      return { data: null, error: profilesError };
+    }
+
+    if (!profiles || profiles.length === 0) {
+      return { data: { sent: true, count: 0 }, error: null };
+    }
+
+    // Create notification records for all users
+    const notifications = profiles.map(profile => ({
+      user_id: profile.id,
+      message: message.trim(),
+      read: false,
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+    }));
+
+    // Insert all notifications in batch
+    const { error: insertError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (insertError) {
+      console.error('Error inserting notifications:', insertError);
+      return { data: null, error: insertError };
+    }
+
+    // Return success with count
+    return { 
+      data: { 
+        sent: true, 
+        count: profiles.length 
+      }, 
+      error: null 
+    };
+  } catch (error) {
+    console.error('Error in sendNotificationToAllUsers:', error);
+    return { data: null, error: error as Error };
+  }
 }
 
 // ============================================
