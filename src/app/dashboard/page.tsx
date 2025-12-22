@@ -119,10 +119,10 @@ export default function DashboardHome() {
           </h1>
 
           <p className={`text-xl sm:text-2xl lg:text-3xl font-medium mb-4 ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
-            Master Your Routine and Trading. Build Better Habits.
+            Master Your Routine and Trading. Build the Best Version of Yourself.
           </p>
           <p className={`text-lg sm:text-xl ${isLight ? 'text-slate-600' : 'text-slate-400'} max-w-3xl mx-auto`}>
-            Track every trade, optimize your routine, and unlock your full potential with data-driven insights.
+            Track every habit, trade, and optimise your routine to unlock your full potential with data-driven insights.
           </p>
         </div>
 
