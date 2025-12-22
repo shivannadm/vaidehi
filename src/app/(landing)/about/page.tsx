@@ -46,7 +46,7 @@ export default function AboutPage() {
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "Trading Analytics",
-      description: "Upload trades and get 20+ advanced metrics including Sharpe ratio, win rate, and drawdown analysis"
+      description: "Upload trades and get 15+ advanced metrics including Sharpe ratio, win rate, and drawdown analysis"
     }
   ];
 
@@ -167,7 +167,7 @@ export default function AboutPage() {
               <div className="relative mb-6">
                 <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-slate-200">
                   <Image
-                    src="/assets/dev.png"
+                    src="/assets/dev3.png"
                     alt="Shivanna - Developer"
                     width={160}
                     height={160}
