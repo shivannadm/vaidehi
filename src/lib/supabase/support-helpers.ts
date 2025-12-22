@@ -1,6 +1,6 @@
 // ============================================
 // FILE: src/lib/supabase/support-helpers.ts
-// ✅ UPDATED: Added sendNotificationToAllUsers function
+// ✅ FIXED: Now sends to ALL users, not just admins
 // ============================================
 
 import { createClient } from "./client";
@@ -15,7 +15,7 @@ import type { Feedback, HelpRequest, FeedbackCategory, HelpPriority, ContactMess
  */
 export async function isUserAdmin() {
   const supabase = createClient();
-  
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
 
@@ -33,7 +33,8 @@ export async function isUserAdmin() {
 // ============================================
 
 /**
- * Send notification to all users in the system
+ * Send notification to ALL users in the system
+ * ✅ FIXED: Now queries 'profiles' table instead of 'admin_users'
  * @param message - The notification message to send
  * @returns Object with data (sent status and count) or error
  */
@@ -41,62 +42,65 @@ export async function sendNotificationToAllUsers(message: string) {
   try {
     const supabase = createClient();
     
-    // Get current admin user
+    // Verify admin user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
+      console.error('❌ Auth error:', userError);
       return { data: null, error: new Error('Not authenticated') };
     }
 
-    // Check if user is admin
+    console.log('✅ Authenticated as:', user.id);
+
+    // Check admin status
     const isAdmin = await isUserAdmin();
     if (!isAdmin) {
+      console.error('❌ Not authorized');
       return { data: null, error: new Error('Unauthorized: Admin access required') };
     }
 
-    // Get all user IDs from profiles table
-    const { data: profiles, error: profilesError } = await supabase
-      .from('profiles')
-      .select('id');
+    console.log('✅ Admin verified');
 
-    if (profilesError) {
-      console.error('Error fetching profiles:', profilesError);
-      return { data: null, error: profilesError };
+    // ============================================
+    // Use RPC function to send notifications
+    // This bypasses RLS completely
+    // ============================================
+    
+    console.log('📤 Calling RPC function...');
+    
+    const { data: rpcResult, error: rpcError } = await supabase
+      .rpc('send_notification_to_all_users', {
+        notification_message: message.trim()
+      });
+
+    if (rpcError) {
+      console.error('❌ RPC error:', rpcError);
+      return { data: null, error: rpcError };
     }
 
-    if (!profiles || profiles.length === 0) {
-      return { data: { sent: true, count: 0 }, error: null };
+    console.log('✅ RPC result:', rpcResult);
+
+    // RPC function returns JSON with {sent, count, message}
+    if (rpcResult && rpcResult.sent) {
+      console.log(`✅ Successfully sent ${rpcResult.count} notifications`);
+      
+      return { 
+        data: { 
+          sent: true, 
+          count: rpcResult.count 
+        }, 
+        error: null 
+      };
+    } else {
+      console.error('❌ RPC failed:', rpcResult?.error);
+      return { 
+        data: null, 
+        error: new Error(rpcResult?.error || 'Failed to send notifications') 
+      };
     }
-
-    // Create notification records for all users
-    const notifications = profiles.map(profile => ({
-      user_id: profile.id,
-      message: message.trim(),
-      read: false,
-      created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
-    }));
-
-    // Insert all notifications in batch
-    const { error: insertError } = await supabase
-      .from('notifications')
-      .insert(notifications);
-
-    if (insertError) {
-      console.error('Error inserting notifications:', insertError);
-      return { data: null, error: insertError };
-    }
-
-    // Return success with count
-    return { 
-      data: { 
-        sent: true, 
-        count: profiles.length 
-      }, 
-      error: null 
-    };
+    
   } catch (error) {
-    console.error('Error in sendNotificationToAllUsers:', error);
+    console.error('❌ Unexpected error:', error);
     return { data: null, error: error as Error };
   }
 }
