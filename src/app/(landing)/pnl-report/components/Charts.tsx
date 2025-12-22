@@ -1,17 +1,39 @@
 // src/app/(landing)/pnl-report/components/Charts.tsx
 'use client';
 
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import type { Trade, AdvancedMetrics } from '../types/analytics.types';
 
-interface ChartsProps {
-  trades: Trade[];
-  metrics: AdvancedMetrics;
+// Type definitions
+interface EquityCurvePoint {
+  index: number;
+  equity: number;
+  drawdown: number;
+  peak: number;
+}
+
+interface PieDataPoint {
+  name: string;
+  value: number;
+  color: string;
+  [key: string]: string | number;
+}
+
+interface MonthlyDataPoint {
+  month: string;
+  'Gross P&L': number;
+  'Net P&L': number;
+  trades: number;
+}
+
+interface BucketDataPoint {
+  range: string;
+  count: number;
+  fill: string;
 }
 
 export function EquityCurveChart({ trades }: { trades: Trade[] }) {
-  // Build equity curve from trades
-  const equityCurve = [];
+  const equityCurve: EquityCurvePoint[] = [];
   let cumulative = 0;
   let peak = 0;
 
@@ -69,8 +91,8 @@ export function EquityCurveChart({ trades }: { trades: Trade[] }) {
               borderRadius: '8px',
               color: '#fff'
             }}
-            formatter={(value: number) => [formatCurrency(value), '']}
-            labelFormatter={(label) => `Trade #${label}`}
+            formatter={(value: any) => [formatCurrency(Number(value)), '']}
+            labelFormatter={(label: any) => `Trade #${label}`}
           />
           <Legend 
             wrapperStyle={{ color: '#94a3b8' }}
@@ -98,7 +120,7 @@ export function EquityCurveChart({ trades }: { trades: Trade[] }) {
 }
 
 export function WinLossPieChart({ metrics }: { metrics: AdvancedMetrics }) {
-  const data = [
+  const data: PieDataPoint[] = [
     { name: 'Winning Trades', value: metrics.winningTrades, color: '#10b981' },
     { name: 'Losing Trades', value: metrics.losingTrades, color: '#ef4444' },
   ];
@@ -113,7 +135,7 @@ export function WinLossPieChart({ metrics }: { metrics: AdvancedMetrics }) {
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={(entry: any) => `${entry.name}: ${(entry.percent * 100).toFixed(0)}%`}
             outerRadius={100}
             fill="#8884d8"
             dataKey="value"
@@ -147,7 +169,6 @@ export function WinLossPieChart({ metrics }: { metrics: AdvancedMetrics }) {
 }
 
 export function MonthlyPnLBarChart({ trades }: { trades: Trade[] }) {
-  // Aggregate by month
   const monthlyData = new Map<string, { gross: number; net: number; trades: number }>();
 
   trades.forEach(trade => {
@@ -159,7 +180,7 @@ export function MonthlyPnLBarChart({ trades }: { trades: Trade[] }) {
     monthlyData.set(month, existing);
   });
 
-  const chartData = Array.from(monthlyData.entries())
+  const chartData: MonthlyDataPoint[] = Array.from(monthlyData.entries())
     .map(([month, data]) => ({
       month,
       'Gross P&L': Math.round(data.gross),
@@ -203,8 +224,8 @@ export function MonthlyPnLBarChart({ trades }: { trades: Trade[] }) {
               borderRadius: '8px',
               color: '#fff'
             }}
-            formatter={(value: number) => [formatCurrency(value), '']}
-            labelFormatter={(label) => `Month: ${label}`}
+            formatter={(value: any) => [formatCurrency(Number(value)), '']}
+            labelFormatter={(label: any) => `Month: ${label}`}
           />
           <Legend wrapperStyle={{ color: '#94a3b8' }} />
           <Bar dataKey="Gross P&L" fill="#8b5cf6" />
@@ -216,7 +237,6 @@ export function MonthlyPnLBarChart({ trades }: { trades: Trade[] }) {
 }
 
 export function TradeDistributionChart({ trades }: { trades: Trade[] }) {
-  // Create P&L distribution buckets
   const buckets = [
     { range: '< -5000', min: -Infinity, max: -5000, count: 0, color: '#dc2626' },
     { range: '-5000 to -2000', min: -5000, max: -2000, count: 0, color: '#ef4444' },
@@ -238,7 +258,7 @@ export function TradeDistributionChart({ trades }: { trades: Trade[] }) {
     }
   });
 
-  const chartData = buckets.map(b => ({
+  const chartData: BucketDataPoint[] = buckets.map(b => ({
     range: b.range,
     count: b.count,
     fill: b.color,
@@ -269,7 +289,7 @@ export function TradeDistributionChart({ trades }: { trades: Trade[] }) {
               borderRadius: '8px',
               color: '#fff'
             }}
-            formatter={(value: number) => [`${value} trades`, 'Count']}
+            formatter={(value: any) => [`${value} trades`, 'Count']}
           />
           <Bar dataKey="count">
             {chartData.map((entry, index) => (
@@ -290,7 +310,6 @@ export function TopWinnersLosersTable({ trades }: { trades: Trade[] }) {
       maximumFractionDigits: 0 
     }).format(amount);
 
-  // Get top 5 winners and losers
   const sortedTrades = [...trades].sort((a, b) => b.net_pnl - a.net_pnl);
   const topWinners = sortedTrades.slice(0, 5);
   const topLosers = sortedTrades.slice(-5).reverse();
@@ -300,7 +319,6 @@ export function TopWinnersLosersTable({ trades }: { trades: Trade[] }) {
       <h3 className="text-lg font-bold mb-4">🏆 Top Winners & Losers</h3>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Winners */}
         <div>
           <h4 className="text-sm font-semibold text-emerald-400 mb-3">Top 5 Winners</h4>
           <div className="space-y-2">
@@ -313,7 +331,7 @@ export function TopWinnersLosersTable({ trades }: { trades: Trade[] }) {
                 <div className="text-right">
                   <p className="font-bold text-emerald-400">{formatCurrency(trade.net_pnl)}</p>
                   <p className="text-xs text-slate-400">
-                    {((trade.net_pnl / trade.buy_value) * 100).toFixed(1)}%
+                    {trade.buy_value > 0 ? ((trade.net_pnl / trade.buy_value) * 100).toFixed(1) : '0'}%
                   </p>
                 </div>
               </div>
@@ -321,7 +339,6 @@ export function TopWinnersLosersTable({ trades }: { trades: Trade[] }) {
           </div>
         </div>
 
-        {/* Top Losers */}
         <div>
           <h4 className="text-sm font-semibold text-red-400 mb-3">Top 5 Losers</h4>
           <div className="space-y-2">
@@ -334,7 +351,7 @@ export function TopWinnersLosersTable({ trades }: { trades: Trade[] }) {
                 <div className="text-right">
                   <p className="font-bold text-red-400">{formatCurrency(trade.net_pnl)}</p>
                   <p className="text-xs text-slate-400">
-                    {((trade.net_pnl / trade.buy_value) * 100).toFixed(1)}%
+                    {trade.buy_value > 0 ? ((trade.net_pnl / trade.buy_value) * 100).toFixed(1) : '0'}%
                   </p>
                 </div>
               </div>
@@ -354,7 +371,6 @@ export function SymbolPerformanceTable({ trades }: { trades: Trade[] }) {
       maximumFractionDigits: 0 
     }).format(amount);
 
-  // Aggregate by symbol
   const symbolData = new Map<string, { 
     count: number; 
     totalPnL: number; 
@@ -378,7 +394,6 @@ export function SymbolPerformanceTable({ trades }: { trades: Trade[] }) {
     symbolData.set(trade.symbol, existing);
   });
 
-  // Calculate averages and sort
   const symbolArray = Array.from(symbolData.entries())
     .map(([symbol, data]) => ({
       symbol,
@@ -420,7 +435,7 @@ export function SymbolPerformanceTable({ trades }: { trades: Trade[] }) {
                   {formatCurrency(item.avgPnL)}
                 </td>
                 <td className="py-3 px-4 text-right text-sm">
-                  <span className={`px-2 py-1 rounded ${
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
                     item.winRate >= 50 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
                   }`}>
                     {item.winRate.toFixed(0)}%
@@ -436,7 +451,6 @@ export function SymbolPerformanceTable({ trades }: { trades: Trade[] }) {
 }
 
 export function TradeHeatmap({ trades }: { trades: Trade[] }) {
-  // This is a simplified heatmap showing winning/losing days
   const dailyData = new Map<string, number>();
 
   trades.forEach(trade => {
@@ -447,7 +461,7 @@ export function TradeHeatmap({ trades }: { trades: Trade[] }) {
   const heatmapData = Array.from(dailyData.entries())
     .map(([date, pnl]) => ({ date, pnl }))
     .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-30); // Last 30 trading days
+    .slice(-30);
 
   return (
     <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6">
