@@ -10,6 +10,16 @@ import {
   AlertCircle, CheckCircle, Filter, Lock, Eye, EyeOff,
   RefreshCw, Shield, PhoneCall, Bell, Send, X
 } from "lucide-react";
+
+import { Download, TrendingUp, Users, DollarSign, Calendar } from "lucide-react";
+import {
+  getAllContributions,
+  getContributionStats,
+  getContributionLeaderboard,
+  exportContributionsToCSV,
+  formatIndianRupees
+} from "@/lib/supabase/contribution-helpers";
+
 import {
   getAllFeedback,
   getAllHelpRequests,
@@ -20,9 +30,16 @@ import {
   updateContactMessageStatus,
   sendNotificationToAllUsers // ✅ REAL function, not mock
 } from "@/lib/supabase/support-helpers";
-import type { Feedback, HelpRequest, ContactMessage } from "@/types/database";
+import type { Feedback, HelpRequest, ContactMessage, Contribution, ContributionStats, LeaderboardEntry } from "@/types/database";
 
 export default function AdminDashboard() {
+
+  const [contributionsData, setContributionsData] = useState<Contribution[]>([]);
+  const [contributionStats, setContributionStats] = useState<ContributionStats | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [contributionsFilter, setContributionsFilter] = useState<"all" | "success" | "pending" | "failed">("all");
+  const [exportingCSV, setExportingCSV] = useState(false);
+
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,7 +51,7 @@ export default function AdminDashboard() {
   const [loginError, setLoginError] = useState("");
   const [loginAttempting, setLoginAttempting] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<"feedback" | "help" | "contact" | "notify">("feedback");
+  const [activeTab, setActiveTab] = useState<"feedback" | "help" | "contact" | "notify" | "contributions">("feedback");
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "resolved">("all");
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -104,15 +121,21 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       // ✅ REAL Supabase calls, not mocks
-      const [feedbackResult, helpResult, contactResult] = await Promise.all([
+      const [feedbackResult, helpResult, contactResult, contributionsResult, statsResult, leaderboardResult] = await Promise.all([
         getAllFeedback(),
         getAllHelpRequests(),
-        getAllContactMessages()
+        getAllContactMessages(),
+        getAllContributions(),
+        getContributionStats(),
+        getContributionLeaderboard(10)
       ]);
 
       if (feedbackResult.data) setFeedbackData(feedbackResult.data as Feedback[]);
       if (helpResult.data) setHelpData(helpResult.data as HelpRequest[]);
       if (contactResult.data) setContactData(contactResult.data as ContactMessage[]);
+      if (contributionsResult.data) setContributionsData(contributionsResult.data as Contribution[]);
+      if (statsResult.data) setContributionStats(statsResult.data);
+      if (leaderboardResult.data) setLeaderboard(leaderboardResult.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -125,6 +148,58 @@ export default function AdminDashboard() {
     await fetchAllData();
     setRefreshing(false);
   };
+
+  const handleExportCSV = async () => {
+    setExportingCSV(true);
+
+    try {
+      const { data: csvContent, error } = await exportContributionsToCSV();
+
+      if (error || !csvContent) {
+        alert("Failed to export CSV");
+        return;
+      }
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `vaidehi-contributions-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      console.log("✅ CSV exported successfully");
+    } catch (error) {
+      console.error("CSV export error:", error);
+      alert("Failed to export CSV");
+    } finally {
+      setExportingCSV(false);
+    }
+  };
+
+  // ADD THIS HELPER FUNCTION:
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'success':
+        return 'bg-green-100 text-green-700 border-green-300';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'failed':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+    }
+  };
+
+  // FILTERED CONTRIBUTIONS:
+  const filteredContributions = contributionsFilter === 'all'
+    ? contributionsData
+    : contributionsData.filter(c => c.status === contributionsFilter);
+
+
 
   const handleLogin = async () => {
     setLoginError("");
@@ -453,6 +528,7 @@ export default function AdminDashboard() {
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </button>
+
             <button
               onClick={handleLogout}
               className={`px-4 py-2 rounded-lg ${isLight ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-red-900/30 text-red-400 hover:bg-red-900/50'} transition`}
@@ -532,6 +608,16 @@ export default function AdminDashboard() {
           >
             <Bell className="w-5 h-5" />
             Notify
+          </button>
+          <button
+            onClick={() => setActiveTab("contributions")}
+            className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 whitespace-nowrap ${activeTab === "contributions"
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                : isLight ? 'bg-white text-slate-700 hover:bg-slate-100' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+          >
+            <DollarSign className="w-5 h-5" />
+            Contributions ({contributionsData.length})
           </button>
         </div>
 
@@ -618,8 +704,8 @@ export default function AdminDashboard() {
                   rows={5}
                   maxLength={500}
                   className={`w-full px-4 py-3 rounded-lg border-2 resize-none ${isLight
-                      ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-                      : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
+                    ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                    : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
                     } focus:outline-none focus:ring-2 focus:ring-orange-500`}
                 />
                 <div className="flex items-center justify-between mt-2">
