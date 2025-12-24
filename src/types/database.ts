@@ -2251,3 +2251,94 @@ export interface ContactMessage {
 
 export type CreateContactMessage = Omit<ContactMessage, 'id' | 'created_at' | 'status'>;
 export type UpdateContactMessage = Partial<Pick<ContactMessage, 'status'>>;
+
+// ============================================
+// CONTRIBUTION TYPES
+// ============================================
+
+export interface Contribution {
+  id: string;
+  user_id: string | null;
+  user_name: string;
+  user_email: string;
+  amount: number; // in rupees
+  currency: 'INR';
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+  message: string | null;
+  status: 'success' | 'pending' | 'failed';
+  created_at: string;
+  updated_at: string;
+}
+
+export type CreateContribution = Omit<Contribution, 'id' | 'created_at' | 'updated_at'>;
+
+export type UpdateContribution = Partial<Pick<Contribution, 'status' | 'updated_at'>>;
+
+// Contribution stats for admin dashboard
+export interface ContributionStats {
+  totalRaised: number;
+  totalContributors: number;
+  thisMonth: number;
+  thisMonthCount: number;
+  average: number;
+  lastContribution: string | null;
+}
+
+// Leaderboard entry
+export interface LeaderboardEntry {
+  user_name: string;
+  user_email: string;
+  total_amount: number;
+  contribution_count: number;
+  last_contribution: string;
+}
+
+// Badge configuration
+export interface SupporterBadge {
+  name: string;
+  icon: string;
+  color: string;
+  description: string;
+  minAmount: number;
+}
+
+// Available supporter badges
+export const SUPPORTER_BADGES: SupporterBadge[] = [
+  {
+    name: "Diamond Supporter",
+    icon: "💎",
+    color: "from-cyan-400 to-blue-500",
+    description: "Elite supporter with ₹5000+ contributions",
+    minAmount: 5000
+  },
+  {
+    name: "Gold Supporter",
+    icon: "🏆",
+    color: "from-yellow-400 to-orange-500",
+    description: "Premium supporter with ₹2000+ contributions",
+    minAmount: 2000
+  },
+  {
+    name: "Silver Supporter",
+    icon: "⭐",
+    color: "from-slate-300 to-slate-400",
+    description: "Valued supporter with ₹1000+ contributions",
+    minAmount: 1000
+  },
+  {
+    name: "Bronze Supporter",
+    icon: "🎖️",
+    color: "from-orange-400 to-red-400",
+    description: "Growing supporter with ₹500+ contributions",
+    minAmount: 500
+  },
+  {
+    name: "Supporter",
+    icon: "💝",
+    color: "from-pink-400 to-rose-500",
+    description: "Generous supporter with ₹100+ contributions",
+    minAmount: 100
+  }
+];
