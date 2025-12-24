@@ -450,10 +450,10 @@ export default function GoProPage() {
                       setShowCustomInput(false);
                     }}
                     className={`px-6 py-3 rounded-xl font-semibold transition-all shadow-lg flex items-center gap-2 ${selectedAmount === amount && !showCustomInput
-                        ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white scale-105 shadow-orange-500/20'
-                        : isLight
-                          ? 'bg-white text-slate-700 hover:bg-orange-50 border-2 border-orange-200'
-                          : 'bg-slate-700 text-slate-300 hover:bg-slate-600 border-2 border-slate-600'
+                      ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white scale-105 shadow-orange-500/20'
+                      : isLight
+                        ? 'bg-white text-slate-700 hover:bg-orange-50 border-2 border-orange-200'
+                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600 border-2 border-slate-600'
                       }`}
                   >
                     <IndianRupee className="w-4 h-4" />
@@ -470,10 +470,10 @@ export default function GoProPage() {
                     }
                   }}
                   className={`px-6 py-3 rounded-xl font-semibold transition-all shadow-lg flex items-center gap-2 ${showCustomInput
-                      ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white scale-105 shadow-orange-500/20'
-                      : isLight
-                        ? 'bg-white text-slate-700 hover:bg-orange-50 border-2 border-orange-200'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600 border-2 border-slate-600'
+                    ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white scale-105 shadow-orange-500/20'
+                    : isLight
+                      ? 'bg-white text-slate-700 hover:bg-orange-50 border-2 border-orange-200'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600 border-2 border-slate-600'
                     }`}
                 >
                   <Edit3 className="w-4 h-4" />
@@ -497,8 +497,8 @@ export default function GoProPage() {
                         placeholder="Enter amount"
                         min="1"
                         className={`w-full pl-10 pr-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${isLight
-                            ? 'bg-slate-50 border-slate-200 text-slate-900'
-                            : 'bg-slate-800 border-slate-600 text-white'
+                          ? 'bg-slate-50 border-slate-200 text-slate-900'
+                          : 'bg-slate-800 border-slate-600 text-white'
                           }`}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -578,8 +578,8 @@ export default function GoProPage() {
                     onChange={(e) => setContributorName(e.target.value)}
                     placeholder="Enter your name"
                     className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${isLight
-                        ? 'bg-white border-slate-300 text-slate-900'
-                        : 'bg-slate-700 border-slate-600 text-white'
+                      ? 'bg-white border-slate-300 text-slate-900'
+                      : 'bg-slate-700 border-slate-600 text-white'
                       }`}
                   />
                 </div>
@@ -595,8 +595,8 @@ export default function GoProPage() {
                     onChange={(e) => setContributorEmail(e.target.value)}
                     placeholder="your@email.com"
                     className={`w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-orange-500 ${isLight
-                        ? 'bg-white border-slate-300 text-slate-900'
-                        : 'bg-slate-700 border-slate-600 text-white'
+                      ? 'bg-white border-slate-300 text-slate-900'
+                      : 'bg-slate-700 border-slate-600 text-white'
                       }`}
                   />
                 </div>
@@ -613,8 +613,8 @@ export default function GoProPage() {
                     rows={3}
                     maxLength={200}
                     className={`w-full px-4 py-3 rounded-lg border-2 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 ${isLight
-                        ? 'bg-white border-slate-300 text-slate-900'
-                        : 'bg-slate-700 border-slate-600 text-white'
+                      ? 'bg-white border-slate-300 text-slate-900'
+                      : 'bg-slate-700 border-slate-600 text-white'
                       }`}
                   />
                   <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
