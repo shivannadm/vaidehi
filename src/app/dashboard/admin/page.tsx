@@ -1,14 +1,12 @@
-// ============================================
-// FILE: src/app/dashboard/admin/page.tsx - PART 1/2
-// ✅ FIXED: Uses REAL Supabase functions, not mocks
-// ============================================
+// FILE: src/app/dashboard/admin/page.tsx
 
 "use client";
 import { useState, useEffect } from "react";
 import {
   MessageCircle, HelpCircle, User, Mail, Clock,
   AlertCircle, CheckCircle, Filter, Lock, Eye, EyeOff,
-  RefreshCw, Shield, PhoneCall, Bell, Send, X
+  RefreshCw, Shield, PhoneCall, Bell, Send, X, IndianRupee,
+  Trophy
 } from "lucide-react";
 
 import { Download, TrendingUp, Users, DollarSign, Calendar } from "lucide-react";
@@ -28,7 +26,7 @@ import {
   isUserAdmin,
   getAllContactMessages,
   updateContactMessageStatus,
-  sendNotificationToAllUsers // ✅ REAL function, not mock
+  sendNotificationToAllUsers
 } from "@/lib/supabase/support-helpers";
 import type { Feedback, HelpRequest, ContactMessage, Contribution, ContributionStats, LeaderboardEntry } from "@/types/database";
 
@@ -350,14 +348,6 @@ export default function AdminDashboard() {
 
   const isLight = !isDark;
 
-  // ============================================
-  // CONTINUE TO PART 2 FOR RENDER COMPONENTS
-  // ============================================
-  // ============================================
-  // PASTE PART 1 ABOVE THIS, THEN ADD THIS PART 2
-  // This continues from Part 1
-  // ============================================
-
   // Login Screen
   if (!isAuthenticated) {
     return (
@@ -612,11 +602,11 @@ export default function AdminDashboard() {
           <button
             onClick={() => setActiveTab("contributions")}
             className={`px-6 py-3 rounded-lg font-semibold transition flex items-center gap-2 whitespace-nowrap ${activeTab === "contributions"
-                ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
-                : isLight ? 'bg-white text-slate-700 hover:bg-slate-100' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+              : isLight ? 'bg-white text-slate-700 hover:bg-slate-100' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
           >
-            <DollarSign className="w-5 h-5" />
+            <IndianRupee className="w-5 h-5" />
             Contributions ({contributionsData.length})
           </button>
         </div>
@@ -639,9 +629,6 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* ============================================ */}
-      {/* CONTENT AREA - SEE PART 3 */}
-      {/* ============================================ */}
       {/* Content */}
       <div className="max-w-7xl mx-auto">
         {loading ? (
@@ -910,6 +897,268 @@ export default function AdminDashboard() {
               ))
             )}
           </div>
+        ) : activeTab === "contributions" ? (
+          <div className="space-y-6">
+
+            {/* ============================================ */}
+            {/* STATS DASHBOARD */}
+            {/* ============================================ */}
+            {contributionStats && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Total Raised */}
+                <div className={`${isLight ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700'} border-2 rounded-xl p-6`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-lg ${isLight ? 'bg-green-100' : 'bg-green-800'}`}>
+                      <TrendingUp className={`w-5 h-5 ${isLight ? 'text-green-600' : 'text-green-300'}`} />
+                    </div>
+                    <p className={`text-sm font-medium ${isLight ? 'text-green-700' : 'text-green-300'}`}>
+                      Total Raised
+                    </p>
+                  </div>
+                  <p className={`text-3xl font-bold ${isLight ? 'text-green-900' : 'text-green-100'}`}>
+                    {formatIndianRupees(contributionStats.totalRaised)}
+                  </p>
+                </div>
+
+                {/* Total Contributors */}
+                <div className={`${isLight ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200' : 'bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border-blue-700'} border-2 rounded-xl p-6`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-lg ${isLight ? 'bg-blue-100' : 'bg-blue-800'}`}>
+                      <Users className={`w-5 h-5 ${isLight ? 'text-blue-600' : 'text-blue-300'}`} />
+                    </div>
+                    <p className={`text-sm font-medium ${isLight ? 'text-blue-700' : 'text-blue-300'}`}>
+                      Contributors
+                    </p>
+                  </div>
+                  <p className={`text-3xl font-bold ${isLight ? 'text-blue-900' : 'text-blue-100'}`}>
+                    {contributionStats.totalContributors}
+                  </p>
+                </div>
+
+                {/* This Month */}
+                <div className={`${isLight ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200' : 'bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-700'} border-2 rounded-xl p-6`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-lg ${isLight ? 'bg-purple-100' : 'bg-purple-800'}`}>
+                      <Calendar className={`w-5 h-5 ${isLight ? 'text-purple-600' : 'text-purple-300'}`} />
+                    </div>
+                    <p className={`text-sm font-medium ${isLight ? 'text-purple-700' : 'text-purple-300'}`}>
+                      This Month
+                    </p>
+                  </div>
+                  <p className={`text-3xl font-bold ${isLight ? 'text-purple-900' : 'text-purple-100'}`}>
+                    {formatIndianRupees(contributionStats.thisMonth)}
+                  </p>
+                  <p className={`text-xs mt-1 ${isLight ? 'text-purple-600' : 'text-purple-400'}`}>
+                    {contributionStats.thisMonthCount} contributions
+                  </p>
+                </div>
+
+                {/* Average */}
+                <div className={`${isLight ? 'bg-gradient-to-br from-orange-50 to-red-50 border-orange-200' : 'bg-gradient-to-br from-orange-900/30 to-red-900/30 border-orange-700'} border-2 rounded-xl p-6`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`p-2 rounded-lg ${isLight ? 'bg-orange-100' : 'bg-orange-800'}`}>
+                      <IndianRupee className={`w-5 h-5 ${isLight ? 'text-orange-600' : 'text-orange-300'}`} />
+                    </div>
+                    <p className={`text-sm font-medium ${isLight ? 'text-orange-700' : 'text-orange-300'}`}>
+                      Average
+                    </p>
+                  </div>
+                  <p className={`text-3xl font-bold ${isLight ? 'text-orange-900' : 'text-orange-100'}`}>
+                    {formatIndianRupees(contributionStats.average)}
+                  </p>
+                </div>
+
+                {/* Export Button */}
+                <div className={`${isLight ? 'bg-slate-50 border-slate-200' : 'bg-slate-800 border-slate-700'} border-2 rounded-xl p-6 flex items-center justify-center`}>
+                  <button
+                    onClick={handleExportCSV}
+                    disabled={exportingCSV || contributionsData.length === 0}
+                    className={`px-4 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${isLight
+                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                        : 'bg-indigo-500 hover:bg-indigo-600 text-white'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    {exportingCSV ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Exporting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        <span>Export CSV</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ============================================ */}
+            {/* LEADERBOARD */}
+            {/* ============================================ */}
+            {leaderboard.length > 0 && (
+              <div className={`${isLight ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200' : 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-700'} border-2 rounded-xl p-6`}>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`p-3 rounded-xl ${isLight ? 'bg-yellow-100' : 'bg-yellow-800'}`}>
+                    <Trophy className={`w-6 h-6 ${isLight ? 'text-yellow-600' : 'text-yellow-300'}`} />
+                  </div>
+                  <div>
+                    <h3 className={`text-xl font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                      🏆 Top Contributors Leaderboard
+                    </h3>
+                    <p className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                      Our amazing supporters who make Vaidehi possible
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {leaderboard.map((entry, index) => (
+                    <div
+                      key={entry.user_email}
+                      className={`flex items-center gap-4 p-4 rounded-xl transition ${index === 0
+                          ? isLight ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300' : 'bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border-2 border-yellow-700'
+                          : isLight ? 'bg-white/60' : 'bg-slate-800/30'
+                        }`}
+                    >
+                      {/* Rank */}
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white' :
+                          index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-800' :
+                            index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-400 text-white' :
+                              isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-700 text-slate-300'
+                        }`}>
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                      </div>
+
+                      {/* User Info */}
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                          {entry.user_name}
+                        </h4>
+                        <p className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                          {entry.contribution_count} contribution{entry.contribution_count > 1 ? 's' : ''}
+                        </p>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="text-right">
+                        <p className={`text-xl font-bold ${index === 0 ? 'text-orange-600' :
+                            isLight ? 'text-slate-900' : 'text-white'
+                          }`}>
+                          {formatIndianRupees(entry.total_amount)}
+                        </p>
+                        <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                          {new Date(entry.last_contribution).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ============================================ */}
+            {/* FILTER */}
+            {/* ============================================ */}
+            <div className={`${isLight ? 'bg-white' : 'bg-slate-800'} rounded-lg p-4 flex items-center gap-4`}>
+              <Filter className={`w-5 h-5 ${isLight ? 'text-slate-600' : 'text-slate-400'}`} />
+              <select
+                value={contributionsFilter}
+                onChange={(e) => setContributionsFilter(e.target.value as any)}
+                className={`px-4 py-2 rounded-lg border ${isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-700 border-slate-600 text-white'
+                  } focus:outline-none focus:ring-2 focus:ring-green-500`}
+              >
+                <option value="all">All Contributions</option>
+                <option value="success">Successful</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+              </select>
+
+              <span className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                Showing {filteredContributions.length} of {contributionsData.length} contributions
+              </span>
+            </div>
+
+            {/* ============================================ */}
+            {/* CONTRIBUTIONS LIST */}
+            {/* ============================================ */}
+            <div className="space-y-4">
+              {filteredContributions.length === 0 ? (
+                <div className={`${isLight ? 'bg-white' : 'bg-slate-800'} rounded-xl p-8 text-center`}>
+                  <p className={isLight ? 'text-slate-600' : 'text-slate-400'}>
+                    No contributions found
+                  </p>
+                </div>
+              ) : (
+                filteredContributions.map(contribution => (
+                  <div
+                    key={contribution.id}
+                    className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-800 border-slate-700'} border rounded-xl p-6 hover:shadow-lg transition`}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+                          {contribution.user_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className={`font-semibold text-lg ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                            {contribution.user_name}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Mail className={`w-4 h-4 ${isLight ? 'text-slate-500' : 'text-slate-400'}`} />
+                            <span className={isLight ? 'text-slate-600' : 'text-slate-400'}>
+                              {contribution.user_email}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className={`text-2xl font-bold ${isLight ? 'text-green-600' : 'text-green-400'}`}>
+                          {formatIndianRupees(contribution.amount)}
+                        </p>
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mt-2 border ${getStatusBadgeColor(contribution.status)
+                          }`}>
+                          {contribution.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Message */}
+                    {contribution.message && (
+                      <div className={`p-4 rounded-lg mb-4 ${isLight ? 'bg-slate-50 border border-slate-200' : 'bg-slate-700/50 border border-slate-600'
+                        }`}>
+                        <p className={`text-sm italic ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                          "{contribution.message}"
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Payment Details */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className={`font-medium ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                          Payment ID:
+                        </p>
+                        <p className={`font-mono text-xs ${isLight ? 'text-slate-800' : 'text-slate-200'}`}>
+                          {contribution.razorpay_payment_id}
+                        </p>
+                      </div>
+                      <div>
+                        <p className={`font-medium ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                          Date:
+                        </p>
+                        <p className={isLight ? 'text-slate-800' : 'text-slate-200'}>
+                          {new Date(contribution.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         ) : (
           /* ============================================ */
           /* CONTACT TAB */
@@ -970,7 +1219,9 @@ export default function AdminDashboard() {
               ))
             )}
           </div>
-        )}
+
+        )
+        }
       </div>
     </div>
   );
