@@ -39,7 +39,7 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
             }`}
           >
             <Target className="w-5 h-5 text-indigo-500" />
-            Habit Heatmap (Last 90 Days)
+            Habit Heatmap
           </h2>
           <p className={`text-xs mt-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             Visualize consistency patterns
