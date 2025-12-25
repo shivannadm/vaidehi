@@ -144,9 +144,8 @@ export default function HealthPage() {
         <div className={`${showInsights ? 'block' : 'hidden'} sm:block`}>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {/* Overall Health Score */}
-            <div className={`col-span-2 sm:col-span-1 p-4 sm:p-6 rounded-xl border text-center ${
-              isDark ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700/50' : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
-            }`}>
+            <div className={`col-span-2 sm:col-span-1 p-4 sm:p-6 rounded-xl border text-center ${isDark ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700/50' : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200'
+              }`}>
               <div className="text-4xl sm:text-5xl font-bold text-green-500 mb-2">
                 {healthScore}
               </div>
@@ -258,7 +257,7 @@ function QuickStat({ icon, label, value, color, isDark }: any) {
   const colors = colorMap[color];
 
   return (
-    <div 
+    <div
       className="p-3 sm:p-4 rounded-xl border"
       style={{
         backgroundColor: colors.bg,
