@@ -124,12 +124,12 @@ export default function MorningPage() {
                 Day Streak
               </span>
             </div>
-            
+
             {/* Date - Hidden on very small screens, shown on sm+ */}
             <span className="hidden sm:inline text-sm opacity-75">
               {selectedDate.toDateString()}
             </span>
-            
+
             {/* Mobile Insights Toggle */}
             <button
               onClick={() => setShowInsights(!showInsights)}
