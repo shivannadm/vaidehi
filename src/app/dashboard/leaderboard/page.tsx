@@ -13,26 +13,26 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setMounted(true);
-    
+
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
     };
-    
+
     checkTheme();
-    
+
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      
+
       const [leaderboardResult, statsResult] = await Promise.all([
         getContributionLeaderboard(20),
         getContributionStats()
@@ -41,11 +41,11 @@ export default function LeaderboardPage() {
       if (leaderboardResult.data) {
         setLeaderboard(leaderboardResult.data);
       }
-      
+
       if (statsResult.data) {
         setStats(statsResult.data);
       }
-      
+
       setLoading(false);
     };
 
@@ -68,17 +68,17 @@ export default function LeaderboardPage() {
     <div className={`min-h-screen relative overflow-hidden ${isLight ? 'bg-slate-50' : 'bg-slate-900'}`}>
       {/* Gradient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-0 left-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : 'bg-gradient-to-br from-yellow-600 to-orange-700'}`} 
-             style={{ transform: 'translate(-30%, -30%)' }} />
-        <div className={`absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-pink-400 to-purple-500' : 'bg-gradient-to-br from-pink-600 to-purple-700'}`} 
-             style={{ transform: 'translate(30%, -20%)' }} />
-        <div className={`absolute bottom-0 left-1/3 w-[550px] h-[550px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-green-400 to-emerald-500' : 'bg-gradient-to-br from-green-600 to-emerald-700'}`} 
-             style={{ transform: 'translate(-20%, 30%)' }} />
+        <div className={`absolute top-0 left-0 w-[500px] h-[500px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : 'bg-gradient-to-br from-yellow-600 to-orange-700'}`}
+          style={{ transform: 'translate(-30%, -30%)' }} />
+        <div className={`absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-pink-400 to-purple-500' : 'bg-gradient-to-br from-pink-600 to-purple-700'}`}
+          style={{ transform: 'translate(30%, -20%)' }} />
+        <div className={`absolute bottom-0 left-1/3 w-[550px] h-[550px] rounded-full blur-3xl opacity-20 ${isLight ? 'bg-gradient-to-br from-green-400 to-emerald-500' : 'bg-gradient-to-br from-green-600 to-emerald-700'}`}
+          style={{ transform: 'translate(-20%, 30%)' }} />
       </div>
 
       <div className="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          
+
           {/* Hero Section */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-3xl mb-6 shadow-2xl shadow-orange-500/30 animate-pulse">
@@ -227,15 +227,13 @@ export default function LeaderboardPage() {
               </h3>
               <div className="space-y-3">
                 {leaderboard.slice(3).map((entry, index) => (
-                  <div 
+                  <div
                     key={entry.user_email}
-                    className={`flex items-center gap-4 p-4 rounded-xl transition hover:scale-[1.02] ${
-                      isLight ? 'bg-slate-50 hover:bg-slate-100' : 'bg-slate-700/30 hover:bg-slate-700/50'
-                    }`}
+                    className={`flex items-center gap-4 p-4 rounded-xl transition hover:scale-[1.02] ${isLight ? 'bg-slate-50 hover:bg-slate-100' : 'bg-slate-700/30 hover:bg-slate-700/50'
+                      }`}
                   >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      isLight ? 'bg-slate-200 text-slate-700' : 'bg-slate-600 text-slate-200'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${isLight ? 'bg-slate-200 text-slate-700' : 'bg-slate-600 text-slate-200'
+                      }`}>
                       #{index + 4}
                     </div>
 
@@ -274,7 +272,7 @@ export default function LeaderboardPage() {
             <p className={`text-sm ${isLight ? 'text-slate-600' : 'text-slate-400'} mb-4`}>
               Want to join our hall of fame?
             </p>
-            <a 
+            <a
               href="/dashboard/go-pro"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-semibold rounded-xl transition shadow-xl shadow-orange-500/40"
             >
