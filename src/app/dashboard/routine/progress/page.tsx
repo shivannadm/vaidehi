@@ -49,7 +49,7 @@ export default function ProgressPage() {
 
       if (user) {
         setUserId(user.id);
-        
+
         // ✅ FETCH USERNAME FROM PROFILE
         const { data: profile } = await getProfile(user.id);
         if (profile?.full_name) {
@@ -174,11 +174,10 @@ export default function ProgressPage() {
         className={`min-h-screen flex items-center justify-center p-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
       >
         <div
-          className={`p-6 rounded-xl max-w-md w-full ${
-            isDark
+          className={`p-6 rounded-xl max-w-md w-full ${isDark
               ? "bg-red-900/20 border border-red-500/30"
               : "bg-red-50 border border-red-200"
-          }`}
+            }`}
         >
           <p className={`mb-4 ${isDark ? "text-red-300" : "text-red-700"}`}>
             Authentication required.{" "}
@@ -221,11 +220,10 @@ export default function ProgressPage() {
         className={`min-h-screen flex items-center justify-center p-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
       >
         <div
-          className={`p-6 rounded-xl max-w-md w-full ${
-            isDark
+          className={`p-6 rounded-xl max-w-md w-full ${isDark
               ? "bg-red-900/20 border border-red-500/30"
               : "bg-red-50 border border-red-200"
-          }`}
+            }`}
         >
           <p className={`mb-4 ${isDark ? "text-red-300" : "text-red-700"}`}>
             Error: {error}
@@ -268,11 +266,10 @@ export default function ProgressPage() {
             <button
               onClick={refreshData}
               disabled={loading}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                isDark
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${isDark
                   ? "bg-slate-700 hover:bg-slate-600 text-white"
                   : "bg-white hover:bg-slate-100 text-slate-900 border border-slate-300"
-              } disabled:opacity-50`}
+                } disabled:opacity-50`}
               title="Refresh data"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -281,11 +278,10 @@ export default function ProgressPage() {
             <button
               onClick={handleScreenshot}
               disabled={loading || exporting}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                isDark
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${isDark
                   ? "bg-slate-700 hover:bg-slate-600 text-white"
                   : "bg-white hover:bg-slate-100 text-slate-900 border border-slate-300"
-              } disabled:opacity-50`}
+                } disabled:opacity-50`}
             >
               <Camera className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">IMG</span>
@@ -294,11 +290,10 @@ export default function ProgressPage() {
             <button
               onClick={handlePDFExport}
               disabled={loading || exporting || !overview}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                isDark
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${isDark
                   ? "bg-indigo-600 hover:bg-indigo-700 text-white"
                   : "bg-indigo-600 hover:bg-indigo-700 text-white"
-              } disabled:opacity-50`}
+                } disabled:opacity-50`}
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">PDF</span>
@@ -307,11 +302,10 @@ export default function ProgressPage() {
             <button
               onClick={handleJSONExport}
               disabled={loading || !overview}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                isDark
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition ${isDark
                   ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                   : "bg-emerald-600 hover:bg-emerald-700 text-white"
-              } disabled:opacity-50`}
+                } disabled:opacity-50`}
             >
               <FileJson className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">JSON</span>
@@ -362,11 +356,10 @@ export default function ProgressPage() {
         {/* Empty State */}
         {!overview && !loading && (
           <div
-            className={`text-center py-12 lg:py-16 rounded-xl border ${
-              isDark
+            className={`text-center py-12 lg:py-16 rounded-xl border ${isDark
                 ? "bg-slate-800 border-slate-700"
                 : "bg-white border-slate-200"
-            }`}
+              }`}
           >
             <TrendingUp
               className={`w-12 h-12 lg:w-16 lg:h-16 mx-auto mb-4 ${isDark ? "text-slate-600" : "text-slate-300"}`}
@@ -403,11 +396,10 @@ export default function ProgressPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Streak Achievement */}
             <div
-              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${
-                isDark
+              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${isDark
                   ? "bg-gradient-to-br from-orange-900/30 to-red-900/30 border-orange-700/50"
                   : "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
-              }`}
+                }`}
             >
               <div className="absolute top-0 right-0 text-6xl opacity-10">🔥</div>
               <div className="relative">
@@ -425,11 +417,10 @@ export default function ProgressPage() {
 
             {/* Total Entries */}
             <div
-              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${
-                isDark
+              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${isDark
                   ? "bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border-blue-700/50"
                   : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200"
-              }`}
+                }`}
             >
               <div className="absolute top-0 right-0 text-6xl opacity-10">📝</div>
               <div className="relative">
@@ -447,11 +438,10 @@ export default function ProgressPage() {
 
             {/* Wellness Score */}
             <div
-              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${
-                isDark
+              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${isDark
                   ? "bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700/50"
                   : "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
-              }`}
+                }`}
             >
               <div className="absolute top-0 right-0 text-6xl opacity-10">💚</div>
               <div className="relative">
@@ -469,11 +459,10 @@ export default function ProgressPage() {
 
             {/* Habit Completion */}
             <div
-              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${
-                isDark
+              className={`p-5 rounded-xl border relative overflow-hidden group hover:scale-105 transition-transform ${isDark
                   ? "bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-700/50"
                   : "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200"
-              }`}
+                }`}
             >
               <div className="absolute top-0 right-0 text-6xl opacity-10">🎯</div>
               <div className="relative">
