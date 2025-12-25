@@ -19,7 +19,7 @@ export default function KeyNotesPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<KeyNote | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<NoteType | "all">("all");
@@ -109,9 +109,8 @@ export default function KeyNotesPage() {
 
   if (!mounted || loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${
-        isDark ? 'bg-slate-900' : 'bg-slate-50'
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-slate-50'
+        }`}>
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p className={`mt-4 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
@@ -126,13 +125,12 @@ export default function KeyNotesPage() {
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="h-full overflow-y-auto p-6">
         <div className="max-w-7xl mx-auto space-y-6">
-          
+
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className={`text-3xl font-bold flex items-center gap-2 ${
-                isDark ? 'text-white' : 'text-slate-900'
-              }`}>
+              <h1 className={`text-3xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'
+                }`}>
                 <Lightbulb className="w-8 h-8 text-yellow-500" />
                 Key Notes
               </h1>
@@ -151,26 +149,23 @@ export default function KeyNotesPage() {
           </div>
 
           {/* Filters & Actions Bar */}
-          <div className={`rounded-xl border p-4 ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-          }`}>
+          <div className={`rounded-xl border p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
             <div className="flex flex-wrap items-center gap-3">
               {/* Search */}
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
-                  <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                    isDark ? 'text-slate-400' : 'text-slate-500'
-                  }`} />
+                  <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-slate-400' : 'text-slate-500'
+                    }`} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search notes..."
-                    className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                      isDark
+                    className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                         ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                         : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                    }`}
+                      }`}
                   />
                 </div>
               </div>
@@ -179,11 +174,10 @@ export default function KeyNotesPage() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
-                className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? 'bg-slate-700 border-slate-600 text-white'
                     : 'bg-slate-50 border-slate-200 text-slate-900'
-                }`}
+                  }`}
               >
                 <option value="all">All Types</option>
                 <option value="insight">💡 Insight</option>
@@ -198,11 +192,10 @@ export default function KeyNotesPage() {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value as any)}
-                className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? 'bg-slate-700 border-slate-600 text-white'
                     : 'bg-slate-50 border-slate-200 text-slate-900'
-                }`}
+                  }`}
               >
                 <option value="all">All Categories</option>
                 <option value="personal">Personal</option>
@@ -216,13 +209,12 @@ export default function KeyNotesPage() {
               {/* Quick Filters */}
               <button
                 onClick={() => setShowPinnedOnly(!showPinnedOnly)}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${
-                  showPinnedOnly
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showPinnedOnly
                     ? 'bg-indigo-500/20 text-indigo-500 border-2 border-indigo-500'
                     : isDark
                       ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                }`}
+                  }`}
               >
                 <Pin className={`w-4 h-4 ${showPinnedOnly ? 'fill-indigo-500' : ''}`} />
                 Pinned
@@ -230,13 +222,12 @@ export default function KeyNotesPage() {
 
               <button
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${
-                  showFavoritesOnly
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showFavoritesOnly
                     ? 'bg-yellow-500/20 text-yellow-500 border-2 border-yellow-500'
                     : isDark
                       ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                }`}
+                  }`}
               >
                 <Star className={`w-4 h-4 ${showFavoritesOnly ? 'fill-yellow-500' : ''}`} />
                 Favorites
@@ -244,38 +235,34 @@ export default function KeyNotesPage() {
 
               <button
                 onClick={() => setShowActionsOnly(!showActionsOnly)}
-                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${
-                  showActionsOnly
+                className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showActionsOnly
                     ? 'bg-orange-500/20 text-orange-500 border-2 border-orange-500'
                     : isDark
                       ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                }`}
+                  }`}
               >
                 Actions
               </button>
 
               {/* View Toggle */}
-              <div className={`flex items-center rounded-lg border ${
-                isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-100 border-slate-200'
-              }`}>
+              <div className={`flex items-center rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-100 border-slate-200'
+                }`}>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-l-lg transition ${
-                    viewMode === "grid"
+                  className={`p-2 rounded-l-lg transition ${viewMode === "grid"
                       ? 'bg-indigo-600 text-white'
                       : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                    }`}
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-r-lg transition ${
-                    viewMode === "list"
+                  className={`p-2 rounded-r-lg transition ${viewMode === "list"
                       ? 'bg-indigo-600 text-white'
                       : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                    }`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -314,13 +301,12 @@ export default function KeyNotesPage() {
                     <h2 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       Pinned Notes
                     </h2>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                      isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
+                      }`}>
                       {pinnedNotes.length}
                     </span>
                   </div>
-                  <div className={viewMode === "grid" 
+                  <div className={viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     : "space-y-3"
                   }>
@@ -349,7 +335,7 @@ export default function KeyNotesPage() {
                       All Notes
                     </h2>
                   )}
-                  <div className={viewMode === "grid" 
+                  <div className={viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
                     : "space-y-3"
                   }>
@@ -374,9 +360,8 @@ export default function KeyNotesPage() {
 
           {/* Stats Footer */}
           {notes.length > 0 && (
-            <div className={`rounded-xl border p-4 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <div className="flex items-center justify-center gap-8 text-sm">
                 <div className="text-center">
                   <div className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
