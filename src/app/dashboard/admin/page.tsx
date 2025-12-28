@@ -974,8 +974,8 @@ export default function AdminDashboard() {
                     onClick={handleExportCSV}
                     disabled={exportingCSV || contributionsData.length === 0}
                     className={`px-4 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${isLight
-                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                        : 'bg-indigo-500 hover:bg-indigo-600 text-white'
+                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                      : 'bg-indigo-500 hover:bg-indigo-600 text-white'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {exportingCSV ? (
@@ -1018,15 +1018,15 @@ export default function AdminDashboard() {
                     <div
                       key={entry.user_email}
                       className={`flex items-center gap-4 p-4 rounded-xl transition ${index === 0
-                          ? isLight ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300' : 'bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border-2 border-yellow-700'
-                          : isLight ? 'bg-white/60' : 'bg-slate-800/30'
+                        ? isLight ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-300' : 'bg-gradient-to-r from-yellow-900/40 to-orange-900/40 border-2 border-yellow-700'
+                        : isLight ? 'bg-white/60' : 'bg-slate-800/30'
                         }`}
                     >
                       {/* Rank */}
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white' :
-                          index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-800' :
-                            index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-400 text-white' :
-                              isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-700 text-slate-300'
+                        index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-800' :
+                          index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-400 text-white' :
+                            isLight ? 'bg-slate-100 text-slate-600' : 'bg-slate-700 text-slate-300'
                         }`}>
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
                       </div>
@@ -1044,7 +1044,7 @@ export default function AdminDashboard() {
                       {/* Amount */}
                       <div className="text-right">
                         <p className={`text-xl font-bold ${index === 0 ? 'text-orange-600' :
-                            isLight ? 'text-slate-900' : 'text-white'
+                          isLight ? 'text-slate-900' : 'text-white'
                           }`}>
                           {formatIndianRupees(entry.total_amount)}
                         </p>
