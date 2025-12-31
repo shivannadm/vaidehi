@@ -163,8 +163,8 @@ export default function KeyNotesPage() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search notes..."
                     className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                        ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
-                        : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+                      ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
                       }`}
                   />
                 </div>
@@ -175,8 +175,8 @@ export default function KeyNotesPage() {
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value as any)}
                 className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                    ? 'bg-slate-700 border-slate-600 text-white'
-                    : 'bg-slate-50 border-slate-200 text-slate-900'
+                  ? 'bg-slate-700 border-slate-600 text-white'
+                  : 'bg-slate-50 border-slate-200 text-slate-900'
                   }`}
               >
                 <option value="all">All Types</option>
@@ -193,8 +193,8 @@ export default function KeyNotesPage() {
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value as any)}
                 className={`px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
-                    ? 'bg-slate-700 border-slate-600 text-white'
-                    : 'bg-slate-50 border-slate-200 text-slate-900'
+                  ? 'bg-slate-700 border-slate-600 text-white'
+                  : 'bg-slate-50 border-slate-200 text-slate-900'
                   }`}
               >
                 <option value="all">All Categories</option>
@@ -210,10 +210,10 @@ export default function KeyNotesPage() {
               <button
                 onClick={() => setShowPinnedOnly(!showPinnedOnly)}
                 className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showPinnedOnly
-                    ? 'bg-indigo-500/20 text-indigo-500 border-2 border-indigo-500'
-                    : isDark
-                      ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                  ? 'bg-indigo-500/20 text-indigo-500 border-2 border-indigo-500'
+                  : isDark
+                    ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                   }`}
               >
                 <Pin className={`w-4 h-4 ${showPinnedOnly ? 'fill-indigo-500' : ''}`} />
@@ -223,10 +223,10 @@ export default function KeyNotesPage() {
               <button
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
                 className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showFavoritesOnly
-                    ? 'bg-yellow-500/20 text-yellow-500 border-2 border-yellow-500'
-                    : isDark
-                      ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                  ? 'bg-yellow-500/20 text-yellow-500 border-2 border-yellow-500'
+                  : isDark
+                    ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                   }`}
               >
                 <Star className={`w-4 h-4 ${showFavoritesOnly ? 'fill-yellow-500' : ''}`} />
@@ -236,10 +236,10 @@ export default function KeyNotesPage() {
               <button
                 onClick={() => setShowActionsOnly(!showActionsOnly)}
                 className={`px-3 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2 ${showActionsOnly
-                    ? 'bg-orange-500/20 text-orange-500 border-2 border-orange-500'
-                    : isDark
-                      ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                  ? 'bg-orange-500/20 text-orange-500 border-2 border-orange-500'
+                  : isDark
+                    ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                   }`}
               >
                 Actions
@@ -251,8 +251,8 @@ export default function KeyNotesPage() {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded-l-lg transition ${viewMode === "grid"
-                      ? 'bg-indigo-600 text-white'
-                      : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
+                    ? 'bg-indigo-600 text-white'
+                    : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
                     }`}
                 >
                   <LayoutGrid className="w-4 h-4" />
@@ -260,8 +260,8 @@ export default function KeyNotesPage() {
                 <button
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded-r-lg transition ${viewMode === "list"
-                      ? 'bg-indigo-600 text-white'
-                      : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
+                    ? 'bg-indigo-600 text-white'
+                    : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
                     }`}
                 >
                   <List className="w-4 h-4" />
