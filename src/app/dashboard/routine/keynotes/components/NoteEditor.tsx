@@ -163,24 +163,21 @@ export default function NoteEditor({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div
         ref={modalRef}
-        className={`w-full max-w-3xl rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] overflow-y-auto ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`w-full max-w-3xl rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] overflow-y-auto ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-5 border-b-2 sticky top-0 z-10 ${
-            isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"
-          }`}
+          className={`flex items-center justify-between p-5 border-b-2 sticky top-0 z-10 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"
+            }`}
         >
           <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             {note ? "Edit Key Note" : "Create New Key Note"}
           </h2>
           <button
             onClick={handleClose}
-            className={`p-2 rounded-lg transition ${
-              isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"
-            }`}
+            className={`p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"
+              }`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -190,11 +187,10 @@ export default function NoteEditor({
         <div className="p-6 space-y-5">
           {error && (
             <div
-              className={`p-3 rounded-lg border text-sm ${
-                isDark
+              className={`p-3 rounded-lg border text-sm ${isDark
                   ? "bg-red-900/20 border-red-800 text-red-400"
                   : "bg-red-50 border-red-200 text-red-700"
-              }`}
+                }`}
             >
               {error}
             </div>
@@ -211,11 +207,10 @@ export default function NoteEditor({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Learned about compound interest"
-              className={`w-full px-4 py-3 rounded-lg border text-lg font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-4 py-3 rounded-lg border text-lg font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              }`}
+                }`}
               maxLength={100}
             />
           </div>
@@ -232,15 +227,14 @@ export default function NoteEditor({
                     key={t.value}
                     type="button"
                     onClick={() => setType(t.value)}
-                    className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${
-                      type === t.value
+                    className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${type === t.value
                         ? isDark
                           ? "border-indigo-400 bg-indigo-500/20 text-indigo-300"
                           : "border-indigo-500 bg-indigo-50 text-indigo-700"
                         : isDark
-                        ? "border-slate-600 hover:border-slate-500 text-slate-300 hover:bg-slate-700/50"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50"
-                    }`}
+                          ? "border-slate-600 hover:border-slate-500 text-slate-300 hover:bg-slate-700/50"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-50"
+                      }`}
                   >
                     {t.emoji} {t.label}
                   </button>
@@ -258,15 +252,14 @@ export default function NoteEditor({
                     key={c.value}
                     type="button"
                     onClick={() => setCategory(c.value)}
-                    className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${
-                      category === c.value
+                    className={`p-2.5 rounded-lg text-sm font-medium transition border-2 ${category === c.value
                         ? isDark
                           ? "border-indigo-400 text-white"
                           : "border-indigo-500"
                         : isDark
-                        ? "border-slate-600 hover:border-slate-500 text-slate-300 hover:bg-slate-700/50"
-                        : "border-slate-200 hover:border-slate-300 text-slate-700"
-                    }`}
+                          ? "border-slate-600 hover:border-slate-500 text-slate-300 hover:bg-slate-700/50"
+                          : "border-slate-200 hover:border-slate-300 text-slate-700"
+                      }`}
                     style={
                       category === c.value
                         ? { backgroundColor: isDark ? c.color + "30" : c.color + "20", borderColor: c.color }
@@ -290,11 +283,10 @@ export default function NoteEditor({
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your key insight, lesson, or idea here..."
               rows={6}
-              className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-4 py-3 rounded-lg border resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              }`}
+                }`}
             />
           </div>
 
@@ -308,9 +300,8 @@ export default function NoteEditor({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
-                    isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-700"
+                    }`}
                 >
                   {tag}
                   <button onClick={() => handleRemoveTag(tag)} className="hover:opacity-70">
@@ -326,11 +317,10 @@ export default function NoteEditor({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
                 placeholder="Add tag..."
-                className={`flex-1 px-3 py-2 rounded-lg text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`flex-1 px-3 py-2 rounded-lg text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                     : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-                }`}
+                  }`}
                 maxLength={20}
               />
               <button
@@ -355,11 +345,10 @@ export default function NoteEditor({
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
                 placeholder="Book, person, event..."
-                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                     : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-                }`}
+                  }`}
               />
             </div>
             <div>
@@ -371,56 +360,50 @@ export default function NoteEditor({
                 type="date"
                 value={linkedDate}
                 onChange={(e) => setLinkedDate(e.target.value)}
-                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
-                }`}
+                  }`}
               />
             </div>
           </div>
 
           {/* Action Required */}
-          <div className={`p-4 rounded-lg border ${
-            isDark ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-50 border-slate-200'
-          }`}>
+          <div className={`p-4 rounded-lg border ${isDark ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-50 border-slate-200'
+            }`}>
             <div className="flex items-center justify-between mb-3">
-              <label className={`flex items-center gap-2 text-sm font-medium ${
-                isDark ? "text-slate-300" : "text-slate-700"
-              }`}>
+              <label className={`flex items-center gap-2 text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-700"
+                }`}>
                 <CheckSquare className="w-4 h-4" />
                 Requires Action
               </label>
               <button
                 type="button"
                 onClick={() => setActionRequired(!actionRequired)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
-                  actionRequired
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition ${actionRequired
                     ? "bg-orange-600 text-white"
                     : isDark
-                    ? "bg-slate-600 text-slate-300"
-                    : "bg-slate-200 text-slate-700"
-                }`}
+                      ? "bg-slate-600 text-slate-300"
+                      : "bg-slate-200 text-slate-700"
+                  }`}
               >
                 {actionRequired ? "Yes" : "No"}
               </button>
             </div>
             {actionRequired && (
               <div>
-                <label className={`block text-sm font-medium mb-2 ${
-                  isDark ? "text-slate-300" : "text-slate-700"
-                }`}>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"
+                  }`}>
                   Action Deadline
                 </label>
                 <input
                   type="date"
                   value={actionDeadline}
                   onChange={(e) => setActionDeadline(e.target.value)}
-                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    isDark
+                  className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                       ? "bg-slate-700 border-slate-600 text-white"
                       : "bg-white border-slate-300 text-slate-900"
-                  }`}
+                    }`}
                 />
               </div>
             )}
@@ -429,17 +412,15 @@ export default function NoteEditor({
 
         {/* Footer */}
         <div
-          className={`flex items-center justify-end gap-3 p-5 border-t-2 sticky bottom-0 ${
-            isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"
-          }`}
+          className={`flex items-center justify-end gap-3 p-5 border-t-2 sticky bottom-0 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"
+            }`}
         >
           <button
             onClick={handleClose}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
-              isDark
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition ${isDark
                 ? "bg-slate-700 hover:bg-slate-600 text-white"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-            }`}
+              }`}
           >
             Cancel
           </button>
