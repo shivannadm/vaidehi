@@ -63,8 +63,8 @@ export default function MorningForm({
     return (
         <div
             className={`p-4 sm:p-6 rounded-xl shadow-lg transition-all ${isDark
-                    ? "bg-slate-800/90 border border-slate-700"
-                    : "bg-white border border-slate-200"
+                ? "bg-slate-800/90 border border-slate-700"
+                : "bg-white border border-slate-200"
                 }`}
         >
             <h2 className={`text-xl sm:text-2xl font-bold mb-6 sm:mb-8 ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -85,8 +85,8 @@ export default function MorningForm({
                         onChange={(e) => onUpdate("wake_time", e.target.value)}
                         disabled={saving}
                         className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
-                                ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
-                                : "bg-slate-50 border-slate-300 text-slate-900"
+                            ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
+                            : "bg-slate-50 border-slate-300 text-slate-900"
                             }`}
                     />
                 </div>
@@ -106,8 +106,8 @@ export default function MorningForm({
                             onChange={(e) => onUpdate("meditation_time", parseInt(e.target.value) || 0)}
                             disabled={saving}
                             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
-                                    ? "bg-slate-700/70 border-slate-600 text-white"
-                                    : "bg-slate-50 border-slate-300 text-slate-900"
+                                ? "bg-slate-700/70 border-slate-600 text-white"
+                                : "bg-slate-50 border-slate-300 text-slate-900"
                                 }`}
                         />
                     </div>
@@ -125,8 +125,8 @@ export default function MorningForm({
                             onChange={(e) => onUpdate("exercise_time", parseInt(e.target.value) || 0)}
                             disabled={saving}
                             className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
-                                    ? "bg-slate-700/70 border-slate-600 text-white"
-                                    : "bg-slate-50 border-slate-300 text-slate-900"
+                                ? "bg-slate-700/70 border-slate-600 text-white"
+                                : "bg-slate-50 border-slate-300 text-slate-900"
                                 }`}
                         />
                     </div>
@@ -224,8 +224,8 @@ export default function MorningForm({
                                 placeholder="1. My main focus/intention..."
                                 disabled={saving}
                                 className={`w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
-                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
-                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                    : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
                                     }`}
                             />
                         </div>
@@ -244,8 +244,8 @@ export default function MorningForm({
                                 placeholder="2. One person I want to connect with..."
                                 disabled={saving}
                                 className={`w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
-                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
-                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                    : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
                                     }`}
                             />
                         </div>
@@ -264,8 +264,8 @@ export default function MorningForm({
                                 placeholder="3. Something that will make today great..."
                                 disabled={saving}
                                 className={`w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-indigo-500/50 ${isDark
-                                        ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
-                                        : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
+                                    ? "bg-slate-800/70 border-slate-600 text-white placeholder-slate-400"
+                                    : "bg-white border-indigo-200 text-slate-900 placeholder-indigo-400"
                                     }`}
                             />
                         </div>
@@ -286,7 +286,7 @@ export default function MorningForm({
                 </button>
 
                 <div className={`${showCustomHabits ? 'block' : 'hidden'} sm:block space-y-4 sm:space-y-5`}>
-                    {Object.entries(entry.custom_fields || {}).filter(([key]) => 
+                    {Object.entries(entry.custom_fields || {}).filter(([key]) =>
                         !key.startsWith('morning_intention_')
                     ).length === 0 ? (
                         <p className={`text-center py-4 sm:py-6 ${isDark ? "text-slate-500" : "text-slate-400"} italic text-sm`}>
@@ -311,8 +311,8 @@ export default function MorningForm({
                                                 <button
                                                     onClick={() => updateCustomField(key, !value)}
                                                     className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-medium transition text-sm ${value
-                                                            ? "bg-green-600 text-white"
-                                                            : "bg-slate-600 text-slate-300"
+                                                        ? "bg-green-600 text-white"
+                                                        : "bg-slate-600 text-slate-300"
                                                         }`}
                                                 >
                                                     {value ? "Done" : "Not Yet"}
@@ -329,8 +329,8 @@ export default function MorningForm({
                                                         updateCustomField(key, val);
                                                     }}
                                                     className={`w-20 sm:w-28 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border text-center font-medium text-sm ${isDark
-                                                            ? "bg-slate-800 border-slate-600 text-white"
-                                                            : "bg-white border-slate-300 text-slate-900"
+                                                        ? "bg-slate-800 border-slate-600 text-white"
+                                                        : "bg-white border-slate-300 text-slate-900"
                                                         }`}
                                                 />
                                             )}
@@ -356,8 +356,8 @@ export default function MorningForm({
                             onChange={(e) => setNewFieldName(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && addCustomField()}
                             className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${isDark
-                                    ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                                    : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
+                                ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                                : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
                                 }`}
                         />
                         <div className="flex gap-2 sm:gap-3">
@@ -365,8 +365,8 @@ export default function MorningForm({
                                 value={newFieldType}
                                 onChange={(e) => setNewFieldType(e.target.value as any)}
                                 className={`flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${isDark
-                                        ? "bg-slate-700 border-slate-600 text-white"
-                                        : "bg-white border-slate-300 text-slate-900"
+                                    ? "bg-slate-700 border-slate-600 text-white"
+                                    : "bg-white border-slate-300 text-slate-900"
                                     }`}
                             >
                                 <option value="boolean">Yes/No</option>
@@ -399,8 +399,8 @@ export default function MorningForm({
                         placeholder="How do you feel today? Any intentions?"
                         disabled={saving}
                         className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border resize-none transition focus:ring-4 focus:ring-indigo-500/30 text-sm sm:text-base ${isDark
-                                ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
-                                : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
+                            ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
+                            : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
                             }`}
                     />
                 </div>
@@ -409,8 +409,8 @@ export default function MorningForm({
                     onClick={handleSave}
                     disabled={saving}
                     className={`w-full py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition transform hover:scale-105 active:scale-95 ${saving
-                            ? "bg-indigo-500/70 cursor-not-allowed"
-                            : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                        ? "bg-indigo-500/70 cursor-not-allowed"
+                        : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
                         } text-white shadow-lg`}
                 >
                     {saving ? "Saving Your Morning..." : "Save Morning Routine"}
