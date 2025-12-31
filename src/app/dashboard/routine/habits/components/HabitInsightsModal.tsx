@@ -20,196 +20,196 @@ const LIFE_CHANGING_HABITS: Array<{
   color: string;
   benefit?: string;
 }> = [
-  {
-    id: 1,
-    habit: "Wake early",
-    benefit: "Win the morning",
-    icon: "🌅",
-    category: "Health" as HabitCategory,
-    description: "Start your day before the world wakes up. Morning hours are gold for productivity.",
-    color: "#F59E0B"
-  },
-  {
-    id: 2,
-    habit: "Water first",
-    benefit: "Flush toxins",
-    icon: "💧",
-    category: "Health" as HabitCategory,
-    description: "Hydrate immediately upon waking. Your body needs water after 8 hours of fasting.",
-    color: "#06B6D4"
-  },
-  {
-    id: 3,
-    habit: "Cold shower",
-    benefit: "Boost willpower",
-    icon: "🚿",
-    category: "Fitness" as HabitCategory,
-    description: "Train your mind to do hard things. Cold exposure builds mental toughness.",
-    color: "#3B82F6"
-  },
-  {
-    id: 4,
-    habit: "Deep breath",
-    benefit: "Reset stress",
-    icon: "🫁",
-    category: "Mental Health" as HabitCategory,
-    description: "5 minutes of breathwork can change your entire nervous system. It's free medicine.",
-    color: "#8B5CF6"
-  },
-  {
-    id: 5,
-    habit: "Walk daily",
-    benefit: "Clear your head",
-    icon: "🚶",
-    category: "Fitness" as HabitCategory,
-    description: "10,000 steps daily = clarity, creativity, and cardiovascular health.",
-    color: "#10B981"
-  },
-  {
-    id: 6,
-    habit: "Sunlight in the morning",
-    benefit: "Balance hormones",
-    icon: "☀️",
-    category: "Health" as HabitCategory,
-    description: "Natural light within 30 minutes of waking sets your circadian rhythm perfectly.",
-    color: "#F59E0B"
-  },
-  {
-    id: 7,
-    habit: "No snooze",
-    benefit: "Build discipline",
-    icon: "⏰",
-    category: "Productivity" as HabitCategory,
-    description: "The first decision of your day sets the tone. Snoozing trains you to ignore commitments.",
-    color: "#EF4444"
-  },
-  {
-    id: 8,
-    habit: "Lift weights",
-    benefit: "Build confidence",
-    icon: "💪",
-    category: "Fitness" as HabitCategory,
-    description: "Resistance training builds more than muscle—it builds self-belief and resilience.",
-    color: "#F97316"
-  },
-  {
-    id: 9,
-    habit: "Phone off in morning",
-    benefit: "Gain clarity",
-    icon: "📵",
-    category: "Digital Wellness" as HabitCategory,
-    description: "First hour phone-free = own your mind. Don't let others' priorities hijack your morning.",
-    color: "#6366F1"
-  },
-  {
-    id: 10,
-    habit: "Eat protein",
-    benefit: "Crush cravings",
-    icon: "🥩",
-    category: "Health" as HabitCategory,
-    description: "30g protein within 30 minutes of waking stabilizes blood sugar and kills cravings.",
-    color: "#EC4899"
-  },
-  {
-    id: 11,
-    habit: "Sleep in the dark",
-    benefit: "Boost melatonin",
-    icon: "🌙",
-    category: "Health" as HabitCategory,
-    description: "Complete darkness = deep sleep. Even small light exposure disrupts hormones.",
-    color: "#6366F1"
-  },
-  {
-    id: 12,
-    habit: "No sugar",
-    benefit: "Feel clean",
-    icon: "🚫",
-    category: "Health" as HabitCategory,
-    description: "Cut sugar and watch your energy, skin, and focus transform.",
-    color: "#EF4444"
-  },
-  {
-    id: 13,
-    habit: "Read 10 minutes",
-    benefit: "Train focus",
-    icon: "📚",
-    category: "Learning" as HabitCategory,
-    description: "10 minutes daily = 15+ books per year. Readers are leaders.",
-    color: "#3B82F6"
-  },
-  {
-    id: 14,
-    habit: "Sit tall",
-    benefit: "Feel stronger",
-    icon: "🧘",
-    category: "Health" as HabitCategory,
-    description: "Good posture = confidence and reduced pain.",
-    color: "#8B5CF6"
-  },
-  {
-    id: 15,
-    habit: "Say 'no'",
-    benefit: "Protect your peace",
-    icon: "🛡️",
-    category: "Mental Health" as HabitCategory,
-    description: "'No' is a complete sentence. Protect your time like you protect your money.",
-    color: "#F59E0B"
-  },
-  {
-    id: 16,
-    habit: "Smile more",
-    benefit: "Rewire your brain",
-    icon: "😊",
-    category: "Mental Health" as HabitCategory,
-    description: "Smiling triggers dopamine. Your brain doesn't know if it's real or fake.",
-    color: "#EC4899"
-  },
-  {
-    id: 17,
-    habit: "Fix posture",
-    benefit: "Boost energy",
-    icon: "🦴",
-    category: "Health" as HabitCategory,
-    description: "Stand tall = breathe better = feel better.",
-    color: "#10B981"
-  },
-  {
-    id: 18,
-    habit: "Fast sometimes",
-    benefit: "Heal your body",
-    icon: "⏱️",
-    category: "Health" as HabitCategory,
-    description: "Intermittent fasting triggers autophagy—your body's self-cleaning system.",
-    color: "#F97316"
-  },
-  {
-    id: 19,
-    habit: "Eat slowly",
-    benefit: "Aid digestion",
-    icon: "🍽️",
-    category: "Health" as HabitCategory,
-    description: "Chew 20-30 times per bite. Digestion starts in the mouth.",
-    color: "#14B8A6"
-  },
-  {
-    id: 20,
-    habit: "Hug someone",
-    benefit: "Raise oxytocin",
-    icon: "🤗",
-    category: "Social" as HabitCategory,
-    description: "20-second hugs release oxytocin—the bonding hormone. Physical connection heals.",
-    color: "#EC4899"
-  },
-  {
-    id: 21,
-    habit: "Hydrate",
-    benefit: "Feel alive",
-    icon: "💦",
-    category: "Health" as HabitCategory,
-    description: "2-3 liters daily minimum. Dehydration = brain fog and fatigue.",
-    color: "#06B6D4"
-  }
-];
+    {
+      id: 1,
+      habit: "Wake early",
+      benefit: "Win the morning",
+      icon: "🌅",
+      category: "Health" as HabitCategory,
+      description: "Start your day before the world wakes up. Morning hours are gold for productivity.",
+      color: "#F59E0B"
+    },
+    {
+      id: 2,
+      habit: "Water first",
+      benefit: "Flush toxins",
+      icon: "💧",
+      category: "Health" as HabitCategory,
+      description: "Hydrate immediately upon waking. Your body needs water after 8 hours of fasting.",
+      color: "#06B6D4"
+    },
+    {
+      id: 3,
+      habit: "Cold shower",
+      benefit: "Boost willpower",
+      icon: "🚿",
+      category: "Fitness" as HabitCategory,
+      description: "Train your mind to do hard things. Cold exposure builds mental toughness.",
+      color: "#3B82F6"
+    },
+    {
+      id: 4,
+      habit: "Deep breath",
+      benefit: "Reset stress",
+      icon: "🫁",
+      category: "Mental Health" as HabitCategory,
+      description: "5 minutes of breathwork can change your entire nervous system. It's free medicine.",
+      color: "#8B5CF6"
+    },
+    {
+      id: 5,
+      habit: "Walk daily",
+      benefit: "Clear your head",
+      icon: "🚶",
+      category: "Fitness" as HabitCategory,
+      description: "10,000 steps daily = clarity, creativity, and cardiovascular health.",
+      color: "#10B981"
+    },
+    {
+      id: 6,
+      habit: "Sunlight in the morning",
+      benefit: "Balance hormones",
+      icon: "☀️",
+      category: "Health" as HabitCategory,
+      description: "Natural light within 30 minutes of waking sets your circadian rhythm perfectly.",
+      color: "#F59E0B"
+    },
+    {
+      id: 7,
+      habit: "No snooze",
+      benefit: "Build discipline",
+      icon: "⏰",
+      category: "Productivity" as HabitCategory,
+      description: "The first decision of your day sets the tone. Snoozing trains you to ignore commitments.",
+      color: "#EF4444"
+    },
+    {
+      id: 8,
+      habit: "Lift weights",
+      benefit: "Build confidence",
+      icon: "💪",
+      category: "Fitness" as HabitCategory,
+      description: "Resistance training builds more than muscle—it builds self-belief and resilience.",
+      color: "#F97316"
+    },
+    {
+      id: 9,
+      habit: "Phone off in morning",
+      benefit: "Gain clarity",
+      icon: "📵",
+      category: "Digital Wellness" as HabitCategory,
+      description: "First hour phone-free = own your mind. Don't let others' priorities hijack your morning.",
+      color: "#6366F1"
+    },
+    {
+      id: 10,
+      habit: "Eat protein",
+      benefit: "Crush cravings",
+      icon: "🥩",
+      category: "Health" as HabitCategory,
+      description: "30g protein within 30 minutes of waking stabilizes blood sugar and kills cravings.",
+      color: "#EC4899"
+    },
+    {
+      id: 11,
+      habit: "Sleep in the dark",
+      benefit: "Boost melatonin",
+      icon: "🌙",
+      category: "Health" as HabitCategory,
+      description: "Complete darkness = deep sleep. Even small light exposure disrupts hormones.",
+      color: "#6366F1"
+    },
+    {
+      id: 12,
+      habit: "No sugar",
+      benefit: "Feel clean",
+      icon: "🚫",
+      category: "Health" as HabitCategory,
+      description: "Cut sugar and watch your energy, skin, and focus transform.",
+      color: "#EF4444"
+    },
+    {
+      id: 13,
+      habit: "Read 10 minutes",
+      benefit: "Train focus",
+      icon: "📚",
+      category: "Learning" as HabitCategory,
+      description: "10 minutes daily = 15+ books per year. Readers are leaders.",
+      color: "#3B82F6"
+    },
+    {
+      id: 14,
+      habit: "Sit tall",
+      benefit: "Feel stronger",
+      icon: "🧘",
+      category: "Health" as HabitCategory,
+      description: "Good posture = confidence and reduced pain.",
+      color: "#8B5CF6"
+    },
+    {
+      id: 15,
+      habit: "Say 'no'",
+      benefit: "Protect your peace",
+      icon: "🛡️",
+      category: "Mental Health" as HabitCategory,
+      description: "'No' is a complete sentence. Protect your time like you protect your money.",
+      color: "#F59E0B"
+    },
+    {
+      id: 16,
+      habit: "Smile more",
+      benefit: "Rewire your brain",
+      icon: "😊",
+      category: "Mental Health" as HabitCategory,
+      description: "Smiling triggers dopamine. Your brain doesn't know if it's real or fake.",
+      color: "#EC4899"
+    },
+    {
+      id: 17,
+      habit: "Fix posture",
+      benefit: "Boost energy",
+      icon: "🦴",
+      category: "Health" as HabitCategory,
+      description: "Stand tall = breathe better = feel better.",
+      color: "#10B981"
+    },
+    {
+      id: 18,
+      habit: "Fast sometimes",
+      benefit: "Heal your body",
+      icon: "⏱️",
+      category: "Health" as HabitCategory,
+      description: "Intermittent fasting triggers autophagy—your body's self-cleaning system.",
+      color: "#F97316"
+    },
+    {
+      id: 19,
+      habit: "Eat slowly",
+      benefit: "Aid digestion",
+      icon: "🍽️",
+      category: "Health" as HabitCategory,
+      description: "Chew 20-30 times per bite. Digestion starts in the mouth.",
+      color: "#14B8A6"
+    },
+    {
+      id: 20,
+      habit: "Hug someone",
+      benefit: "Raise oxytocin",
+      icon: "🤗",
+      category: "Social" as HabitCategory,
+      description: "20-second hugs release oxytocin—the bonding hormone. Physical connection heals.",
+      color: "#EC4899"
+    },
+    {
+      id: 21,
+      habit: "Hydrate",
+      benefit: "Feel alive",
+      icon: "💦",
+      category: "Health" as HabitCategory,
+      description: "2-3 liters daily minimum. Dehydration = brain fog and fatigue.",
+      color: "#06B6D4"
+    }
+  ];
 
 export default function HabitInsightsModal({ onClose, onAddHabit, isDark }: HabitInsightsModalProps) {
   const [adding, setAdding] = useState<number | null>(null);
