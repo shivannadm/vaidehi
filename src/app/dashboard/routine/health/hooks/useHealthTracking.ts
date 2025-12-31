@@ -7,58 +7,58 @@ export interface HealthEntry {
   id?: string;
   user_id: string;
   date: string;
-  
+
   // Sleep Tracking (inspired by Oura Ring, Whoop)
   sleep_start?: string | null; // HH:mm
   sleep_end?: string | null; // HH:mm
   sleep_quality: number; // 1-10
   sleep_notes?: string | null;
-  
+
   // Hydration (8 glasses = 2000ml standard)
   water_intake: number; // in ml
-  
+
   // Nutrition
   meals_logged: number; // 0-5 meals
   protein_intake?: number | null; // grams
   calories_intake?: number | null;
   diet_quality: number; // 1-10 rating
-  
+
   // Physical Activity
   steps_count?: number | null;
   active_minutes: number; // cardio/exercise minutes
   workout_type?: string | null; // "strength", "cardio", "yoga", etc.
-  
+
   // Vitals & Recovery (inspired by Whoop, Fitbit)
   resting_heart_rate?: number | null; // BPM
   heart_rate_variability?: number | null; // ms
   recovery_score: number; // 1-10
   stress_level: number; // 1-10
-  
+
   // Mental Wellness (inspired by Headspace)
   meditation_minutes: number;
   mood_rating: number; // 1-10
   anxiety_level: number; // 1-10
-  
+
   // Body Metrics
   weight?: number | null; // kg
   body_temperature?: number | null; // celsius
   blood_pressure_systolic?: number | null;
   blood_pressure_diastolic?: number | null;
-  
+
   // Habits & Lifestyle
   screen_time_limit_met: boolean;
   alcohol_units?: number | null;
   caffeine_intake?: number | null; // mg
   smoking_avoided: boolean;
-  
+
   // Notes
   symptoms?: string | null;
   achievements?: string | null;
   notes?: string | null;
-  
+
   // Streak
   health_streak?: number;
-  
+
   created_at?: string;
   updated_at?: string;
 }
@@ -78,7 +78,7 @@ export function useHealthTracking(userId: string | null, currentDate: Date) {
     screen_time_limit_met: false,
     smoking_avoided: true,
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +148,7 @@ export function useHealthTracking(userId: string | null, currentDate: Date) {
     try {
       const supabase = createClient();
       const dateStr = formatDateToString(currentDate);
-      
+
       // Calculate streak
       const yesterday = new Date(currentDate);
       yesterday.setDate(yesterday.getDate() - 1);
