@@ -197,8 +197,8 @@ export function useHabits(userId: string | null) {
     completedToday: habits.filter(h => h.today_completed).length,
     avgCompletionRate: habits.length > 0
       ? Math.round(
-          habits.reduce((sum, h) => sum + h.completion_rate, 0) / habits.length
-        )
+        habits.reduce((sum, h) => sum + h.completion_rate, 0) / habits.length
+      )
       : 0,
     longestStreak: habits.length > 0
       ? Math.max(...habits.map(h => h.best_streak))
