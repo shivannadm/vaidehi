@@ -113,9 +113,9 @@ export default function EveningPage() {
                 Day Streak
               </span>
             </div>
-            
+
             <span className="hidden sm:inline text-sm opacity-75">{selectedDate.toDateString()}</span>
-            
+
             {/* Mobile Insights Toggle */}
             <button
               onClick={() => setShowInsights(!showInsights)}
