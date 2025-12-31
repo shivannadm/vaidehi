@@ -1,9 +1,9 @@
 // src/app/dashboard/routine/progress/components/HabitHeatmap.tsx
 "use client";
 
-import { 
-  Target, Flame, TrendingUp, AlertCircle, 
-  Zap, BarChart3 
+import {
+  Target, Flame, TrendingUp, AlertCircle,
+  Zap, BarChart3
 } from "lucide-react";
 import { useState } from "react";
 import type { HabitHeatmapData } from "@/lib/supabase/progress-helpers";
@@ -26,17 +26,15 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
   return (
     <div
-      className={`rounded-xl border p-5 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-5 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2
-            className={`text-lg font-bold flex items-center gap-2 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-lg font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             <Target className="w-5 h-5 text-indigo-500" />
             Habit Heatmap
@@ -71,9 +69,8 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                   <span className="text-xl">{habit.habitIcon}</span>
                   <div>
                     <h3
-                      className={`text-sm font-semibold ${
-                        isDark ? "text-white" : "text-slate-900"
-                      }`}
+                      className={`text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"
+                        }`}
                     >
                       {habit.habitName}
                     </h3>
@@ -91,15 +88,14 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
                 {/* Score Badge */}
                 <div
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                    habit.completionRate >= 80
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold ${habit.completionRate >= 80
                       ? "bg-green-500/20 text-green-500"
                       : habit.completionRate >= 60
-                      ? "bg-blue-500/20 text-blue-500"
-                      : habit.completionRate >= 40
-                      ? "bg-orange-500/20 text-orange-500"
-                      : "bg-red-500/20 text-red-500"
-                  }`}
+                        ? "bg-blue-500/20 text-blue-500"
+                        : habit.completionRate >= 40
+                          ? "bg-orange-500/20 text-orange-500"
+                          : "bg-red-500/20 text-red-500"
+                    }`}
                 >
                   {habit.completionRate}%
                 </div>
@@ -110,7 +106,7 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                 {habit.completions.slice(-30).map((completion, index) => {
                   // ✅ FIX: Use proper opacity based on actual completion state
                   const opacity = completion.completed ? 1 : 0.15;
-                  
+
                   return (
                     <div
                       key={`${habit.habitId}-${completion.date}-${index}`}
@@ -137,11 +133,10 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
               {/* ✅ FIXED: Tooltip with fixed positioning to prevent overflow hidden */}
               {hoveredCell?.habitId === habit.habitId && (
                 <div
-                  className={`fixed z-[9999] px-3 py-2 rounded-lg text-xs whitespace-nowrap pointer-events-none shadow-xl transform -translate-x-1/2 -translate-y-full ${
-                    isDark
+                  className={`fixed z-[9999] px-3 py-2 rounded-lg text-xs whitespace-nowrap pointer-events-none shadow-xl transform -translate-x-1/2 -translate-y-full ${isDark
                       ? "bg-slate-900 text-white border border-slate-700"
                       : "bg-white text-slate-900 border border-slate-300"
-                  }`}
+                    }`}
                   style={{
                     left: `${hoveredCell.x}px`,
                     top: `${hoveredCell.y}px`,
@@ -184,11 +179,10 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
           {/* Needs Attention */}
           {needsAttention && needsAttention.completionRate < 50 && (
             <div
-              className={`p-4 rounded-xl border ${
-                isDark
+              className={`p-4 rounded-xl border ${isDark
                   ? "bg-gradient-to-br from-red-900/20 to-pink-900/20 border-red-700/50"
                   : "bg-gradient-to-br from-red-50 to-pink-50 border-red-200"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-red-500/20">
@@ -248,16 +242,14 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
           {/* Completion Rate Bars */}
           <div
-            className={`p-4 rounded-lg border ${
-              isDark
+            className={`p-4 rounded-lg border ${isDark
                 ? "bg-slate-700/50 border-slate-600"
                 : "bg-slate-50 border-slate-200"
-            }`}
+              }`}
           >
             <h4
-              className={`text-xs font-semibold mb-3 flex items-center gap-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`text-xs font-semibold mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               <TrendingUp className="w-3 h-3 text-indigo-500" />
               Completion Rates
@@ -279,9 +271,8 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                     </span>
                   </div>
                   <div
-                    className={`h-1.5 rounded-full overflow-hidden ${
-                      isDark ? "bg-slate-600" : "bg-slate-200"
-                    }`}
+                    className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-slate-600" : "bg-slate-200"
+                      }`}
                   >
                     <div
                       className="h-full transition-all duration-500"
@@ -298,11 +289,10 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
 
           {/* Motivational Insight */}
           <div
-            className={`p-4 rounded-xl border ${
-              isDark
+            className={`p-4 rounded-xl border ${isDark
                 ? "bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-700/50"
                 : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"
-            }`}
+              }`}
           >
             <div className="flex items-start gap-3">
               <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -314,8 +304,8 @@ export default function HabitHeatmap({ data, isDark }: HabitHeatmapProps) {
                   {avgCompletionRate >= 70
                     ? "You're doing amazing! Your consistency is paying off. Keep up this momentum!"
                     : avgCompletionRate >= 50
-                    ? "Good progress! Focus on your top habits and the rest will follow."
-                    : "Every journey starts somewhere. Small steps daily = big results over time!"}
+                      ? "Good progress! Focus on your top habits and the rest will follow."
+                      : "Every journey starts somewhere. Small steps daily = big results over time!"}
                 </p>
               </div>
             </div>
