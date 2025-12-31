@@ -62,11 +62,10 @@ export default function EveningForm({
 
   return (
     <div
-      className={`p-4 sm:p-6 rounded-xl shadow-lg transition-all ${
-        isDark
+      className={`p-4 sm:p-6 rounded-xl shadow-lg transition-all ${isDark
           ? "bg-slate-800/90 border border-slate-700"
           : "bg-white border border-slate-200"
-      }`}
+        }`}
     >
       <h2 className={`text-xl sm:text-2xl font-bold mb-6 sm:mb-8 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
         <Moon className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400" />
@@ -86,11 +85,10 @@ export default function EveningForm({
             value={entry.shutdown_time || ""}
             onChange={(e) => onUpdate("shutdown_time", e.target.value)}
             disabled={saving}
-            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${
-              isDark
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
                 ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
                 : "bg-slate-50 border-slate-300 text-slate-900"
-            }`}
+              }`}
           />
         </div>
 
@@ -108,11 +106,10 @@ export default function EveningForm({
               value={entry.screen_time || 0}
               onChange={(e) => onUpdate("screen_time", parseInt(e.target.value) || 0)}
               disabled={saving}
-              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${
-                isDark
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
                   ? "bg-slate-700/70 border-slate-600 text-white"
                   : "bg-slate-50 border-slate-300 text-slate-900"
-              }`}
+                }`}
             />
           </div>
 
@@ -128,11 +125,10 @@ export default function EveningForm({
               value={entry.reading_time || 0}
               onChange={(e) => onUpdate("reading_time", parseInt(e.target.value) || 0)}
               disabled={saving}
-              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${
-                isDark
+              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-base sm:text-lg font-medium transition focus:ring-4 focus:ring-indigo-500/30 ${isDark
                   ? "bg-slate-700/70 border-slate-600 text-white"
                   : "bg-slate-50 border-slate-300 text-slate-900"
-              }`}
+                }`}
             />
           </div>
         </div>
@@ -206,11 +202,10 @@ export default function EveningForm({
             rows={3}
             placeholder="1. &#10;2. &#10;3. "
             disabled={saving}
-            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border resize-none transition focus:ring-4 focus:ring-indigo-500/30 text-sm sm:text-base ${
-              isDark
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border resize-none transition focus:ring-4 focus:ring-indigo-500/30 text-sm sm:text-base ${isDark
                 ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
                 : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
-            }`}
+              }`}
           />
         </div>
 
@@ -220,7 +215,7 @@ export default function EveningForm({
             <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             3 Things I'm Grateful For
           </h3>
-          
+
           <div className="space-y-2.5 sm:space-y-3">
             <input
               type="text"
@@ -228,11 +223,10 @@ export default function EveningForm({
               onChange={(e) => onUpdate("gratitude_1", e.target.value)}
               placeholder="1. Something that made you smile today..."
               disabled={saving}
-              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${
-                isDark
+              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${isDark
                   ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-amber-300 text-slate-900 placeholder-amber-600"
-              }`}
+                }`}
             />
             <input
               type="text"
@@ -240,11 +234,10 @@ export default function EveningForm({
               onChange={(e) => onUpdate("gratitude_2", e.target.value)}
               placeholder="2. A person who helped you..."
               disabled={saving}
-              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${
-                isDark
+              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${isDark
                   ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-amber-300 text-slate-900 placeholder-amber-600"
-              }`}
+                }`}
             />
             <input
               type="text"
@@ -252,11 +245,10 @@ export default function EveningForm({
               onChange={(e) => onUpdate("gratitude_3", e.target.value)}
               placeholder="3. An opportunity you had..."
               disabled={saving}
-              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${
-                isDark
+              className={`w-full px-3 sm:px-4 py-2 rounded-lg border text-xs sm:text-sm transition focus:ring-2 focus:ring-amber-500/50 ${isDark
                   ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-amber-300 text-slate-900 placeholder-amber-600"
-              }`}
+                }`}
             />
           </div>
         </div>
@@ -284,9 +276,8 @@ export default function EveningForm({
               {Object.entries(entry.custom_fields || {}).map(([key, value]) => (
                 <div
                   key={key}
-                  className={`flex items-center justify-between p-3 sm:p-4 rounded-xl ${
-                    isDark ? "bg-slate-700/60" : "bg-slate-100"
-                  }`}
+                  className={`flex items-center justify-between p-3 sm:p-4 rounded-xl ${isDark ? "bg-slate-700/60" : "bg-slate-100"
+                    }`}
                 >
                   <span className={`font-medium text-sm sm:text-base truncate mr-3 ${isDark ? "text-white" : "text-slate-800"}`}>
                     {key}
@@ -296,11 +287,10 @@ export default function EveningForm({
                     {typeof value === "boolean" ? (
                       <button
                         onClick={() => updateCustomField(key, !value)}
-                        className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-medium transition text-sm ${
-                          value
+                        className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-medium transition text-sm ${value
                             ? "bg-green-600 text-white"
                             : "bg-slate-600 text-slate-300"
-                        }`}
+                          }`}
                       >
                         {value ? "Done" : "Not Yet"}
                       </button>
@@ -315,11 +305,10 @@ export default function EveningForm({
                               : e.target.value;
                           updateCustomField(key, val);
                         }}
-                        className={`w-20 sm:w-28 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border text-center font-medium text-sm ${
-                          isDark
+                        className={`w-20 sm:w-28 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border text-center font-medium text-sm ${isDark
                             ? "bg-slate-800 border-slate-600 text-white"
                             : "bg-white border-slate-300 text-slate-900"
-                        }`}
+                          }`}
                       />
                     )}
 
@@ -343,21 +332,19 @@ export default function EveningForm({
               value={newFieldName}
               onChange={(e) => setNewFieldName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addCustomField()}
-              className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${
-                isDark
+              className={`flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
-              }`}
+                }`}
             />
             <div className="flex gap-2 sm:gap-3">
               <select
                 value={newFieldType}
                 onChange={(e) => setNewFieldType(e.target.value as any)}
-                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${
-                  isDark
+                className={`flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border text-sm sm:text-base ${isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
-                }`}
+                  }`}
               >
                 <option value="boolean">Yes/No</option>
                 <option value="number">Number</option>
@@ -388,22 +375,20 @@ export default function EveningForm({
             rows={4}
             placeholder="What went well? What could be improved tomorrow?"
             disabled={saving}
-            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border resize-none transition focus:ring-4 focus:ring-indigo-500/30 text-sm sm:text-base ${
-              isDark
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl border resize-none transition focus:ring-4 focus:ring-indigo-500/30 text-sm sm:text-base ${isDark
                 ? "bg-slate-700/70 border-slate-600 text-white placeholder-slate-400"
                 : "bg-white border-slate-300 text-slate-900 placeholder-slate-500"
-            }`}
+              }`}
           />
         </div>
 
         <button
           onClick={handleSave}
           disabled={saving}
-          className={`w-full py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition transform hover:scale-105 active:scale-95 ${
-            saving
+          className={`w-full py-3 sm:py-4 rounded-2xl font-bold text-base sm:text-lg transition transform hover:scale-105 active:scale-95 ${saving
               ? "bg-indigo-500/70 cursor-not-allowed"
               : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-          } text-white shadow-lg`}
+            } text-white shadow-lg`}
         >
           {saving ? "Saving Your Evening..." : "Save Evening Routine"}
         </button>
