@@ -9,12 +9,12 @@ import AddHabitModal from "./components/AddHabitModal";
 import HabitDetailsModal from "./components/HabitDetailsModal";
 import HabitInsightsModal from "./components/HabitInsightsModal";
 import WeeklyProgress from "./components/WeeklyProgress";
-import { 
-  Target, 
-  Plus, 
-  CheckCircle, 
-  TrendingUp, 
-  Flame, 
+import {
+  Target,
+  Plus,
+  CheckCircle,
+  TrendingUp,
+  Flame,
   Award,
   Calendar,
   BarChart3,
@@ -110,7 +110,7 @@ export default function HabitsPage() {
   return (
     <div className={`min-h-screen p-4 sm:p-6 ${isDark ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        
+
         {/* Header - Mobile Optimized */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -122,7 +122,7 @@ export default function HabitsPage() {
               Build consistency, one day at a time
             </p>
           </div>
-          
+
           {/* Action Buttons - Stack on Mobile */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <button
@@ -144,9 +144,8 @@ export default function HabitsPage() {
 
         {/* Error Display */}
         {error && (
-          <div className={`p-3 sm:p-4 rounded-lg border text-sm ${
-            isDark ? 'bg-red-900/20 border-red-500/30 text-red-300' : 'bg-red-50 border-red-200 text-red-700'
-          }`}>
+          <div className={`p-3 sm:p-4 rounded-lg border text-sm ${isDark ? 'bg-red-900/20 border-red-500/30 text-red-300' : 'bg-red-50 border-red-200 text-red-700'
+            }`}>
             {error}
           </div>
         )}
@@ -184,14 +183,13 @@ export default function HabitsPage() {
         </div>
 
         {/* Today's Habits */}
-        <div className={`rounded-xl border p-4 sm:p-6 ${
-          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`rounded-xl border p-4 sm:p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+          }`}>
           <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
             Today's Habits
           </h2>
-          
+
           {habits.length === 0 ? (
             <div className="text-center py-8 sm:py-12">
               <Target className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${isDark ? 'text-slate-600' : 'text-slate-300'}`} />
@@ -243,18 +241,17 @@ export default function HabitsPage() {
 
         {/* Monthly Overview */}
         {habits.length > 0 && (
-          <div className={`rounded-xl border p-4 sm:p-6 ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-          }`}>
+          <div className={`rounded-xl border p-4 sm:p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
             <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
               Monthly Performance
             </h2>
-            
+
             <div className="space-y-3 sm:space-y-4">
               {habits.map(habit => {
                 const percentage = habit.completion_rate;
-                
+
                 return (
                   <div key={habit.id}>
                     <div className="flex items-center justify-between mb-2">
@@ -266,9 +263,8 @@ export default function HabitsPage() {
                         {percentage}%
                       </span>
                     </div>
-                    <div className={`h-2.5 sm:h-3 rounded-full overflow-hidden ${
-                      isDark ? 'bg-slate-700' : 'bg-slate-200'
-                    }`}>
+                    <div className={`h-2.5 sm:h-3 rounded-full overflow-hidden ${isDark ? 'bg-slate-700' : 'bg-slate-200'
+                      }`}>
                       <div
                         className="h-full transition-all duration-500 rounded-full"
                         style={{
@@ -335,9 +331,8 @@ export default function HabitsPage() {
 // Stat Card Component - Mobile Optimized
 function StatCard({ icon, label, value, color, isDark }: any) {
   return (
-    <div className={`rounded-xl border p-3 sm:p-4 transition-all hover:scale-105 ${
-      isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-    }`}>
+    <div className={`rounded-xl border p-3 sm:p-4 transition-all hover:scale-105 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+      }`}>
       <div className="flex items-center gap-2 sm:gap-3">
         <div
           className="p-2 sm:p-3 rounded-lg flex-shrink-0"
