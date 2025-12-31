@@ -50,7 +50,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
 
   return (
     <div className={`space-y-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-      
+
       {/* ===== SLEEP TRACKING ===== */}
       <Section
         title="💤 Sleep Quality"
@@ -86,7 +86,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
               />
             </div>
           </div>
-          
+
           <RatingSlider
             label="Sleep Quality"
             value={entry.sleep_quality ?? 7}
@@ -144,7 +144,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
               {waterGlasses}/8 glasses ({entry.water_intake || 0}ml)
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <button
               onClick={removeWaterGlass}
@@ -590,7 +590,7 @@ function Section({ title, subtitle, isExpanded, onToggle, isDark, children }: an
         </div>
         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
       </button>
-      
+
       {isExpanded && (
         <div className={`p-4 border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
           {children}
