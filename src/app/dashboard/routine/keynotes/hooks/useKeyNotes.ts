@@ -8,33 +8,33 @@ export type NoteCategory = 'personal' | 'work' | 'health' | 'finance' | 'relatio
 export interface KeyNote {
   id: string;
   user_id: string;
-  
+
   // Core Content
   title: string;
   content: string;
   type: NoteType;
   category: NoteCategory;
-  
+
   // Metadata
   tags: string[];
   is_pinned: boolean;
   is_favorite: boolean;
   is_archived: boolean;
-  
+
   // Context
   source?: string | null; // Book, person, event, etc.
   linked_date?: string | null; // YYYY-MM-DD (link to routine day)
-  
+
   // Action Items
   action_required: boolean;
   action_completed: boolean;
   action_deadline?: string | null;
-  
+
   // Knowledge Management
   linked_notes: string[]; // IDs of related notes
   review_count: number;
   last_reviewed?: string | null;
-  
+
   // Timestamps
   created_at: string;
   updated_at: string;
