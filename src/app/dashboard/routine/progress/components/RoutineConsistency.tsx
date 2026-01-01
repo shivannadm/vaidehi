@@ -15,7 +15,7 @@ export default function RoutineConsistency({
 }: RoutineConsistencyProps) {
   // Get last 30 days
   const last30Days = data.slice(-30);
-  
+
   // Calculate stats
   const perfectDays = last30Days.filter((d) => d.overallScore === 100).length;
   const activeDays = last30Days.filter((d) => d.overallScore > 0).length;
@@ -25,40 +25,40 @@ export default function RoutineConsistency({
 
   // FIXED: Proper week grouping starting from Monday
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  
+
   // Create calendar grid with proper alignment
   const calendarGrid: (RoutineConsistencyDay | null)[][] = [];
-  
+
   if (last30Days.length > 0) {
     // Get the day of week for the first day (0 = Sunday, 1 = Monday, etc.)
     const firstDate = new Date(last30Days[0].date);
     let firstDayOfWeek = firstDate.getDay();
-    
+
     // Convert Sunday (0) to 7 for easier calculation (Monday = 1, Sunday = 7)
     if (firstDayOfWeek === 0) firstDayOfWeek = 7;
-    
+
     // Calculate empty cells needed at the start (Monday = 1, so no empty; Tuesday = 2, so 1 empty, etc.)
     const emptyCellsAtStart = firstDayOfWeek - 1;
-    
+
     // Create the grid
     let currentWeek: (RoutineConsistencyDay | null)[] = [];
-    
+
     // Add empty cells at the start
     for (let i = 0; i < emptyCellsAtStart; i++) {
       currentWeek.push(null);
     }
-    
+
     // Add all days
     last30Days.forEach((day) => {
       currentWeek.push(day);
-      
+
       // If week is complete (7 days), start a new week
       if (currentWeek.length === 7) {
         calendarGrid.push([...currentWeek]);
         currentWeek = [];
       }
     });
-    
+
     // Add remaining days if any
     if (currentWeek.length > 0) {
       // Fill the rest of the week with null
@@ -71,9 +71,8 @@ export default function RoutineConsistency({
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       {/* COMPACT Header - Single Row */}
       <div className="flex items-center justify-between mb-3">
@@ -139,9 +138,8 @@ export default function RoutineConsistency({
           {dayNames.map((day) => (
             <div
               key={day}
-              className={`text-center text-[9px] font-medium ${
-                isDark ? "text-slate-600" : "text-slate-500"
-              }`}
+              className={`text-center text-[9px] font-medium ${isDark ? "text-slate-600" : "text-slate-500"
+                }`}
             >
               {day}
             </div>
@@ -221,11 +219,10 @@ function CompactDayCell({
 
       {/* Enhanced Tooltip */}
       <div
-        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-30 shadow-2xl min-w-[160px] ${
-          isDark
+        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-30 shadow-2xl min-w-[160px] ${isDark
             ? "bg-slate-950 text-white border-2 border-slate-700"
             : "bg-white text-slate-900 border-2 border-slate-300"
-        }`}
+          }`}
       >
         <div className="font-bold mb-1.5 text-center border-b pb-1" style={{ borderColor: bgColor }}>
           {new Date(day.date).toLocaleDateString("en-US", {
