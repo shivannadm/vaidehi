@@ -20,16 +20,14 @@ export default function InsightsPanel({
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-6 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       {/* Header */}
       <div className="mb-6">
         <h2
-          className={`text-xl font-bold mb-2 flex items-center gap-2 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}
+          className={`text-xl font-bold mb-2 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"
+            }`}
         >
           <Brain className="w-5 h-5 text-purple-500" />
           AI-Powered Insights
@@ -48,32 +46,28 @@ export default function InsightsPanel({
 
       {/* Performance Score */}
       <div
-        className={`mt-6 p-4 rounded-lg border ${
-          isDark
+        className={`mt-6 p-4 rounded-lg border ${isDark
             ? "bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-indigo-700/50"
             : "bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200"
-        }`}
+          }`}
       >
         <div className="flex items-center justify-between mb-2">
           <span
-            className={`text-sm font-medium ${
-              isDark ? "text-slate-300" : "text-slate-700"
-            }`}
+            className={`text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-700"
+              }`}
           >
             Overall Performance Score
           </span>
           <span
-            className={`text-2xl font-bold ${
-              getScoreColor(insights.length >= 3 ? 85 : 65)
-            }`}
+            className={`text-2xl font-bold ${getScoreColor(insights.length >= 3 ? 85 : 65)
+              }`}
           >
             {insights.length >= 3 ? "85" : "65"}%
           </span>
         </div>
         <div
-          className={`h-3 rounded-full overflow-hidden ${
-            isDark ? "bg-slate-700" : "bg-slate-200"
-          }`}
+          className={`h-3 rounded-full overflow-hidden ${isDark ? "bg-slate-700" : "bg-slate-200"
+            }`}
         >
           <div
             className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
@@ -104,36 +98,32 @@ function InsightCard({ insight, isDark }: any) {
 
   return (
     <div
-      className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${
-        isDark
+      className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${isDark
           ? "bg-slate-700/50 border-slate-600 hover:border-slate-500"
           : "bg-slate-50 border-slate-200 hover:border-slate-300"
-      }`}
+        }`}
     >
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-0.5">{getIcon()}</div>
         <div className="flex-1">
           <h4
-            className={`font-semibold mb-1 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`font-semibold mb-1 ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             {insight.title}
           </h4>
           <p
-            className={`text-sm ${
-              isDark ? "text-slate-300" : "text-slate-700"
-            }`}
+            className={`text-sm ${isDark ? "text-slate-300" : "text-slate-700"
+              }`}
           >
             {insight.message}
           </p>
           {insight.action && (
             <button
-              className={`mt-2 text-xs font-medium px-3 py-1.5 rounded-lg transition ${
-                isDark
+              className={`mt-2 text-xs font-medium px-3 py-1.5 rounded-lg transition ${isDark
                   ? "bg-indigo-600 hover:bg-indigo-700 text-white"
                   : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-              }`}
+                }`}
             >
               {insight.action}
             </button>
