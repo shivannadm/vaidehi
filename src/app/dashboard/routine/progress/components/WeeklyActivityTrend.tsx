@@ -46,14 +46,14 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
   // Create smooth curve path
   const createSmoothPath = (dataKey: keyof typeof chartData[0], dataArray: typeof chartData) => {
     if (dataArray.length === 0) return "";
-    
+
     const points = dataArray.map((d, i) => ({
       x: (i / (dataArray.length - 1)) * 100,
       y: 100 - (typeof d[dataKey] === 'number' ? d[dataKey] as number : 0),
     }));
 
     let path = `M ${points[0].x},${points[0].y}`;
-    
+
     for (let i = 0; i < points.length - 1; i++) {
       const current = points[i];
       const next = points[i + 1];
@@ -61,23 +61,21 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
       path += ` Q ${controlX},${current.y} ${(current.x + next.x) / 2},${(current.y + next.y) / 2}`;
       path += ` Q ${controlX},${next.y} ${next.x},${next.y}`;
     }
-    
+
     return path;
   };
 
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-4 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3
-            className={`text-sm font-bold flex items-center gap-2 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-sm font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             <TrendingUp className="w-4 h-4 text-indigo-500" />
             7-Day Activity Trend
@@ -101,8 +99,8 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
         {/* Y-axis labels - FIXED: Inside container with proper positioning */}
         <div className="absolute left-0 top-0 bottom-0 w-5 flex flex-col justify-between text-[9px] pt-1 pb-1">
           {[100, 75, 50, 25, 0].map((val) => (
-            <span 
-              key={`y-${val}`} 
+            <span
+              key={`y-${val}`}
               className={`${isDark ? "text-slate-500" : "text-slate-600"} text-right pr-1`}
             >
               {val}
@@ -248,11 +246,10 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
       <div className="grid grid-cols-2 gap-3 mb-4">
         {/* Best Day */}
         <div
-          className={`p-3 rounded-lg border ${
-            isDark
+          className={`p-3 rounded-lg border ${isDark
               ? "bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-700/50"
               : "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-2 mb-1">
             <Trophy className="w-3 h-3 text-green-500" />
@@ -274,11 +271,10 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
 
         {/* Worst Day */}
         <div
-          className={`p-3 rounded-lg border ${
-            isDark
+          className={`p-3 rounded-lg border ${isDark
               ? "bg-gradient-to-br from-orange-900/20 to-red-900/20 border-orange-700/50"
               : "bg-gradient-to-br from-orange-50 to-red-50 border-orange-200"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="w-3 h-3 text-orange-500" />
@@ -300,9 +296,8 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
 
       {/* Trend Indicator */}
       <div
-        className={`p-3 rounded-lg border ${
-          isDark ? "bg-slate-700/50 border-slate-600" : "bg-slate-50 border-slate-200"
-        }`}
+        className={`p-3 rounded-lg border ${isDark ? "bg-slate-700/50 border-slate-600" : "bg-slate-50 border-slate-200"
+          }`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -324,22 +319,21 @@ export default function WeeklyActivityTrend({ data, isDark }: WeeklyActivityTren
                 {trend > 5
                   ? "📈 Improving Trend"
                   : trend < -5
-                  ? "📉 Needs Attention"
-                  : "➡️ Steady Progress"}
+                    ? "📉 Needs Attention"
+                    : "➡️ Steady Progress"}
               </div>
               <div className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                 {trend > 5
                   ? "You're getting stronger!"
                   : trend < -5
-                  ? "Let's turn this around"
-                  : "Keep the consistency!"}
+                    ? "Let's turn this around"
+                    : "Keep the consistency!"}
               </div>
             </div>
           </div>
           <div
-            className={`text-base font-bold ${
-              trend > 5 ? "text-green-500" : trend < -5 ? "text-red-500" : "text-blue-500"
-            }`}
+            className={`text-base font-bold ${trend > 5 ? "text-green-500" : trend < -5 ? "text-red-500" : "text-blue-500"
+              }`}
           >
             {trend > 0 ? "+" : ""}
             {trend.toFixed(0)}%
