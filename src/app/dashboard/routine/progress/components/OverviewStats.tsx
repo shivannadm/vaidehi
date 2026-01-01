@@ -98,9 +98,8 @@ export default function OverviewStats({ data, isDark }: OverviewStatsProps) {
 function StatCard({ icon, label, value, subtitle, color, isDark }: any) {
   return (
     <div
-      className={`rounded-xl border p-5 transition-all hover:scale-105 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-5 transition-all hover:scale-105 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       <div className="flex items-start gap-3">
         <div
@@ -111,24 +110,21 @@ function StatCard({ icon, label, value, subtitle, color, isDark }: any) {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className={`text-sm font-medium mb-1 ${
-              isDark ? "text-slate-400" : "text-slate-600"
-            }`}
+            className={`text-sm font-medium mb-1 ${isDark ? "text-slate-400" : "text-slate-600"
+              }`}
           >
             {label}
           </div>
           <div
-            className={`text-2xl font-bold mb-1 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-2xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"
+              }`}
             style={{ color }}
           >
             {value}
           </div>
           <div
-            className={`text-xs ${
-              isDark ? "text-slate-500" : "text-slate-500"
-            }`}
+            className={`text-xs ${isDark ? "text-slate-500" : "text-slate-500"
+              }`}
           >
             {subtitle}
           </div>
