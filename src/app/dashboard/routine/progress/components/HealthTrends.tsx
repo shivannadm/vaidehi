@@ -24,16 +24,14 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
 
   return (
     <div
-      className={`rounded-xl border p-6 ${
-        isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-      }`}
+      className={`rounded-xl border p-6 ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+        }`}
     >
       {/* Header */}
       <div className="mb-6">
         <h2
-          className={`text-xl font-bold mb-2 flex items-center gap-2 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}
+          className={`text-xl font-bold mb-2 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"
+            }`}
         >
           <Heart className="w-5 h-5 text-red-500" />
           Health & Wellness Trends
@@ -47,9 +45,8 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
       <div className="relative h-64 mb-6">
         {/* Y-axis labels */}
         <div
-          className={`absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs ${
-            isDark ? "text-slate-500" : "text-slate-600"
-          }`}
+          className={`absolute left-0 top-0 bottom-0 flex flex-col justify-between text-xs ${isDark ? "text-slate-500" : "text-slate-600"
+            }`}
         >
           <div>10</div>
           <div>8</div>
@@ -66,9 +63,8 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
             {[0, 2, 4, 6, 8, 10].map((line) => (
               <div
                 key={line}
-                className={`absolute left-0 right-0 border-t ${
-                  isDark ? "border-slate-700" : "border-slate-200"
-                }`}
+                className={`absolute left-0 right-0 border-t ${isDark ? "border-slate-700" : "border-slate-200"
+                  }`}
                 style={{ bottom: `${(line / maxValue) * 100}%` }}
               />
             ))}
@@ -169,32 +165,29 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
 
       {/* Insights */}
       <div
-        className={`mt-6 p-4 rounded-lg border ${
-          isDark
+        className={`mt-6 p-4 rounded-lg border ${isDark
             ? "bg-slate-700/50 border-slate-600"
             : "bg-slate-50 border-slate-200"
-        }`}
+          }`}
       >
         <div className="flex items-start gap-3">
           <TrendingUp className="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" />
           <div>
             <h4
-              className={`font-semibold mb-1 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`font-semibold mb-1 ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               Health Insights
             </h4>
             <p
-              className={`text-sm ${
-                isDark ? "text-slate-300" : "text-slate-700"
-              }`}
+              className={`text-sm ${isDark ? "text-slate-300" : "text-slate-700"
+                }`}
             >
               {avgSleep >= 7 && avgMood >= 7 && avgEnergy >= 7
                 ? "🌟 Excellent! Your health metrics are consistently strong. Keep up the great work!"
                 : avgSleep >= 6 && avgMood >= 6 && avgEnergy >= 6
-                ? "💪 Good progress! Focus on maintaining consistency in your routines."
-                : "💡 Your body needs attention. Prioritize sleep, stress management, and regular exercise."}
+                  ? "💪 Good progress! Focus on maintaining consistency in your routines."
+                  : "💡 Your body needs attention. Prioritize sleep, stress management, and regular exercise."}
             </p>
           </div>
         </div>
@@ -224,17 +217,15 @@ function MetricCard({
           style={{ backgroundColor: color }}
         />
         <div
-          className={`text-xs font-medium ${
-            isDark ? "text-slate-400" : "text-slate-600"
-          }`}
+          className={`text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-600"
+            }`}
         >
           {label}
         </div>
       </div>
       <div
-        className={`text-xl font-bold ${
-          isDark ? "text-white" : "text-slate-900"
-        }`}
+        className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"
+          }`}
         style={{ color }}
       >
         {value}/10
