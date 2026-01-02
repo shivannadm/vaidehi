@@ -14,12 +14,12 @@ export default function SupportPage() {
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [activeTab, setActiveTab] = useState("feedback");
-  
+
   // User info
   const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
-  
+
   // Feedback state
   const [feedbackCategory, setFeedbackCategory] = useState<FeedbackCategory>("general");
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -38,19 +38,19 @@ export default function SupportPage() {
   // Theme detection
   useEffect(() => {
     setMounted(true);
-    
+
     const checkTheme = () => {
       setIsDark(document.documentElement.classList.contains("dark"));
     };
-    
+
     checkTheme();
-    
+
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
@@ -61,18 +61,18 @@ export default function SupportPage() {
     const fetchUserInfo = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         setUserId(user.id);
         setUserEmail(user.email || "");
-        
+
         // Get user's full name from profiles table
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name")
           .eq("id", user.id)
           .single();
-        
+
         setUserName(profile?.full_name || user.email?.split('@')[0] || "User");
       }
     };
@@ -160,7 +160,7 @@ export default function SupportPage() {
   return (
     <div className={`min-h-screen ${isLight ? 'bg-slate-50' : 'bg-slate-900'} py-8 px-4 sm:px-6 lg:px-8`}>
       <div className="max-w-4xl mx-auto">
-        
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className={`text-4xl font-bold mb-4 ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -175,26 +175,24 @@ export default function SupportPage() {
         <div className="flex gap-4 mb-8">
           <button
             onClick={() => setActiveTab('feedback')}
-            className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${
-              activeTab === 'feedback'
+            className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'feedback'
                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg scale-105'
-                : isLight 
-                  ? 'bg-white text-slate-700 hover:bg-slate-100 border-2 border-slate-200' 
+                : isLight
+                  ? 'bg-white text-slate-700 hover:bg-slate-100 border-2 border-slate-200'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-2 border-slate-700'
-            }`}
+              }`}
           >
             <MessageCircle className="w-5 h-5" />
             <span>Send Feedback</span>
           </button>
           <button
             onClick={() => setActiveTab('help')}
-            className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${
-              activeTab === 'help'
+            className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'help'
                 ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg scale-105'
-                : isLight 
-                  ? 'bg-white text-slate-700 hover:bg-slate-100 border-2 border-slate-200' 
+                : isLight
+                  ? 'bg-white text-slate-700 hover:bg-slate-100 border-2 border-slate-200'
                   : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-2 border-slate-700'
-            }`}
+              }`}
           >
             <HelpCircle className="w-5 h-5" />
             <span>Get Help</span>
@@ -203,7 +201,7 @@ export default function SupportPage() {
 
         {/* Content */}
         <div className={`${isLight ? 'bg-white border-slate-200' : 'bg-slate-800 border-slate-700'} border-2 rounded-2xl p-8 shadow-xl`}>
-          
+
           {activeTab === 'feedback' ? (
             // Feedback Form
             <div className="space-y-6">
@@ -241,9 +239,8 @@ export default function SupportPage() {
                 <select
                   value={feedbackCategory}
                   onChange={(e) => setFeedbackCategory(e.target.value as FeedbackCategory)}
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-700 border-slate-600 text-white'
-                  } focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-700 border-slate-600 text-white'
+                    } focus:outline-none focus:ring-2 focus:ring-indigo-500 transition`}
                 >
                   <option value="general">General Feedback</option>
                   <option value="bug">Bug Report</option>
@@ -262,9 +259,8 @@ export default function SupportPage() {
                   onChange={(e) => setFeedbackMessage(e.target.value)}
                   placeholder="Tell us what you think..."
                   rows={8}
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
-                  } focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition`}
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
+                    } focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition`}
                 />
               </div>
 
@@ -329,9 +325,8 @@ export default function SupportPage() {
                 <select
                   value={helpPriority}
                   onChange={(e) => setHelpPriority(e.target.value as HelpPriority)}
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-700 border-slate-600 text-white'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-700 border-slate-600 text-white'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
                 >
                   <option value="low">Low - General Question</option>
                   <option value="medium">Medium - Need Assistance</option>
@@ -348,9 +343,8 @@ export default function SupportPage() {
                   value={helpSubject}
                   onChange={(e) => setHelpSubject(e.target.value)}
                   placeholder="What do you need help with?"
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
                 />
               </div>
 
@@ -363,9 +357,8 @@ export default function SupportPage() {
                   onChange={(e) => setHelpMessage(e.target.value)}
                   placeholder="Describe your issue or question in detail..."
                   rows={8}
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
-                  } focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400' : 'bg-slate-700 border-slate-600 text-white placeholder-slate-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition`}
                 />
               </div>
 
