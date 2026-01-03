@@ -35,20 +35,20 @@ export default function NoteCard({
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
     if (diffInDays === 0) {
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
         minute: '2-digit',
-        hour12: true 
+        hour12: true
       });
     }
-    
+
     if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
-    
+
     if (date.getFullYear() === now.getFullYear()) {
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
-    
+
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
@@ -72,9 +72,8 @@ export default function NoteCard({
   return (
     <div
       onClick={() => onEdit(note)}
-      className={`group cursor-pointer rounded-xl p-3 sm:p-4 border-2 transition-all hover:shadow-lg active:scale-[0.98] relative ${
-        viewMode === "list" ? "flex items-start gap-3 sm:gap-4" : ""
-      }`}
+      className={`group cursor-pointer rounded-xl p-3 sm:p-4 border-2 transition-all hover:shadow-lg active:scale-[0.98] relative ${viewMode === "list" ? "flex items-start gap-3 sm:gap-4" : ""
+        }`}
       style={{
         backgroundColor: isDark ? colorConfig.darkBg : colorConfig.lightBg,
         borderColor: isDark ? colorConfig.darkBorder : colorConfig.lightBorder,
@@ -109,12 +108,11 @@ export default function NoteCard({
         {/* Content Preview */}
         {note.content && (
           <p
-            className={`text-xs sm:text-sm mb-2 sm:mb-3 ${
-              viewMode === "grid" ? "line-clamp-3 sm:line-clamp-4" : "line-clamp-2"
-            }`}
+            className={`text-xs sm:text-sm mb-2 sm:mb-3 ${viewMode === "grid" ? "line-clamp-3 sm:line-clamp-4" : "line-clamp-2"
+              }`}
             style={{
-              color: isDark 
-                ? colorConfig.darkText + "CC" 
+              color: isDark
+                ? colorConfig.darkText + "CC"
                 : colorConfig.lightText + "CC",
             }}
           >
@@ -130,8 +128,8 @@ export default function NoteCard({
                 key={idx}
                 className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-medium"
                 style={{
-                  backgroundColor: isDark 
-                    ? colorConfig.darkBorder 
+                  backgroundColor: isDark
+                    ? colorConfig.darkBorder
                     : colorConfig.lightBorder,
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
@@ -143,8 +141,8 @@ export default function NoteCard({
               <span
                 className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-medium"
                 style={{
-                  backgroundColor: isDark 
-                    ? colorConfig.darkBorder 
+                  backgroundColor: isDark
+                    ? colorConfig.darkBorder
                     : colorConfig.lightBorder,
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
@@ -157,11 +155,11 @@ export default function NoteCard({
 
         {/* Date Information - MOBILE: Smaller text */}
         <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs mt-2">
-          <div 
+          <div
             className="flex items-center gap-1"
             style={{
-              color: isDark 
-                ? colorConfig.darkText + "99" 
+              color: isDark
+                ? colorConfig.darkText + "99"
                 : colorConfig.lightText + "99",
             }}
             title={`Created: ${new Date(note.created_at).toLocaleString()}`}
@@ -173,20 +171,20 @@ export default function NoteCard({
 
           {note.updated_at && note.updated_at !== note.created_at && (
             <>
-              <span 
+              <span
                 style={{
-                  color: isDark 
-                    ? colorConfig.darkText + "66" 
+                  color: isDark
+                    ? colorConfig.darkText + "66"
                     : colorConfig.lightText + "66",
                 }}
               >
                 •
               </span>
-              <div 
+              <div
                 className="flex items-center gap-1"
                 style={{
-                  color: isDark 
-                    ? colorConfig.darkText + "99" 
+                  color: isDark
+                    ? colorConfig.darkText + "99"
                     : colorConfig.lightText + "99",
                 }}
                 title={`Edited: ${new Date(note.updated_at).toLocaleString()}`}
