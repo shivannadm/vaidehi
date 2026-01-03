@@ -115,7 +115,7 @@ export default function NoteEditor({
 
   const colorConfig = NOTE_COLORS[color];
   const availableColors: NoteColor[] = [
-    "default", "red", "orange", "yellow", "green", 
+    "default", "red", "orange", "yellow", "green",
     "teal", "blue", "purple", "pink"
   ];
 
@@ -168,12 +168,11 @@ export default function NoteEditor({
                           setColor(c);
                           setShowColorPicker(false);
                         }}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg transition hover:scale-110 active:scale-95 ${
-                          color === c ? "ring-2 ring-indigo-500" : ""
-                        }`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg transition hover:scale-110 active:scale-95 ${color === c ? "ring-2 ring-indigo-500" : ""
+                          }`}
                         style={{
-                          backgroundColor: isDark 
-                            ? NOTE_COLORS[c].darkBg 
+                          backgroundColor: isDark
+                            ? NOTE_COLORS[c].darkBg
                             : NOTE_COLORS[c].lightBg,
                         }}
                         title={c}
@@ -252,8 +251,8 @@ export default function NoteEditor({
                   key={label}
                   className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1"
                   style={{
-                    backgroundColor: isDark 
-                      ? colorConfig.darkBorder 
+                    backgroundColor: isDark
+                      ? colorConfig.darkBorder
                       : colorConfig.lightBorder,
                     color: isDark ? colorConfig.darkText : colorConfig.lightText,
                   }}
@@ -279,8 +278,8 @@ export default function NoteEditor({
                 placeholder="Add label..."
                 className="flex-1 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm bg-transparent border focus:outline-none"
                 style={{
-                  borderColor: isDark 
-                    ? colorConfig.darkBorder 
+                  borderColor: isDark
+                    ? colorConfig.darkBorder
                     : colorConfig.lightBorder,
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
@@ -290,8 +289,8 @@ export default function NoteEditor({
                 onClick={handleAddLabel}
                 className="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition hover:opacity-80 active:scale-95"
                 style={{
-                  backgroundColor: isDark 
-                    ? colorConfig.darkBorder 
+                  backgroundColor: isDark
+                    ? colorConfig.darkBorder
                     : colorConfig.lightBorder,
                   color: isDark ? colorConfig.darkText : colorConfig.lightText,
                 }}
