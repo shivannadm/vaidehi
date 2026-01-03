@@ -47,7 +47,7 @@ export default function DailyHighlightsPage() {
     const init = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         setUserId(user.id);
         await loadAllData(user.id);
@@ -62,7 +62,7 @@ export default function DailyHighlightsPage() {
       const dark = document.documentElement.classList.contains('dark');
       setIsDark(dark);
     };
-    
+
     checkTheme();
 
     const observer = new MutationObserver(checkTheme);
@@ -153,7 +153,7 @@ export default function DailyHighlightsPage() {
 
     const timeout = setTimeout(async () => {
       if (!highlightText.trim()) return;
-      
+
       try {
         await upsertDailyHighlight({
           user_id: userId,
@@ -180,7 +180,7 @@ export default function DailyHighlightsPage() {
 
     try {
       await toggleHighlightCompletion(userId, today, newCompleted);
-      
+
       // Reload streak if completed
       if (newCompleted) {
         const { data } = await getHighlightStreak(userId);
@@ -222,9 +222,8 @@ export default function DailyHighlightsPage() {
             </div>
 
             {/* Quick Streak Badge */}
-            <div className={`px-4 py-2 rounded-lg border self-start sm:self-auto ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`px-4 py-2 rounded-lg border self-start sm:self-auto ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <div className="text-center">
                 <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   {streak}
@@ -237,14 +236,12 @@ export default function DailyHighlightsPage() {
           </div>
 
           {/* Main Highlight Card - Compact */}
-          <div className={`rounded-xl border p-4 sm:p-5 md:p-6 ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-          }`}>
+          <div className={`rounded-xl border p-4 sm:p-5 md:p-6 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className={`text-base sm:text-lg font-bold flex items-center gap-2 ${
-                  isDark ? 'text-white' : 'text-slate-900'
-                }`}>
+                <h2 className={`text-base sm:text-lg font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'
+                  }`}>
                   🎯 Today's Highlight
                 </h2>
                 <p className={`mt-1 text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -255,13 +252,12 @@ export default function DailyHighlightsPage() {
               {/* Completion Toggle */}
               <button
                 onClick={handleToggleCompletion}
-                className={`p-2 rounded-lg transition-all hover:scale-110 active:scale-95 ${
-                  isCompleted
+                className={`p-2 rounded-lg transition-all hover:scale-110 active:scale-95 ${isCompleted
                     ? 'bg-green-500/20 text-green-500 shadow-lg'
                     : isDark
                       ? 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                       : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                }`}
+                  }`}
               >
                 <CheckCircle2 className={`w-5 h-5 sm:w-6 sm:h-6 ${isCompleted ? 'fill-green-500' : ''}`} />
               </button>
@@ -277,9 +273,8 @@ export default function DailyHighlightsPage() {
 
             {/* Reason Selector */}
             <div className="mt-5">
-              <label className={`block text-sm font-medium mb-3 ${
-                isDark ? 'text-slate-300' : 'text-slate-700'
-              }`}>
+              <label className={`block text-sm font-medium mb-3 ${isDark ? 'text-slate-300' : 'text-slate-700'
+                }`}>
                 Why is this your highlight?
               </label>
               <ReasonSelector
