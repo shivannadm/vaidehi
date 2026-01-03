@@ -79,7 +79,7 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
     try {
       const supabase = createClient();
-      
+
       const milestoneData = {
         project_id: projectId,
         title: newMilestone.title.trim(),
@@ -196,11 +196,10 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
       {/* Error Message */}
       {error && (
-        <div className={`rounded-lg border p-2.5 md:p-3 flex items-start gap-2 text-xs md:text-sm ${
-          isDark 
-            ? 'bg-red-900/20 border-red-800 text-red-400' 
+        <div className={`rounded-lg border p-2.5 md:p-3 flex items-start gap-2 text-xs md:text-sm ${isDark
+            ? 'bg-red-900/20 border-red-800 text-red-400'
             : 'bg-red-50 border-red-200 text-red-700'
-        }`}>
+          }`}>
           <AlertCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-medium">{error}</p>
@@ -216,9 +215,8 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
       {/* Progress Bar */}
       {milestones.length > 0 && (
-        <div className={`rounded-xl border p-3 md:p-4 ${
-          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`rounded-xl border p-3 md:p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+          }`}>
           <div className="flex items-center justify-between mb-2">
             <span className={`text-xs md:text-sm font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Overall Progress
@@ -238,20 +236,18 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
 
       {/* Add Milestone Form */}
       {isAdding && (
-        <div className={`rounded-xl border p-3 md:p-4 ${
-          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-        }`}>
+        <div className={`rounded-xl border p-3 md:p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+          }`}>
           <div className="space-y-2.5 md:space-y-3">
             <input
               type="text"
               value={newMilestone.title}
               onChange={(e) => setNewMilestone({ ...newMilestone, title: e.target.value })}
               placeholder="Milestone title..."
-              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-              }`}
+                }`}
               disabled={saving}
             />
             <textarea
@@ -259,22 +255,20 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
               onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
               placeholder="Description (optional)..."
               rows={2}
-              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-              }`}
+                }`}
               disabled={saving}
             />
             <input
               type="date"
               value={newMilestone.due_date}
               onChange={(e) => setNewMilestone({ ...newMilestone, due_date: e.target.value })}
-              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? 'bg-slate-700 border-slate-600 text-white'
                   : 'bg-white border-slate-300 text-slate-900'
-              }`}
+                }`}
               disabled={saving}
             />
             <div className="flex gap-2">
@@ -285,11 +279,10 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   setError(null);
                 }}
                 disabled={saving}
-                className={`flex-1 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm transition ${
-                  isDark
+                className={`flex-1 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-xs md:text-sm transition ${isDark
                     ? 'bg-slate-700 hover:bg-slate-600 text-white'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 Cancel
               </button>
@@ -326,23 +319,22 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
         <div className="space-y-2.5 md:space-y-3">
           {milestones.map((milestone) => {
             const isPast = milestone.due_date && new Date(milestone.due_date) < new Date();
-            
+
             return (
               <div
                 key={milestone.id}
-                className={`group rounded-xl border p-3 md:p-4 transition ${
-                  milestone.is_completed
+                className={`group rounded-xl border p-3 md:p-4 transition ${milestone.is_completed
                     ? isDark
                       ? 'bg-green-900/20 border-green-800'
                       : 'bg-green-50 border-green-200'
                     : isPast
-                    ? isDark
-                      ? 'bg-red-900/20 border-red-800'
-                      : 'bg-red-50 border-red-200'
-                    : isDark
-                    ? 'bg-slate-800 border-slate-700'
-                    : 'bg-white border-slate-200'
-                }`}
+                      ? isDark
+                        ? 'bg-red-900/20 border-red-800'
+                        : 'bg-red-50 border-red-200'
+                      : isDark
+                        ? 'bg-slate-800 border-slate-700'
+                        : 'bg-white border-slate-200'
+                  }`}
               >
                 <div className="flex items-start gap-2 md:gap-3">
                   {/* Checkbox */}
@@ -360,15 +352,14 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <h4
-                      className={`font-bold text-base md:text-lg mb-1 break-words ${
-                        milestone.is_completed
+                      className={`font-bold text-base md:text-lg mb-1 break-words ${milestone.is_completed
                           ? isDark
                             ? 'text-green-400 line-through'
                             : 'text-green-700 line-through'
                           : isDark
-                          ? 'text-white'
-                          : 'text-slate-900'
-                      }`}
+                            ? 'text-white'
+                            : 'text-slate-900'
+                        }`}
                     >
                       {milestone.title}
                     </h4>
@@ -378,11 +369,10 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                       </p>
                     )}
                     {milestone.due_date && (
-                      <div className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${
-                        isPast && !milestone.is_completed
+                      <div className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${isPast && !milestone.is_completed
                           ? 'text-red-500 font-medium'
                           : isDark ? 'text-slate-400' : 'text-slate-600'
-                      }`}>
+                        }`}>
                         <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                         <span>
                           Due {new Date(milestone.due_date).toLocaleDateString('en-US', {
@@ -399,9 +389,8 @@ export default function MilestoneSection({ projectId, isDark }: MilestoneSection
                   {/* Actions - Always visible on mobile */}
                   <button
                     onClick={() => handleDelete(milestone.id)}
-                    className={`p-1.5 md:p-2 rounded-lg md:opacity-0 md:group-hover:opacity-100 transition ${
-                      isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
-                    }`}
+                    className={`p-1.5 md:p-2 rounded-lg md:opacity-0 md:group-hover:opacity-100 transition ${isDark ? 'hover:bg-slate-700 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
+                      }`}
                   >
                     <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
