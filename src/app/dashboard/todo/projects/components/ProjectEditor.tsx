@@ -164,24 +164,21 @@ export default function ProjectEditor({
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
       <div
         ref={modalRef}
-        className={`w-full max-w-3xl rounded-t-2xl sm:rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] sm:max-h-[85vh] flex flex-col ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        }`}
+        className={`w-full max-w-3xl rounded-t-2xl sm:rounded-xl shadow-2xl border-2 overflow-hidden max-h-[90vh] sm:max-h-[85vh] flex flex-col ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
+          }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-4 md:p-5 border-b-2 flex-shrink-0 ${
-            isDark ? "border-slate-700" : "border-slate-200"
-          }`}
+          className={`flex items-center justify-between p-4 md:p-5 border-b-2 flex-shrink-0 ${isDark ? "border-slate-700" : "border-slate-200"
+            }`}
         >
           <h2 className={`text-lg md:text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             {project ? "Edit Project" : "Create New Project"}
           </h2>
           <button
             onClick={handleClose}
-            className={`p-1.5 md:p-2 rounded-lg transition ${
-              isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"
-            }`}
+            className={`p-1.5 md:p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700 text-slate-400" : "hover:bg-slate-100 text-slate-500"
+              }`}
           >
             <X className="w-5 h-5" />
           </button>
@@ -192,11 +189,10 @@ export default function ProjectEditor({
           {/* Error Message */}
           {error && (
             <div
-              className={`p-3 rounded-lg border text-xs md:text-sm ${
-                isDark
+              className={`p-3 rounded-lg border text-xs md:text-sm ${isDark
                   ? "bg-red-900/20 border-red-800 text-red-400"
                   : "bg-red-50 border-red-200 text-red-700"
-              }`}
+                }`}
             >
               {error}
             </div>
@@ -213,11 +209,10 @@ export default function ProjectEditor({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Website Redesign"
-              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              }`}
+                }`}
               maxLength={100}
             />
           </div>
@@ -232,11 +227,10 @@ export default function ProjectEditor({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What is this project about?"
               rows={3}
-              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border resize-none text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border resize-none text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              }`}
+                }`}
             />
           </div>
 
@@ -256,19 +250,18 @@ export default function ProjectEditor({
                       key={s}
                       type="button"
                       onClick={() => setStatus(s)}
-                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${
-                        isSelected
+                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${isSelected
                           ? "border-indigo-500"
                           : isDark
-                          ? "border-slate-600 text-slate-300 hover:border-slate-500"
-                          : "border-slate-200 hover:border-slate-300"
-                      }`}
+                            ? "border-slate-600 text-slate-300 hover:border-slate-500"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
                       style={
                         isSelected
                           ? {
-                              backgroundColor: isDark ? config.darkBg : config.lightBg,
-                              color: isDark ? config.darkText : config.lightText,
-                            }
+                            backgroundColor: isDark ? config.darkBg : config.lightBg,
+                            color: isDark ? config.darkText : config.lightText,
+                          }
                           : {}
                       }
                     >
@@ -293,19 +286,18 @@ export default function ProjectEditor({
                       key={p}
                       type="button"
                       onClick={() => setPriority(p)}
-                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${
-                        isSelected
+                      className={`p-2 md:p-2.5 rounded-lg text-xs md:text-sm font-medium transition border-2 ${isSelected
                           ? "border-indigo-500"
                           : isDark
-                          ? "border-slate-600 text-slate-300 hover:border-slate-500"
-                          : "border-slate-200 hover:border-slate-300"
-                      }`}
+                            ? "border-slate-600 text-slate-300 hover:border-slate-500"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
                       style={
                         isSelected
                           ? {
-                              color: config.color,
-                              backgroundColor: config.color + "20",
-                            }
+                            color: config.color,
+                            backgroundColor: config.color + "20",
+                          }
                           : {}
                       }
                     >
@@ -328,11 +320,10 @@ export default function ProjectEditor({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
-                }`}
+                  }`}
               />
             </div>
             <div>
@@ -345,11 +336,10 @@ export default function ProjectEditor({
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
                 min={startDate || undefined}
-                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white"
                     : "bg-white border-slate-300 text-slate-900"
-                }`}
+                  }`}
               />
             </div>
           </div>
@@ -369,9 +359,8 @@ export default function ProjectEditor({
                     key={c}
                     type="button"
                     onClick={() => setColor(c)}
-                    className={`h-8 md:h-10 rounded-lg transition hover:scale-110 ${
-                      isSelected ? "ring-2 ring-offset-2 ring-indigo-500" : ""
-                    }`}
+                    className={`h-8 md:h-10 rounded-lg transition hover:scale-110 ${isSelected ? "ring-2 ring-offset-2 ring-indigo-500" : ""
+                      }`}
                     style={{
                       backgroundColor: isDark ? theme.darkBg : theme.lightBg,
                     }}
@@ -388,15 +377,14 @@ export default function ProjectEditor({
               <Tag className="w-3 h-3 md:w-4 md:h-4 inline mr-1" />
               Tags
             </label>
-            
+
             {/* Existing Tags */}
             <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2">
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1 ${
-                    isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-700"
-                  }`}
+                  className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium flex items-center gap-1 ${isDark ? "bg-slate-700 text-slate-300" : "bg-slate-100 text-slate-700"
+                    }`}
                 >
                   #{tag}
                   <button
@@ -417,11 +405,10 @@ export default function ProjectEditor({
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
                 placeholder="Add tag..."
-                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                     : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-                }`}
+                  }`}
                 maxLength={20}
               />
               <button
@@ -436,17 +423,15 @@ export default function ProjectEditor({
 
         {/* Footer */}
         <div
-          className={`flex items-center justify-end gap-2 md:gap-3 p-4 md:p-5 border-t-2 flex-shrink-0 ${
-            isDark ? "border-slate-700" : "border-slate-200"
-          }`}
+          className={`flex items-center justify-end gap-2 md:gap-3 p-4 md:p-5 border-t-2 flex-shrink-0 ${isDark ? "border-slate-700" : "border-slate-200"
+            }`}
         >
           <button
             onClick={handleClose}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition ${
-              isDark
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg font-medium text-xs md:text-sm transition ${isDark
                 ? "bg-slate-700 hover:bg-slate-600 text-white"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-900"
-            }`}
+              }`}
           >
             Cancel
           </button>
