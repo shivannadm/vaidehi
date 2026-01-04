@@ -6,11 +6,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Star, 
-  MoreVertical, 
-  Edit2, 
-  Trash2, 
+import {
+  Star,
+  MoreVertical,
+  Edit2,
+  Trash2,
   Calendar,
   CheckCircle2,
   Clock,
@@ -36,8 +36,8 @@ interface ProjectCardProps {
 
 const formatDateDisplay = (date: string) => {
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', { 
-    month: 'short', 
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
     day: 'numeric',
     year: 'numeric'
   });
@@ -47,7 +47,7 @@ const formatDateDisplay = (date: string) => {
 const getTimelineDisplay = (project: Project) => {
   const isCompleted = project.status === 'completed';
   const hasTargetDate = !!project.target_end_date;
-  
+
   if (!hasTargetDate) {
     return { text: '', color: '', icon: null, showClock: false };
   }
@@ -57,12 +57,12 @@ const getTimelineDisplay = (project: Project) => {
 
   // ✅ FIX: For completed projects
   if (isCompleted) {
-    const completionDate = project.actual_end_date 
-      ? new Date(project.actual_end_date) 
+    const completionDate = project.actual_end_date
+      ? new Date(project.actual_end_date)
       : new Date(project.updated_at);
-    
+
     completionDate.setHours(0, 0, 0, 0); // Start of completion day
-    
+
     // Check if completed BEFORE or ON the target date
     if (completionDate <= targetDate) {
       return {
@@ -86,7 +86,7 @@ const getTimelineDisplay = (project: Project) => {
   // ✅ For active projects, calculate from TODAY
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const daysRemaining = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   if (daysRemaining < 0) {
@@ -146,11 +146,10 @@ export default function ProjectCard({
     return (
       <div
         onClick={() => onClick(project.id)}
-        className={`group cursor-pointer rounded-lg p-3 md:p-4 border-2 transition-all hover:shadow-md ${
-          isDark
+        className={`group cursor-pointer rounded-lg p-3 md:p-4 border-2 transition-all hover:shadow-md ${isDark
             ? "bg-slate-800 border-slate-700 hover:border-slate-600"
             : "bg-white border-slate-200 hover:border-slate-300"
-        }`}
+          }`}
       >
         <div className="flex items-start md:items-center gap-3 md:gap-4">
           <div
@@ -164,9 +163,8 @@ export default function ProjectCard({
             <div className="flex items-start justify-between mb-1.5 md:mb-2">
               <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
                 <h3
-                  className={`font-bold text-sm md:text-lg truncate ${
-                    isDark ? "text-white" : "text-slate-900"
-                  }`}
+                  className={`font-bold text-sm md:text-lg truncate ${isDark ? "text-white" : "text-slate-900"
+                    }`}
                 >
                   {project.title}
                 </h3>
@@ -185,9 +183,8 @@ export default function ProjectCard({
 
             {project.description && (
               <p
-                className={`text-xs md:text-sm line-clamp-1 mb-1.5 md:mb-2 ${
-                  isDark ? "text-slate-400" : "text-slate-600"
-                }`}
+                className={`text-xs md:text-sm line-clamp-1 mb-1.5 md:mb-2 ${isDark ? "text-slate-400" : "text-slate-600"
+                  }`}
               >
                 {project.description}
               </p>
@@ -231,14 +228,12 @@ export default function ProjectCard({
           <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0">
             <button
               onClick={handleToggleFavorite}
-              className={`p-1 md:p-2 rounded-lg transition ${
-                isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
-              }`}
+              className={`p-1 md:p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
+                }`}
             >
               <Star
-                className={`w-3.5 h-3.5 md:w-4 md:h-4 ${
-                  project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
-                }`}
+                className={`w-3.5 h-3.5 md:w-4 md:h-4 ${project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
+                  }`}
                 style={{
                   color: !project.is_favorite
                     ? isDark
@@ -250,9 +245,8 @@ export default function ProjectCard({
             </button>
             <button
               onClick={handleEdit}
-              className={`p-1 md:p-2 rounded-lg transition ${
-                isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
-              }`}
+              className={`p-1 md:p-2 rounded-lg transition ${isDark ? "hover:bg-slate-700" : "hover:bg-slate-100"
+                }`}
             >
               <Edit2
                 className="w-3.5 h-3.5 md:w-4 md:h-4"
@@ -261,9 +255,8 @@ export default function ProjectCard({
             </button>
             <button
               onClick={handleDelete}
-              className={`p-1 md:p-2 rounded-lg transition ${
-                isDark ? "hover:bg-red-900/30" : "hover:bg-red-50"
-              }`}
+              className={`p-1 md:p-2 rounded-lg transition ${isDark ? "hover:bg-red-900/30" : "hover:bg-red-50"
+                }`}
             >
               <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
             </button>
@@ -272,9 +265,8 @@ export default function ProjectCard({
 
         <div className="mt-2 md:mt-3">
           <div
-            className={`h-1.5 md:h-2 rounded-full overflow-hidden ${
-              isDark ? "bg-slate-700" : "bg-slate-200"
-            }`}
+            className={`h-1.5 md:h-2 rounded-full overflow-hidden ${isDark ? "bg-slate-700" : "bg-slate-200"
+              }`}
           >
             <div
               className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all"
@@ -292,7 +284,7 @@ export default function ProjectCard({
       onClick={() => onClick(project.id)}
       className="group cursor-pointer rounded-xl p-3 md:p-5 border-2 transition-all hover:shadow-lg relative"
       style={{
-        backgroundColor: isDark 
+        backgroundColor: isDark
           ? `${colorTheme.darkBg}40`
           : `${colorTheme.lightBg}80`,
         borderColor: isDark ? colorTheme.darkBorder : colorTheme.lightBorder,
@@ -320,14 +312,12 @@ export default function ProjectCard({
 
         <button
           onClick={handleToggleFavorite}
-          className={`p-1 md:p-1.5 rounded-lg transition md:opacity-0 md:group-hover:opacity-100 ${
-            isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
-          }`}
+          className={`p-1 md:p-1.5 rounded-lg transition md:opacity-0 md:group-hover:opacity-100 ${isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+            }`}
         >
           <Star
-            className={`w-4 h-4 md:w-5 md:h-5 ${
-              project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
-            }`}
+            className={`w-4 h-4 md:w-5 md:h-5 ${project.is_favorite ? "fill-yellow-500 text-yellow-500" : ""
+              }`}
             style={{
               color: !project.is_favorite
                 ? isDark
@@ -420,17 +410,15 @@ export default function ProjectCard({
         <div className="flex items-center gap-0.5 md:gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <button
             onClick={handleEdit}
-            className={`p-0.5 md:p-1 rounded transition ${
-              isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
-            }`}
+            className={`p-0.5 md:p-1 rounded transition ${isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+              }`}
           >
             <Edit2 className="w-3 h-3 md:w-4 md:h-4" />
           </button>
           <button
             onClick={handleDelete}
-            className={`p-0.5 md:p-1 rounded transition ${
-              isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
-            }`}
+            className={`p-0.5 md:p-1 rounded transition ${isDark ? 'md:hover:bg-black/10' : 'md:hover:bg-black/10'
+              }`}
           >
             <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
           </button>
