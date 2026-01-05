@@ -202,9 +202,8 @@ export default function SchedulePage() {
     return (
       <div className="h-full flex items-center justify-center">
         <div
-          className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${
-            isDark ? "border-indigo-400" : "border-indigo-600"
-          }`}
+          className={`inline-block animate-spin rounded-full h-8 w-8 border-b-2 ${isDark ? "border-indigo-400" : "border-indigo-600"
+            }`}
         ></div>
       </div>
     );
