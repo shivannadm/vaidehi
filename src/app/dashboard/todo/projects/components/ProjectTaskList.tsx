@@ -54,7 +54,7 @@ export default function ProjectTaskList({
         try {
             const supabase = createClient();
             const todayDate = getTodayDateString();
-            
+
             const { data, error } = await supabase
                 .from('task_sessions')
                 .select('duration')
@@ -196,7 +196,7 @@ export default function ProjectTaskList({
 
             await startTimer(task.id, task.title, userId, today);
             onRefresh();
-            
+
             window.dispatchEvent(new CustomEvent('projectTimerStarted', {
                 detail: { taskId: task.id, title: task.title, date: todayDateString }
             }));
@@ -225,11 +225,10 @@ export default function ProjectTaskList({
         <div className="space-y-4 md:space-y-6 p-3 md:p-4">
             {/* Active Timer Display - Mobile Optimized */}
             {timer.taskId && (
-                <div className={`rounded-xl border-2 p-3 md:p-4 ${
-                    isDark 
-                        ? 'bg-indigo-900/20 border-indigo-700' 
+                <div className={`rounded-xl border-2 p-3 md:p-4 ${isDark
+                        ? 'bg-indigo-900/20 border-indigo-700'
                         : 'bg-indigo-50 border-indigo-300'
-                }`}>
+                    }`}>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
                             <div className="relative flex-shrink-0">
@@ -237,23 +236,20 @@ export default function ProjectTaskList({
                                 <div className="absolute inset-0 w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full animate-ping" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className={`text-[10px] md:text-sm font-medium ${
-                                    isDark ? 'text-slate-400' : 'text-slate-600'
-                                }`}>
+                                <p className={`text-[10px] md:text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'
+                                    }`}>
                                     Timer Running
                                 </p>
-                                <p className={`font-bold text-sm md:text-lg truncate ${
-                                    isDark ? 'text-white' : 'text-slate-900'
-                                }`}>
+                                <p className={`font-bold text-sm md:text-lg truncate ${isDark ? 'text-white' : 'text-slate-900'
+                                    }`}>
                                     {tasks.find(t => t.id === timer.taskId)?.title || timer.taskTitle || 'Unknown Task'}
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
                             <div className="text-right flex-1 sm:flex-initial">
-                                <p className={`text-2xl md:text-3xl font-bold font-mono ${
-                                    isDark ? 'text-indigo-400' : 'text-indigo-600'
-                                }`}>
+                                <p className={`text-2xl md:text-3xl font-bold font-mono ${isDark ? 'text-indigo-400' : 'text-indigo-600'
+                                    }`}>
                                     {formatDuration(timer.elapsedSeconds)}
                                 </p>
                             </div>
@@ -271,11 +267,10 @@ export default function ProjectTaskList({
 
             {/* Error Display */}
             {error && (
-                <div className={`rounded-lg border p-2.5 md:p-3 flex items-center justify-between text-xs md:text-sm ${
-                    isDark 
-                        ? 'bg-red-900/20 border-red-800 text-red-400' 
+                <div className={`rounded-lg border p-2.5 md:p-3 flex items-center justify-between text-xs md:text-sm ${isDark
+                        ? 'bg-red-900/20 border-red-800 text-red-400'
                         : 'bg-red-50 border-red-200 text-red-700'
-                }`}>
+                    }`}>
                     <span>{error}</span>
                     <button
                         onClick={() => setError(null)}
@@ -291,19 +286,17 @@ export default function ProjectTaskList({
                 {!isAdding ? (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className={`w-full px-3 py-2.5 md:px-4 md:py-3 rounded-lg border-2 border-dashed transition text-xs md:text-sm font-medium flex items-center justify-center gap-2 ${
-                            isDark
+                        className={`w-full px-3 py-2.5 md:px-4 md:py-3 rounded-lg border-2 border-dashed transition text-xs md:text-sm font-medium flex items-center justify-center gap-2 ${isDark
                                 ? 'border-slate-600 hover:border-slate-500 text-slate-400 hover:text-slate-300 hover:bg-slate-700/30'
                                 : 'border-slate-300 hover:border-slate-400 text-slate-500 hover:text-slate-600 hover:bg-slate-50'
-                        }`}
+                            }`}
                     >
                         <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                         Add Task to Project
                     </button>
                 ) : (
-                    <div className={`rounded-lg border p-2.5 md:p-3 ${
-                        isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-50 border-slate-200'
-                    }`}>
+                    <div className={`rounded-lg border p-2.5 md:p-3 ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-50 border-slate-200'
+                        }`}>
                         <div className="flex items-center gap-2">
                             <input
                                 type="text"
@@ -320,11 +313,10 @@ export default function ProjectTaskList({
                                 placeholder="Task title..."
                                 autoFocus
                                 disabled={adding}
-                                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                                    isDark
+                                className={`flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                                         ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400'
                                         : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
-                                } disabled:opacity-50`}
+                                    } disabled:opacity-50`}
                             />
                             <button
                                 onClick={handleAddTask}
@@ -340,9 +332,8 @@ export default function ProjectTaskList({
                                     setError(null);
                                 }}
                                 disabled={adding}
-                                className={`p-1.5 md:p-2 rounded-lg transition ${
-                                    isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
-                                } disabled:opacity-50`}
+                                className={`p-1.5 md:p-2 rounded-lg transition ${isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
+                                    } disabled:opacity-50`}
                             >
                                 <X className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             </button>
@@ -459,8 +450,7 @@ function TaskItem({
 
     return (
         <div
-            className={`group flex items-center gap-2 md:gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition ${
-                isCompleted
+            className={`group flex items-center gap-2 md:gap-3 px-3 py-2.5 md:px-4 md:py-3 rounded-lg border transition ${isCompleted
                     ? isDark
                         ? 'bg-slate-700/30 border-slate-700'
                         : 'bg-slate-50 border-slate-200'
@@ -471,7 +461,7 @@ function TaskItem({
                         : isDark
                             ? 'bg-slate-700/50 border-slate-600 hover:bg-slate-700'
                             : 'bg-white border-slate-200 hover:border-slate-300'
-            }`}
+                }`}
         >
             {/* Checkbox */}
             <button
@@ -489,22 +479,20 @@ function TaskItem({
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 md:gap-2">
                     <span
-                        className={`font-medium text-xs md:text-sm truncate ${
-                            isCompleted
+                        className={`font-medium text-xs md:text-sm truncate ${isCompleted
                                 ? isDark
                                     ? 'text-slate-400 line-through'
                                     : 'text-slate-500 line-through'
                                 : isDark
                                     ? 'text-white'
                                     : 'text-slate-900'
-                        }`}
+                            }`}
                     >
                         {task.title}
                     </span>
                     {task.is_important && (
-                        <Star className={`w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 ${
-                            isCompleted ? 'fill-slate-500 text-slate-500' : 'fill-yellow-500 text-yellow-500'
-                        }`} />
+                        <Star className={`w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 ${isCompleted ? 'fill-slate-500 text-slate-500' : 'fill-yellow-500 text-yellow-500'
+                            }`} />
                     )}
                 </div>
                 <div className="flex items-center gap-2 md:gap-3 mt-0.5 md:mt-1">
@@ -540,13 +528,12 @@ function TaskItem({
                     <button
                         onClick={() => onStartTimer(task)}
                         disabled={isTimerActive}
-                        className={`p-1.5 md:p-2 rounded-lg transition ${
-                            isTimerActive
+                        className={`p-1.5 md:p-2 rounded-lg transition ${isTimerActive
                                 ? 'bg-indigo-600 text-white'
                                 : isDark
                                     ? 'hover:bg-slate-600 text-slate-400'
                                     : 'hover:bg-slate-100 text-slate-500'
-                        }`}
+                            }`}
                         title={isTimerActive ? "Timer running" : "Start timer"}
                     >
                         <Play className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -555,9 +542,8 @@ function TaskItem({
 
                 <button
                     onClick={() => onDelete(task.id)}
-                    className={`p-1 md:p-1.5 rounded transition md:opacity-0 md:group-hover:opacity-100 ${
-                        isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
-                    }`}
+                    className={`p-1 md:p-1.5 rounded transition md:opacity-0 md:group-hover:opacity-100 ${isDark ? 'hover:bg-slate-600 text-slate-400' : 'hover:bg-slate-100 text-slate-500'
+                        }`}
                 >
                     <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </button>
