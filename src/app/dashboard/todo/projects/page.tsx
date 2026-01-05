@@ -47,13 +47,13 @@ export default function ProjectsPage() {
   // Initialize
   useEffect(() => {
     setMounted(true);
-    
+
     // Load saved view mode
     const savedViewMode = localStorage.getItem('projectsViewMode');
     if (savedViewMode === 'list' || savedViewMode === 'grid') {
       setViewMode(savedViewMode);
     }
-    
+
     const init = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -102,11 +102,11 @@ export default function ProjectsPage() {
       return true;
     });
 
-  const favoriteProjects = showFavoritesOnly 
+  const favoriteProjects = showFavoritesOnly
     ? filteredProjects
     : filteredProjects.filter(p => p.is_favorite);
-  
-  const otherProjects = showFavoritesOnly 
+
+  const otherProjects = showFavoritesOnly
     ? []
     : filteredProjects.filter(p => !p.is_favorite);
 
@@ -160,7 +160,7 @@ export default function ProjectsPage() {
     <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <div className="h-full overflow-y-auto p-3 md:p-6">
         <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-          
+
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
@@ -182,26 +182,23 @@ export default function ProjectsPage() {
           </div>
 
           {/* Filters & Actions Bar */}
-          <div className={`rounded-xl border p-3 md:p-4 ${
-            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-          }`}>
+          <div className={`rounded-xl border p-3 md:p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+            }`}>
             <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-3">
               {/* Search */}
               <div className="w-full md:flex-1 md:min-w-[200px]">
                 <div className="relative">
-                  <Search className={`absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 ${
-                    isDark ? 'text-slate-400' : 'text-slate-500'
-                  }`} />
+                  <Search className={`absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 ${isDark ? 'text-slate-400' : 'text-slate-500'
+                    }`} />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search projects..."
-                    className={`w-full pl-8 md:pl-10 pr-3 md:pr-4 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                      isDark
+                    className={`w-full pl-8 md:pl-10 pr-3 md:pr-4 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                         ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400'
                         : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
-                    }`}
+                      }`}
                   />
                 </div>
               </div>
@@ -212,11 +209,10 @@ export default function ProjectsPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className={`flex-1 min-w-[100px] px-2 md:px-3 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    isDark
+                  className={`flex-1 min-w-[100px] px-2 md:px-3 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                       ? 'bg-slate-700 border-slate-600 text-white'
                       : 'bg-slate-50 border-slate-200 text-slate-900'
-                  }`}
+                    }`}
                 >
                   <option value="all">All Status</option>
                   <option value="planning">📋 Planning</option>
@@ -230,11 +226,10 @@ export default function ProjectsPage() {
                 <select
                   value={priorityFilter}
                   onChange={(e) => setPriorityFilter(e.target.value as any)}
-                  className={`flex-1 min-w-[100px] px-2 md:px-3 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                    isDark
+                  className={`flex-1 min-w-[100px] px-2 md:px-3 py-1.5 md:py-2 rounded-lg border text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                       ? 'bg-slate-700 border-slate-600 text-white'
                       : 'bg-slate-50 border-slate-200 text-slate-900'
-                  }`}
+                    }`}
                 >
                   <option value="all">All Priority</option>
                   <option value="low">⬇️ Low</option>
@@ -246,39 +241,35 @@ export default function ProjectsPage() {
                 {/* Favorites Toggle */}
                 <button
                   onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                  className={`px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg font-medium text-xs md:text-sm transition flex items-center gap-1.5 md:gap-2 ${
-                    showFavoritesOnly
+                  className={`px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg font-medium text-xs md:text-sm transition flex items-center gap-1.5 md:gap-2 ${showFavoritesOnly
                       ? 'bg-yellow-500/20 text-yellow-500 border-2 border-yellow-500'
                       : isDark
                         ? 'bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
-                  }`}
+                    }`}
                 >
                   <Star className={`w-3.5 h-3.5 md:w-4 md:h-4 ${showFavoritesOnly ? 'fill-yellow-500' : ''}`} />
                   <span className="hidden sm:inline">Favorites</span>
                 </button>
 
                 {/* View Toggle */}
-                <div className={`flex items-center rounded-lg border ${
-                  isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-100 border-slate-200'
-                }`}>
+                <div className={`flex items-center rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-slate-100 border-slate-200'
+                  }`}>
                   <button
                     onClick={() => handleViewModeChange("grid")}
-                    className={`p-1.5 md:p-2 rounded-l-lg transition ${
-                      viewMode === "grid"
+                    className={`p-1.5 md:p-2 rounded-l-lg transition ${viewMode === "grid"
                         ? 'bg-indigo-600 text-white'
                         : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
-                    }`}
+                      }`}
                   >
                     <Grid3x3 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
                   <button
                     onClick={() => handleViewModeChange("list")}
-                    className={`p-1.5 md:p-2 rounded-r-lg transition ${
-                      viewMode === "list"
+                    className={`p-1.5 md:p-2 rounded-r-lg transition ${viewMode === "list"
                         ? 'bg-indigo-600 text-white'
                         : isDark ? 'text-slate-400 hover:bg-slate-600' : 'text-slate-600 hover:bg-slate-200'
-                    }`}
+                      }`}
                   >
                     <List className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </button>
@@ -321,14 +312,13 @@ export default function ProjectsPage() {
                       <h2 className={`text-base md:text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         {showFavoritesOnly ? 'Favorite Projects' : 'Favorites'}
                       </h2>
-                      <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-xs font-bold ${
-                        isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
-                      }`}>
+                      <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-xs font-bold ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
+                        }`}>
                         {favoriteProjects.length}
                       </span>
                     </div>
                   )}
-                  <div className={viewMode === "grid" 
+                  <div className={viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5"
                     : "space-y-2 md:space-y-3"
                   }>
@@ -356,7 +346,7 @@ export default function ProjectsPage() {
                       All Projects
                     </h2>
                   )}
-                  <div className={viewMode === "grid" 
+                  <div className={viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5"
                     : "space-y-2 md:space-y-3"
                   }>
@@ -380,9 +370,8 @@ export default function ProjectsPage() {
 
           {/* Stats Footer */}
           {projects.length > 0 && (
-            <div className={`rounded-xl border p-3 md:p-4 ${
-              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
-            }`}>
+            <div className={`rounded-xl border p-3 md:p-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'
+              }`}>
               <div className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-4 md:gap-8 text-xs md:text-sm">
                 <div className="text-center">
                   <div className={`text-xl md:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
