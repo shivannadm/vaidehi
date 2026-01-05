@@ -10,18 +10,6 @@
   [![Supabase](https://img.shields.io/badge/Supabase-Latest-green)](https://supabase.com/)
 </div>
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [Project Structure](#project-structure)
-- [Workflow](#workflow)
-- [Screenshots](#screenshots)
-- [Contributing](#contributing)
-- [License](#license)
-
 ## 🎯 Overview
 
 **Vaidehi** is an entrepreneur-level productivity management system designed to help individuals organize their daily tasks, routines, health tracking, and trading activities. Built with Next.js 14+, it provides a comprehensive suite of tools for personal development, time management, and goal achievement.
