@@ -121,7 +121,7 @@ export function useEventActions() {
 
       // Prepare update data with proper null handling
       const updateData: any = {};
-      
+
       if (formData.title !== undefined) updateData.title = formData.title.trim();
       if (formData.event_type !== undefined) updateData.event_type = formData.event_type;
       if (formData.date !== undefined) updateData.date = formData.date;
