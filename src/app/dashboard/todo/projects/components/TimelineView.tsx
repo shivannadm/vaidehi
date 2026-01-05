@@ -16,11 +16,11 @@ interface TimelineViewProps {
   isDark: boolean;
 }
 
-export default function TimelineView({ 
-  tasks, 
-  projectStartDate, 
+export default function TimelineView({
+  tasks,
+  projectStartDate,
   projectEndDate,
-  isDark 
+  isDark
 }: TimelineViewProps) {
   // Calculate timeline range
   const timelineRange = useMemo(() => {
@@ -85,7 +85,7 @@ export default function TimelineView({
     while (current <= end) {
       labels.push({
         date: new Date(current),
-        label: current.toLocaleDateString('en-US', { 
+        label: current.toLocaleDateString('en-US', {
           month: 'short',
           year: window.innerWidth < 768 ? undefined : 'numeric' // Hide year on mobile
         })
@@ -126,15 +126,14 @@ export default function TimelineView({
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`rounded-lg p-3 border ${
-              task.is_completed
+            className={`rounded-lg p-3 border ${task.is_completed
                 ? isDark
                   ? 'bg-green-900/20 border-green-700'
                   : 'bg-green-50 border-green-200'
                 : isDark
                   ? 'bg-blue-900/20 border-blue-700'
                   : 'bg-blue-50 border-blue-200'
-            }`}
+              }`}
           >
             <div className="flex items-start gap-2">
               {task.is_completed ? (
@@ -143,18 +142,16 @@ export default function TimelineView({
                 <Clock className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
               )}
               <div className="flex-1 min-w-0">
-                <h4 className={`font-semibold text-sm mb-1 ${
-                  task.is_completed
+                <h4 className={`font-semibold text-sm mb-1 ${task.is_completed
                     ? 'text-green-500'
                     : isDark ? 'text-white' : 'text-slate-900'
-                }`}>
+                  }`}>
                   {task.title}
                 </h4>
                 <div className="flex items-center gap-2 text-xs">
                   {task.tag && (
-                    <span className={`px-2 py-0.5 rounded-full ${
-                      isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
+                      }`}>
                       #{task.tag.name}
                     </span>
                   )}
@@ -165,8 +162,8 @@ export default function TimelineView({
                   )}
                 </div>
                 <div className={`text-xs mt-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                  {new Date(task.date).toLocaleDateString('en-US', { 
-                    month: 'short', 
+                  {new Date(task.date).toLocaleDateString('en-US', {
+                    month: 'short',
                     day: 'numeric',
                     year: 'numeric'
                   })}
@@ -184,9 +181,8 @@ export default function TimelineView({
           {monthLabels.map((month, idx) => (
             <div
               key={idx}
-              className={`flex-1 text-center text-xs font-semibold ${
-                isDark ? 'text-slate-400' : 'text-slate-600'
-              }`}
+              className={`flex-1 text-center text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-slate-600'
+                }`}
             >
               {month.label}
             </div>
@@ -194,14 +190,13 @@ export default function TimelineView({
         </div>
 
         {/* Timeline Track */}
-        <div className={`relative h-2 rounded-full mb-6 min-w-[800px] ${
-          isDark ? 'bg-slate-700' : 'bg-slate-200'
-        }`}>
+        <div className={`relative h-2 rounded-full mb-6 min-w-[800px] ${isDark ? 'bg-slate-700' : 'bg-slate-200'
+          }`}>
           {/* Current day indicator */}
           {(() => {
             const today = new Date();
             const todayPosition = ((today.getTime() - timelineRange.start.getTime()) / (timelineRange.end.getTime() - timelineRange.start.getTime())) * 100;
-            
+
             if (todayPosition >= 0 && todayPosition <= 100) {
               return (
                 <div
@@ -234,11 +229,10 @@ export default function TimelineView({
               >
                 {/* Task Bar */}
                 <div
-                  className={`absolute h-10 rounded-lg border-2 transition-all hover:scale-105 cursor-pointer z-10 ${
-                    task.is_completed
+                  className={`absolute h-10 rounded-lg border-2 transition-all hover:scale-105 cursor-pointer z-10 ${task.is_completed
                       ? 'bg-green-500/20 border-green-500'
                       : 'bg-blue-500/20 border-blue-500'
-                  }`}
+                    }`}
                   style={{
                     left: `${adjustedPosition}%`,
                     width: 'auto',
@@ -254,13 +248,12 @@ export default function TimelineView({
                       <Clock className="w-4 h-4 text-blue-500 flex-shrink-0" />
                     )}
                     <span
-                      className={`text-xs font-medium truncate ${
-                        task.is_completed
+                      className={`text-xs font-medium truncate ${task.is_completed
                           ? 'text-green-500'
                           : isDark
-                          ? 'text-white'
-                          : 'text-slate-900'
-                      }`}
+                            ? 'text-white'
+                            : 'text-slate-900'
+                        }`}
                     >
                       {task.title}
                     </span>
@@ -272,9 +265,8 @@ export default function TimelineView({
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium">{task.title}</span>
                     {task.tag && (
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${
-                        isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'
+                        }`}>
                         #{task.tag.name}
                       </span>
                     )}
@@ -283,9 +275,9 @@ export default function TimelineView({
                     )}
                   </div>
                   <div className="text-xs opacity-75 mt-0.5">
-                    {new Date(task.date).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric' 
+                    {new Date(task.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric'
                     })}
                   </div>
                 </div>
