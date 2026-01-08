@@ -118,8 +118,8 @@ export default function AddTaskModal({
             <div
                 ref={modalRef}
                 className={`w-full max-w-md max-h-[95vh] overflow-y-auto rounded-xl shadow-2xl border ${isDark
-                        ? "bg-slate-800 border-slate-700"
-                        : "bg-white border-slate-200"
+                    ? "bg-slate-800 border-slate-700"
+                    : "bg-white border-slate-200"
                     }`}
             >
                 {/* Header */}
@@ -136,8 +136,8 @@ export default function AddTaskModal({
                     <button
                         onClick={onClose}
                         className={`p-1.5 sm:p-2 rounded-lg transition ${isDark
-                                ? "hover:bg-slate-700 text-slate-400"
-                                : "hover:bg-slate-100 text-slate-500"
+                            ? "hover:bg-slate-700 text-slate-400"
+                            : "hover:bg-slate-100 text-slate-500"
                             }`}
                         disabled={saving}
                     >
@@ -151,8 +151,8 @@ export default function AddTaskModal({
                     {error && (
                         <div
                             className={`p-2 sm:p-3 rounded-lg border text-xs sm:text-sm ${isDark
-                                    ? "bg-red-900/20 border-red-800 text-red-400"
-                                    : "bg-red-50 border-red-200 text-red-700"
+                                ? "bg-red-900/20 border-red-800 text-red-400"
+                                : "bg-red-50 border-red-200 text-red-700"
                                 }`}
                         >
                             {error}
@@ -174,8 +174,8 @@ export default function AddTaskModal({
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Enter task title..."
                             className={`w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm ${isDark
-                                    ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                                    : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                                ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
+                                : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
                                 }`}
                             disabled={saving}
                             maxLength={200}
@@ -204,8 +204,8 @@ export default function AddTaskModal({
                                     setSelectedTagId(e.target.value || null)
                                 }
                                 className={`w-full px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm ${isDark
-                                        ? "bg-slate-700 border-slate-600 text-white"
-                                        : "bg-white border-slate-300 text-slate-900"
+                                    ? "bg-slate-700 border-slate-600 text-white"
+                                    : "bg-white border-slate-300 text-slate-900"
                                     }`}
                                 disabled={saving}
                             >
@@ -257,10 +257,10 @@ export default function AddTaskModal({
                             type="button"
                             onClick={() => setIsImportant(!isImportant)}
                             className={`p-1.5 sm:p-2 rounded-lg transition ${isImportant
-                                    ? "bg-yellow-500/20 text-yellow-500"
-                                    : isDark
-                                        ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
-                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                ? "bg-yellow-500/20 text-yellow-500"
+                                : isDark
+                                    ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                                 }`}
                             disabled={saving}
                         >
@@ -288,10 +288,10 @@ export default function AddTaskModal({
                             type="button"
                             onClick={() => setIsRecurring(!isRecurring)}
                             className={`p-1.5 sm:p-2 rounded-lg transition ml-2 ${isRecurring
-                                    ? "bg-indigo-500/20 text-indigo-500"
-                                    : isDark
-                                        ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
-                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                ? "bg-indigo-500/20 text-indigo-500"
+                                : isDark
+                                    ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                                 }`}
                             disabled={saving}
                         >
@@ -308,8 +308,8 @@ export default function AddTaskModal({
                             type="button"
                             onClick={onClose}
                             className={`flex-1 px-3 py-2 sm:px-4 sm:py-2.5 border rounded-lg font-medium transition text-xs sm:text-sm ${isDark
-                                    ? "border-slate-600 text-slate-300 hover:bg-slate-700"
-                                    : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                                ? "border-slate-600 text-slate-300 hover:bg-slate-700"
+                                : "border-slate-300 text-slate-700 hover:bg-slate-50"
                                 }`}
                             disabled={saving}
                         >
