@@ -73,9 +73,9 @@ export default function EditTaskModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!task) return;
-    
+
     if (!title.trim()) {
       setError("Task title is required");
       return;
@@ -113,32 +113,28 @@ export default function EditTaskModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className={`w-full max-w-md mx-4 rounded-xl shadow-2xl border ${
-          isDark
+        className={`w-full max-w-md mx-4 rounded-xl shadow-2xl border ${isDark
             ? "bg-slate-800 border-slate-700"
             : "bg-white border-slate-200"
-        }`}
+          }`}
       >
         {/* Header */}
         <div
-          className={`flex items-center justify-between p-5 border-b ${
-            isDark ? "border-slate-700" : "border-slate-200"
-          }`}
+          className={`flex items-center justify-between p-5 border-b ${isDark ? "border-slate-700" : "border-slate-200"
+            }`}
         >
           <h2
-            className={`text-xl font-bold ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             Edit Task
           </h2>
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg transition ${
-              isDark
+            className={`p-2 rounded-lg transition ${isDark
                 ? "hover:bg-slate-700 text-slate-400"
                 : "hover:bg-slate-100 text-slate-500"
-            }`}
+              }`}
             disabled={saving}
           >
             <X className="w-5 h-5" />
@@ -150,11 +146,10 @@ export default function EditTaskModal({
           {/* Error Message */}
           {error && (
             <div
-              className={`p-3 rounded-lg border text-sm ${
-                isDark
+              className={`p-3 rounded-lg border text-sm ${isDark
                   ? "bg-red-900/20 border-red-800 text-red-400"
                   : "bg-red-50 border-red-200 text-red-700"
-              }`}
+                }`}
             >
               {error}
             </div>
@@ -163,9 +158,8 @@ export default function EditTaskModal({
           {/* Task Title */}
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                isDark ? "text-slate-300" : "text-slate-700"
-              }`}
+              className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"
+                }`}
             >
               Task Title *
             </label>
@@ -175,11 +169,10 @@ export default function EditTaskModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter task title..."
-              className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                   : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-              }`}
+                }`}
               disabled={saving}
               maxLength={200}
             />
@@ -188,9 +181,8 @@ export default function EditTaskModal({
           {/* Tag Selection */}
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                isDark ? "text-slate-300" : "text-slate-700"
-              }`}
+              className={`block text-sm font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"
+                }`}
             >
               Tag (Optional)
             </label>
@@ -199,11 +191,10 @@ export default function EditTaskModal({
               onChange={(e) =>
                 setSelectedTagId(e.target.value || null)
               }
-              className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isDark
+              className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                   ? "bg-slate-700 border-slate-600 text-white"
                   : "bg-white border-slate-300 text-slate-900"
-              }`}
+                }`}
               disabled={saving}
             >
               <option value="">No tag</option>
@@ -244,28 +235,25 @@ export default function EditTaskModal({
           {/* Important Toggle */}
           <div className="flex items-center justify-between">
             <label
-              className={`text-sm font-medium ${
-                isDark ? "text-slate-300" : "text-slate-700"
-              }`}
+              className={`text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-700"
+                }`}
             >
               Mark as Important
             </label>
             <button
               type="button"
               onClick={() => setIsImportant(!isImportant)}
-              className={`p-2 rounded-lg transition ${
-                isImportant
+              className={`p-2 rounded-lg transition ${isImportant
                   ? "bg-yellow-500/20 text-yellow-500"
                   : isDark
-                  ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
-                  : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-              }`}
+                    ? "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                }`}
               disabled={saving}
             >
               <Star
-                className={`w-5 h-5 ${
-                  isImportant ? "fill-yellow-500" : ""
-                }`}
+                className={`w-5 h-5 ${isImportant ? "fill-yellow-500" : ""
+                  }`}
               />
             </button>
           </div>
@@ -275,11 +263,10 @@ export default function EditTaskModal({
             <button
               type="button"
               onClick={onClose}
-              className={`flex-1 px-4 py-2.5 border rounded-lg font-medium transition ${
-                isDark
+              className={`flex-1 px-4 py-2.5 border rounded-lg font-medium transition ${isDark
                   ? "border-slate-600 text-slate-300 hover:bg-slate-700"
                   : "border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
+                }`}
               disabled={saving}
             >
               Cancel
