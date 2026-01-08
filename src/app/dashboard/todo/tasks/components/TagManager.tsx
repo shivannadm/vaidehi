@@ -1,4 +1,4 @@
- 
+
 // src/app/dashboard/todo/tasks/components/TagManager.tsx
 "use client";
 
@@ -28,8 +28,8 @@ export default function TagManager({
   const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
 
   const availableColors: TagColor[] = [
-    "red", "pink", "purple", "indigo", "blue", 
-    "cyan", "teal", "green", "lime", "yellow", 
+    "red", "pink", "purple", "indigo", "blue",
+    "cyan", "teal", "green", "lime", "yellow",
     "orange", "brown", "gray", "slate", "violet"
   ];
 
@@ -139,11 +139,10 @@ export default function TagManager({
         {!isAdding ? (
           <button
             onClick={() => setIsAdding(true)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-1 ${
-              isDark
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition flex items-center gap-1 ${isDark
                 ? "bg-slate-700 hover:bg-slate-600 text-slate-300"
                 : "bg-slate-200 hover:bg-slate-300 text-slate-700"
-            }`}
+              }`}
           >
             <Plus className="w-3.5 h-3.5" /> Add
           </button>
@@ -153,21 +152,19 @@ export default function TagManager({
       {/* Add Tag Form (Inline) */}
       {isAdding && (
         <div
-          className={`p-4 rounded-lg border ${
-            isDark
+          className={`p-4 rounded-lg border ${isDark
               ? "bg-slate-700/50 border-slate-600"
               : "bg-slate-50 border-slate-200"
-          }`}
+            }`}
         >
           <div className="space-y-3">
             {/* Error Message */}
             {error && (
               <div
-                className={`p-2 rounded text-sm ${
-                  isDark
+                className={`p-2 rounded text-sm ${isDark
                     ? "bg-red-900/20 text-red-400"
                     : "bg-red-50 text-red-700"
-                }`}
+                  }`}
               >
                 {error}
               </div>
@@ -180,11 +177,10 @@ export default function TagManager({
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
                 placeholder="Tag name (e.g., work, study)"
-                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
+                className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark
                     ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400"
                     : "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
-                }`}
+                  }`}
                 maxLength={20}
                 disabled={saving}
                 autoFocus
@@ -198,9 +194,8 @@ export default function TagManager({
             {/* Color Picker */}
             <div>
               <label
-                className={`block text-xs font-medium mb-2 ${
-                  isDark ? "text-slate-300" : "text-slate-700"
-                }`}
+                className={`block text-xs font-medium mb-2 ${isDark ? "text-slate-300" : "text-slate-700"
+                  }`}
               >
                 Choose Color
               </label>
@@ -210,11 +205,10 @@ export default function TagManager({
                     key={color}
                     type="button"
                     onClick={() => setSelectedColor(color)}
-                    className={`w-full h-8 rounded-lg transition relative ${
-                      selectedColor === color
+                    className={`w-full h-8 rounded-lg transition relative ${selectedColor === color
                         ? "ring-2 ring-offset-2 ring-indigo-500"
                         : "hover:scale-105"
-                    }`}
+                      }`}
                     style={{
                       backgroundColor: isDark
                         ? TAG_COLORS[color].darkBg
@@ -242,9 +236,8 @@ export default function TagManager({
             {newTagName.trim() && (
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-xs ${
-                    isDark ? "text-slate-400" : "text-slate-500"
-                  }`}
+                  className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"
+                    }`}
                 >
                   Preview:
                 </span>
@@ -268,11 +261,10 @@ export default function TagManager({
             <div className="flex gap-2 pt-1">
               <button
                 onClick={handleCancel}
-                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                  isDark
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${isDark
                     ? "bg-slate-600 hover:bg-slate-500 text-slate-300"
                     : "bg-slate-200 hover:bg-slate-300 text-slate-700"
-                }`}
+                  }`}
                 disabled={saving}
               >
                 Cancel
@@ -302,9 +294,8 @@ export default function TagManager({
       {/* Empty State */}
       {tags.length === 0 && !isAdding && (
         <p
-          className={`text-sm text-center py-2 ${
-            isDark ? "text-slate-400" : "text-slate-500"
-          }`}
+          className={`text-sm text-center py-2 ${isDark ? "text-slate-400" : "text-slate-500"
+            }`}
         >
           No tags yet. Click "Add" to create your first tag!
         </p>
