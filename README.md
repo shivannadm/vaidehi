@@ -322,20 +322,21 @@ vaidehi/
 ## 📸 Screenshots
 
 ### Task Management
-![Tasks Page](./docs/screenshots/tasks.png)
+![Tasks Page](public/docs/tasks.png)
 *Task board with timer, tags, and timeline view*
 
 ### Routine Tracking
-![Morning Routine](./docs/screenshots/morning.png)
-*Morning routine entry with streak tracking*
+![Morning Routine](public/docs/routine.png)
+*Routine Progress board*
 
 ### Analytics Dashboard
-![Trends](./docs/screenshots/trends.png)
-*Focus time analytics and project distribution*
+![Trends](public/docs/trading.png)
+*Trading analytics dashboard*
 
 ### Projects
-![Projects](./docs/screenshots/projects.png)
-*Project cards with progress tracking*
+![Projects](public/docs/trends1.png)
+![Projects](public/docs/trends3.png)
+*Tasks(trends) progress tracking*
 
 ## 🎨 Key Features Explained
 
