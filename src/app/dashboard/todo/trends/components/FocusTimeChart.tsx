@@ -24,18 +24,18 @@ export default function FocusTimeChart({
   useEffect(() => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      
+
       const handleUserScroll = () => {
         lastUserScrollRef.current = Date.now();
       };
-      
+
       container.addEventListener('scroll', handleUserScroll, { passive: true });
-      
+
       const timeSinceUserScroll = Date.now() - lastUserScrollRef.current;
       if (timeSinceUserScroll > 10000 && data.length > 0) {
         container.scrollTop = container.scrollHeight;
       }
-      
+
       return () => {
         container.removeEventListener('scroll', handleUserScroll);
       };
@@ -56,9 +56,9 @@ export default function FocusTimeChart({
     const isMobile = window.innerWidth < 640;
 
     if (view === 'daily') {
-      return date.toLocaleDateString('en-US', { 
-        month: isMobile ? 'numeric' : 'short', 
-        day: 'numeric' 
+      return date.toLocaleDateString('en-US', {
+        month: isMobile ? 'numeric' : 'short',
+        day: 'numeric'
       });
     } else if (view === 'weekly') {
       return isMobile ? `W${Math.ceil(date.getDate() / 7)}` : `Week ${Math.ceil(date.getDate() / 7)}`;
@@ -125,27 +125,24 @@ export default function FocusTimeChart({
 
   return (
     <div
-      className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex flex-col ${
-        isDark
+      className={`rounded-xl border p-3 sm:p-4 md:p-6 h-full flex flex-col ${isDark
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-slate-200"
-      }`}
+        }`}
     >
       {/* Header - MOBILE OPTIMIZED */}
       <div className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4 md:mb-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <h2
-              className={`text-sm sm:text-base md:text-lg font-bold ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
+              className={`text-sm sm:text-base md:text-lg font-bold ${isDark ? "text-white" : "text-slate-900"
+                }`}
             >
               Focused Time
             </h2>
             <p
-              className={`text-[10px] sm:text-xs md:text-sm ${
-                isDark ? "text-slate-400" : "text-slate-600"
-              }`}
+              className={`text-[10px] sm:text-xs md:text-sm ${isDark ? "text-slate-400" : "text-slate-600"
+                }`}
             >
               Time spent by date
             </p>
@@ -154,23 +151,21 @@ export default function FocusTimeChart({
 
         {/* View Selector - MOBILE: Full width */}
         <div
-          className={`flex items-center rounded-lg border ${
-            isDark
+          className={`flex items-center rounded-lg border ${isDark
               ? "bg-slate-700 border-slate-600"
               : "bg-slate-50 border-slate-200"
-          }`}
+            }`}
         >
           {(['daily', 'weekly', 'monthly'] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`flex-1 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium transition ${
-                view === v
+              className={`flex-1 px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-medium transition ${view === v
                   ? "bg-indigo-600 text-white"
                   : isDark
-                  ? "text-slate-300 hover:bg-slate-600"
-                  : "text-slate-600 hover:bg-slate-100"
-              } ${v === 'daily' ? 'rounded-l-lg' : v === 'monthly' ? 'rounded-r-lg' : ''}`}
+                    ? "text-slate-300 hover:bg-slate-600"
+                    : "text-slate-600 hover:bg-slate-100"
+                } ${v === 'daily' ? 'rounded-l-lg' : v === 'monthly' ? 'rounded-r-lg' : ''}`}
             >
               {v.charAt(0).toUpperCase() + v.slice(1)}
             </button>
@@ -184,9 +179,8 @@ export default function FocusTimeChart({
           {displayData.length === 0 ? (
             <div className="text-center py-8 sm:py-12">
               <p
-                className={`text-xs sm:text-sm ${
-                  isDark ? "text-slate-400" : "text-slate-600"
-                }`}
+                className={`text-xs sm:text-sm ${isDark ? "text-slate-400" : "text-slate-600"
+                  }`}
               >
                 No focus time data yet
               </p>
@@ -201,9 +195,8 @@ export default function FocusTimeChart({
                   {/* Date Label - MOBILE: Narrower */}
                   <div className="w-10 sm:w-14 md:w-16 flex-shrink-0 text-right">
                     <span
-                      className={`text-[9px] sm:text-[10px] md:text-xs font-medium ${
-                        isDark ? "text-slate-400" : "text-slate-600"
-                      }`}
+                      className={`text-[9px] sm:text-[10px] md:text-xs font-medium ${isDark ? "text-slate-400" : "text-slate-600"
+                        }`}
                     >
                       {formatDateLabel(item.date)}
                     </span>
@@ -232,9 +225,8 @@ export default function FocusTimeChart({
                   {/* Hours Label - MOBILE: Narrower */}
                   <div className="w-8 sm:w-10 md:w-12 flex-shrink-0">
                     <span
-                      className={`text-[9px] sm:text-[10px] md:text-xs font-bold ${
-                        isDark ? "text-white" : "text-slate-900"
-                      }`}
+                      className={`text-[9px] sm:text-[10px] md:text-xs font-bold ${isDark ? "text-white" : "text-slate-900"
+                        }`}
                     >
                       {item.totalHours.toFixed(1)}h
                     </span>
