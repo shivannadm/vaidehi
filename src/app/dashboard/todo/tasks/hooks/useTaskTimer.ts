@@ -59,12 +59,12 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
           new Date(now).toISOString(),
           duration
         );
-        
+
         // Also update task's total time
         if (timer.taskId) {
           await addTimeToTask(timer.taskId, duration);
         }
-        
+
         console.log(`✅ Auto-saved: ${duration}s`);
       } catch (err) {
         console.error("Auto-save failed:", err);
@@ -157,7 +157,7 @@ export function useTaskTimer(userId: string | null, currentDate: Date) {
     if (timer.isRunning && timer.sessionId) {
       // Initial save
       saveTimerToLocalStorage();
-      
+
       // Set up auto-save interval
       autoSaveIntervalRef.current = setInterval(() => {
         autoSaveProgress();
