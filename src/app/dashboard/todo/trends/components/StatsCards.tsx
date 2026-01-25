@@ -84,18 +84,16 @@ export default function StatsCards({ stats, isDark }: StatsCardsProps) {
       {cards.map((card, index) => (
         <div
           key={index}
-          className={`rounded-xl border p-4 transition-all hover:shadow-lg ${
-            isDark
+          className={`rounded-xl border p-4 transition-all hover:shadow-lg ${isDark
               ? "bg-slate-800 border-slate-700 hover:border-slate-600"
               : "bg-white border-slate-200 hover:border-slate-300"
-          }`}
+            }`}
         >
           {/* Icon & Title */}
           <div className="flex items-center justify-between mb-3">
             <div
-              className={`p-2 rounded-lg ${
-                isDark ? card.bgDark : card.bgLight
-              }`}
+              className={`p-2 rounded-lg ${isDark ? card.bgDark : card.bgLight
+                }`}
             >
               <card.icon className={`w-5 h-5 ${card.iconColor}`} />
             </div>
@@ -103,9 +101,8 @@ export default function StatsCards({ stats, isDark }: StatsCardsProps) {
 
           {/* Title */}
           <h3
-            className={`text-xs font-medium mb-2 ${
-              isDark ? "text-slate-400" : "text-slate-600"
-            }`}
+            className={`text-xs font-medium mb-2 ${isDark ? "text-slate-400" : "text-slate-600"
+              }`}
           >
             {card.title}
           </h3>
@@ -121,9 +118,8 @@ export default function StatsCards({ stats, isDark }: StatsCardsProps) {
 
           {/* Subtitle */}
           <p
-            className={`text-xs ${
-              isDark ? "text-slate-500" : "text-slate-500"
-            }`}
+            className={`text-xs ${isDark ? "text-slate-500" : "text-slate-500"
+              }`}
           >
             {card.subtitle}
           </p>
