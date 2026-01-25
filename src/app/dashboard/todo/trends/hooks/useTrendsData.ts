@@ -35,7 +35,7 @@ export function useTrendsData(
       setLoading(false);
       return;
     }
-    
+
     setLoading(true);
     try {
       const [statsRes, sessionsRes, focusRes, projectsRes, goalsRes] = await Promise.all([
