@@ -6,7 +6,6 @@ const Footer = () => {
   const footerSections = {
     product: [
       { label: 'Docs', href: '/docs' },
-      { label: 'P&L Report', href: '/pnl-report' },
       { label: 'TODO', href: '/todo' },
       { label: 'Routine', href: '/routine' },
       { label: 'Trading', href: '/trading' },
