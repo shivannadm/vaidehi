@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, useCallback } from 'react';
-import type { ComprehensiveAnalytics, ImportStatus } from '../types/analytics.types';
+import type { ImportStatus } from '../types/analytics.types';
 
 export function useAnalytics(userId: string | null) {
-  const [data, setData] = useState<ComprehensiveAnalytics | null>(null);
+  const [data, setData] = useState<any>(null);
   const [importStatus, setImportStatus] = useState<ImportStatus>({
     status: 'idle',
     message: '',
@@ -115,7 +115,7 @@ export function useAnalytics(userId: string | null) {
 // CALCULATION FUNCTIONS
 // ============================================
 
-async function calculateComprehensiveAnalytics(trades: any[]): Promise<ComprehensiveAnalytics> {
+async function calculateComprehensiveAnalytics(trades: any[]): Promise<any> {
   // This would normally call your trading-helpers or analytics functions
   // For now, return mock data structure
   

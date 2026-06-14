@@ -13,12 +13,12 @@ export function useExport() {
     try {
       setExporting(true);
       setExportProgress(30);
-      
+
       await captureTradingScreenshot('trading-analytics-dashboard', {
         username: options.username,
         appName: options.appName,
       });
-      
+
       setExportProgress(100);
       return { success: true };
     } catch (error) {
@@ -38,17 +38,43 @@ export function useExport() {
       setExporting(true);
       setExportProgress(30);
 
+      // ✅ Explicitly map ComprehensiveAnalytics → TradingAnalyticsData
+      // TradingAnalyticsData has a different shape in tradingExportUtils.ts:
+      //   - performance: { totalPnL, netPnL, winRate, profitFactor, expectancy }
+      //   - riskMetrics:  { sharpeRatio, sortinoRatio, calmarRatio }       ← key name
+      //   - drawdown:     { maxDrawdown, maxDrawdownPercent }
+      //   - streaks:      { longestWinStreak, longestLossStreak }
+      //   - meta:         { totalTrades, dateRange }                        ← different fields
       const pdfData = {
-        performance: data.performance,
-        riskMetrics: data.risk,
-        drawdown: data.drawdown,
-        streaks: data.streaks,
-        meta: data.meta,
+        performance: {
+          totalPnL:     data.performance.totalPnL,
+          netPnL:       data.performance.netPnL,
+          winRate:      data.performance.winRate,
+          profitFactor: data.performance.profitFactor,
+          expectancy:   data.performance.expectancy,
+        },
+        riskMetrics: {                          // ← tradingExportUtils uses "riskMetrics" not "risk"
+          sharpeRatio:  data.risk.sharpeRatio,
+          sortinoRatio: data.risk.sortinoRatio,
+          calmarRatio:  data.risk.calmarRatio,
+        },
+        drawdown: {
+          maxDrawdown:        data.drawdown.maxDrawdown,
+          maxDrawdownPercent: data.drawdown.maxDrawdownPercent,
+        },
+        streaks: {
+          longestWinStreak:  data.streaks.longestWinStreak,
+          longestLossStreak: data.streaks.longestLossStreak,
+        },
+        meta: {                                 // ← tradingExportUtils uses { totalTrades, dateRange }
+          totalTrades: data.performance.totalTrades,
+          dateRange:   `${data.meta.startDate} → ${data.meta.endDate}`,
+        },
       };
 
       await generateTradingPDF(pdfData, {
         username: options.username,
-        appName: options.appName,
+        appName:  options.appName,
       });
 
       setExportProgress(100);
