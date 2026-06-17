@@ -4,7 +4,8 @@
 import { useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { BarChart3, Settings } from "lucide-react";
-
+// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
 interface Trade {
   pnl: number | null;
 }
@@ -230,10 +231,11 @@ export default function PnLHistogram({ closedTrades, isDark }: PnLHistogramProps
                 color: isDark ? '#f1f5f9' : '#0f172a',
               }}
               itemStyle={{ color: isDark ? '#f1f5f9' : '#0f172a' }}
-              formatter={(value: number, name: string, props: any) => {
-                const avg = props.payload.avgPnl;
+              formatter={(value: any, name: any, props: any) => {
+                const avg = props.payload?.avgPnl;
+                const numValue = typeof value === 'number' ? value : 0;
                 return [
-                  `${value} trades${avg !== 0 ? ` • Avg: ${formatINR(avg)}` : ''}`,
+                  `${numValue} trades${avg !== 0 ? ` • Avg: ${formatINR(avg)}` : ''}`,
                   'Count'
                 ];
               }}

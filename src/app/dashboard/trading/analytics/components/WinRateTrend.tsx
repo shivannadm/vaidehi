@@ -118,7 +118,8 @@ export default function WinRateTrend({ data, isDark }: WinRateTrendProps) {
                 fontSize: "11px",
               }}
               labelStyle={{ color: isDark ? "#e2e8f0" : "#0f172a" }}
-              formatter={(value: number) => [`${value}%`, "Win Rate"]}
+              formatter={(value: any) => [`${value}%`, "Win Rate"]}
+              // formatter={(value: any, name: any) => [value, name]}
             />
             <ReferenceLine
               y={50}

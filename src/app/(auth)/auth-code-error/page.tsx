@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function AuthCodeErrorPage() {
+function AuthCodeErrorContent() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
 
@@ -21,26 +21,14 @@ export default function AuthCodeErrorPage() {
         {/* Error Icon */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
+            <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">
-            Authentication Error
-          </h1>
-          <p className="text-slate-600">
-            There was a problem signing you in
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Authentication Error</h1>
+          <p className="text-slate-600">There was a problem signing you in</p>
         </div>
 
         {/* Error Details */}
@@ -65,15 +53,12 @@ export default function AuthCodeErrorPage() {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <Link
-            href="/signup"
+          <Link href="/signup"
             className="w-full block px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg font-semibold text-center hover:from-indigo-700 hover:to-blue-700 transition-all hover:scale-[1.02] shadow-lg"
           >
             Try Signing Up Again
           </Link>
-          
-          <Link
-            href="/login"
+          <Link href="/login"
             className="w-full block px-4 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-lg font-semibold text-center hover:bg-slate-50 hover:border-slate-300 transition-all hover:scale-[1.02]"
           >
             Go to Login
@@ -89,5 +74,13 @@ export default function AuthCodeErrorPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCodeErrorPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthCodeErrorContent />
+    </Suspense>
   );
 }

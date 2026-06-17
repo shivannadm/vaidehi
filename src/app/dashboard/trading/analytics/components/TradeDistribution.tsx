@@ -172,7 +172,8 @@ export default function TradeDistribution({ data, metrics, isDark }: TradeDistri
               }}
               itemStyle={{ color: isDark ? "#f1f5f9" : "#0f172a" }}
               labelStyle={{ color: isDark ? "#f1f5f9" : "#0f172a" }}
-              formatter={(value: number, name: string) => [value, name]}
+              // formatter={(value: number, name: string) => [value, name]}
+              formatter={(value: any, name: any) => [value, name]}
             />
           </PieChart>
         </ResponsiveContainer>
