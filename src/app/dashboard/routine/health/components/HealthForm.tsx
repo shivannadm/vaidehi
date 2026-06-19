@@ -501,7 +501,7 @@ export default function HealthForm({ entry, onUpdate, onSave, saving, isDark }: 
             backgroundColor: entry.smoking_avoided ? (isDark ? '#052e1f' : '#d1fae5') : (isDark ? '#3f1a1a' : '#fee2e2')
           }}>
             <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Avoided Smoking
+              Day satisfied
             </span>
             <button
               onClick={() => onUpdate("smoking_avoided", !entry.smoking_avoided)}

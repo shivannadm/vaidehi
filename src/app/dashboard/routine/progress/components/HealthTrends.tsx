@@ -71,14 +71,18 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
           </div>
 
           {/* Lines */}
-          <svg className="absolute inset-0 w-full h-full overflow-visible">
+          <svg
+            className="absolute inset-0 w-full h-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
             {/* Sleep Quality */}
             <polyline
               points={data
                 .map((d, i) => {
-                  const x = (i / (data.length - 1)) * 100;
+                  const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   const y = 100 - (d.sleepQuality / maxValue) * 100;
-                  return `${x},${y}`;
+                  return `${x.toFixed(2)},${y.toFixed(2)}`;
                 })
                 .join(" ")}
               fill="none"
@@ -91,9 +95,9 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
             <polyline
               points={data
                 .map((d, i) => {
-                  const x = (i / (data.length - 1)) * 100;
+                  const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   const y = 100 - (d.moodRating / maxValue) * 100;
-                  return `${x},${y}`;
+                  return `${x.toFixed(2)},${y.toFixed(2)}`;
                 })
                 .join(" ")}
               fill="none"
@@ -106,9 +110,9 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
             <polyline
               points={data
                 .map((d, i) => {
-                  const x = (i / (data.length - 1)) * 100;
+                  const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   const y = 100 - (d.energyLevel / maxValue) * 100;
-                  return `${x},${y}`;
+                  return `${x.toFixed(2)},${y.toFixed(2)}`;
                 })
                 .join(" ")}
               fill="none"
@@ -121,9 +125,9 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
             <polyline
               points={data
                 .map((d, i) => {
-                  const x = (i / (data.length - 1)) * 100;
+                  const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   const y = 100 - (d.recoveryScore / maxValue) * 100;
-                  return `${x},${y}`;
+                  return `${x.toFixed(2)},${y.toFixed(2)}`;
                 })
                 .join(" ")}
               fill="none"
@@ -131,6 +135,19 @@ export default function HealthTrends({ data, isDark }: HealthTrendsProps) {
               strokeWidth="2"
               vectorEffect="non-scaling-stroke"
             />
+
+            {/* Data point dots */}
+            {data.map((d, i) => {
+              const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
+              return (
+                <g key={`dots-${i}`}>
+                  <circle cx={x.toFixed(2)} cy={(100 - (d.sleepQuality / maxValue) * 100).toFixed(2)} r="1.5" fill="#3B82F6" />
+                  <circle cx={x.toFixed(2)} cy={(100 - (d.moodRating / maxValue) * 100).toFixed(2)} r="1.5" fill="#10B981" />
+                  <circle cx={x.toFixed(2)} cy={(100 - (d.energyLevel / maxValue) * 100).toFixed(2)} r="1.5" fill="#F59E0B" />
+                  <circle cx={x.toFixed(2)} cy={(100 - (d.recoveryScore / maxValue) * 100).toFixed(2)} r="1.5" fill="#8B5CF6" />
+                </g>
+              );
+            })}
           </svg>
         </div>
       </div>

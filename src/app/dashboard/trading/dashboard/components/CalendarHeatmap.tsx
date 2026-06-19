@@ -2,7 +2,7 @@
 "use client";
 
 import { Calendar } from "lucide-react";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 
 interface CalendarHeatmapProps {
   data: { date: string; pnl: number }[];
@@ -16,406 +16,321 @@ interface HoveredCell {
   y: number;
 }
 
+const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 export default function CalendarHeatmap({ data, isDark }: CalendarHeatmapProps) {
   const [hoveredCell, setHoveredCell] = useState<HoveredCell | null>(null);
+  const [cellSize, setCellSize] = useState(14);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Generate full FY dates
-  const fyDates = useMemo(() => {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-
-    const fyStartYear = currentMonth < 3 ? currentYear - 1 : currentYear;
-    const fyStart = new Date(fyStartYear, 3, 1);
-    const fyEnd = new Date(fyStartYear + 1, 2, 31);
-
-    const dates: Date[] = [];
-    const current = new Date(fyStart);
-
-    while (current <= fyEnd && current <= today) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-
-    return dates;
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
   }, []);
 
+  // Full FY: Apr 1 → Mar 31 (all 365 days, including future)
+  const { fyDates, fyStart, fyEnd } = useMemo(() => {
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+    const fyStartYear = currentMonth < 3 ? currentYear - 1 : currentYear;
+    const start = new Date(fyStartYear, 3, 1);
+    const end = new Date(fyStartYear + 1, 2, 31);
+
+    const dates: Date[] = [];
+    const cur = new Date(start);
+    while (cur <= end) {
+      dates.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return { fyDates: dates, fyStart: start, fyEnd: end };
+  }, [today]);
+
+  // Map date → pnl
   const dataMap = useMemo(() => {
     const map = new Map<string, number>();
     data.forEach((item) => {
-      map.set(item.date, item.pnl);
+      const key = item.date.split("T")[0];
+      map.set(key, (map.get(key) || 0) + item.pnl);
     });
     return map;
   }, [data]);
 
-  // Dynamic slabs calculation
-  const { profitColorForLevel, lossColorForLevel, hasPositive, hasNegative } = useMemo(() => {
-    const positivePnLs = Array.from(dataMap.values()).filter((x) => x > 0);
-    const negativePnLs = Array.from(dataMap.values()).filter((x) => x < 0);
+  // Build week columns — all 53 weeks of the full FY
+  const { columns, monthPositions } = useMemo(() => {
+    const cols: (Date | null)[][] = [];
+    let cur: (Date | null)[] = [];
 
-    const hasPos = positivePnLs.length > 0;
-    const minProfit = hasPos ? Math.min(...positivePnLs) : 0;
-    const maxProfit = hasPos ? Math.max(...positivePnLs) : 0;
-    const profitSingleValue = hasPos && minProfit === maxProfit;
-    const profitStep = hasPos && !profitSingleValue ? (maxProfit - minProfit) / 5 : 0;
+    // Pad start so first date lands on correct day-of-week
+    const firstDow = fyDates[0]?.getDay() ?? 0;
+    for (let i = 0; i < firstDow; i++) cur.push(null);
 
-    const hasNeg = negativePnLs.length > 0;
-    const negativeMagnitudes = negativePnLs.map((n) => Math.abs(n));
-    const minLossAbs = hasNeg ? Math.min(...negativeMagnitudes) : 0;
-    const maxLossAbs = hasNeg ? Math.max(...negativeMagnitudes) : 0;
-    const lossSingleValue = hasNeg && minLossAbs === maxLossAbs;
-    const lossStep = hasNeg && !lossSingleValue ? (maxLossAbs - minLossAbs) / 5 : 0;
-
-    const profitColors = ["bg-emerald-200", "bg-emerald-300", "bg-emerald-400", "bg-emerald-500", "bg-emerald-600", "bg-emerald-700"];
-    const lossColors = ["bg-red-200", "bg-red-300", "bg-red-400", "bg-red-500", "bg-red-600", "bg-red-700"];
-
-    const getProfitColor = (pnl: number) => {
-      if (!hasPos || profitSingleValue || profitStep === 0) return profitColors[5];
-      let level = Math.floor((pnl - minProfit) / profitStep);
-      level = Math.max(0, Math.min(4, level));
-      const lastThreshold = minProfit + profitStep * 5;
-      if (pnl >= lastThreshold) return profitColors[5];
-      return profitColors[level];
-    };
-
-    const getLossColor = (pnl: number) => {
-      if (!hasNeg || lossSingleValue || lossStep === 0) return lossColors[5];
-      const absPnl = Math.abs(pnl);
-      let level = Math.floor((absPnl - minLossAbs) / lossStep);
-      level = Math.max(0, Math.min(4, level));
-      const lastLossThreshold = minLossAbs + lossStep * 5;
-      if (absPnl >= lastLossThreshold) return lossColors[5];
-      return lossColors[level];
-    };
-
-    return {
-      profitColorForLevel: getProfitColor,
-      lossColorForLevel: getLossColor,
-      hasPositive: hasPos,
-      hasNegative: hasNeg,
-    };
-  }, [dataMap]);
-
-  const getColorClass = useCallback((pnl: number | undefined) => {
-    if (pnl === undefined) {
-      return isDark ? "bg-slate-800/40 border border-slate-700/30" : "bg-slate-100 border border-slate-200";
-    }
-
-    if (pnl === 0) {
-      return isDark ? "bg-slate-700" : "bg-slate-300";
-    }
-
-    if (pnl > 0) {
-      return profitColorForLevel(pnl);
-    }
-
-    if (pnl < 0) {
-      return lossColorForLevel(pnl);
-    }
-
-    return isDark ? "bg-slate-700" : "bg-slate-300";
-  }, [isDark, profitColorForLevel, lossColorForLevel]);
-
-  // Build weeks
-  const weeks = useMemo(() => {
-    const weeksArray: Date[][] = [];
-    let currentWeek: Date[] = [];
-
-    const firstDayOfWeek = fyDates[0]?.getDay() || 0;
-    for (let i = 0; i < firstDayOfWeek; i++) {
-      currentWeek.push(new Date(0));
-    }
+    const monthPos: { month: number; startCol: number }[] = [];
 
     fyDates.forEach((date) => {
-      currentWeek.push(date);
-      if (currentWeek.length === 7) {
-        weeksArray.push([...currentWeek]);
-        currentWeek = [];
+      if (date.getDate() === 1) {
+        monthPos.push({ month: date.getMonth(), startCol: cols.length });
+      }
+      cur.push(date);
+      if (cur.length === 7) {
+        cols.push([...cur]);
+        cur = [];
       }
     });
 
-    if (currentWeek.length > 0) {
-      while (currentWeek.length < 7) {
-        currentWeek.push(new Date(0));
-      }
-      weeksArray.push(currentWeek);
+    if (cur.length > 0) {
+      while (cur.length < 7) cur.push(null);
+      cols.push(cur);
     }
 
-    return weeksArray;
+    const totalCols = cols.length;
+
+    // Compute midpoint column for each month label
+    const monthPositions = monthPos.map((mp, i) => {
+      const nextStart = i + 1 < monthPos.length ? monthPos[i + 1].startCol : totalCols;
+      const midCol = Math.round((mp.startCol + nextStart - 1) / 2);
+      return { month: mp.month, midCol };
+    });
+
+    return { columns: cols, monthPositions };
   }, [fyDates]);
 
-  const { totalPnL, profitDays } = useMemo(() => {
-    const total = Array.from(dataMap.values()).reduce((sum, pnl) => sum + pnl, 0);
-    const profit = Array.from(dataMap.values()).filter((pnl) => pnl > 0).length;
-    return { totalPnL: total, profitDays: profit };
+  // Color scales (inline hex — no Tailwind purge issues)
+  const profitScale = ["#bbf7d0","#86efac","#4ade80","#22c55e","#16a34a","#15803d"];
+  const lossScale   = ["#fee2e2","#fca5a5","#f87171","#ef4444","#dc2626","#b91c1c"];
+
+  const maxProfit = useMemo(() => {
+    const vals = Array.from(dataMap.values()).filter(v => v > 0);
+    return vals.length ? Math.max(...vals) : 1;
   }, [dataMap]);
 
-  const getMonthLabel = useCallback((weekIndex: number) => {
-    const week = weeks[weekIndex];
-    const firstValidDate = week.find((d) => d.getTime() > 0);
+  const maxLoss = useMemo(() => {
+    const vals = Array.from(dataMap.values()).filter(v => v < 0);
+    return vals.length ? Math.abs(Math.min(...vals)) : 1;
+  }, [dataMap]);
 
-    if (!firstValidDate) return null;
+  const getColor = useCallback((pnl: number | undefined, isFuture: boolean) => {
+    if (isFuture || pnl === undefined) return null; // null = show empty box
+    if (pnl === 0) return isDark ? "#334155" : "#cbd5e1";
+    if (pnl > 0) return profitScale[Math.min(5, Math.floor((pnl / maxProfit) * 5.99))];
+    return lossScale[Math.min(5, Math.floor((Math.abs(pnl) / maxLoss) * 5.99))];
+  }, [dataMap, isDark, maxProfit, maxLoss]);
 
-    if (firstValidDate.getDate() <= 7) {
-      const monthStr = firstValidDate.toLocaleDateString("en-US", { month: "short" });
+  // Responsive: compute cell size to exactly fill container width
+  useEffect(() => {
+    const compute = () => {
+      if (!wrapperRef.current) return;
+      const W = wrapperRef.current.clientWidth;
+      const DAY_COL = 20; // day label column width
+      const GAP = 2;
+      const n = columns.length;
+      // solve: DAY_COL + n*size + (n-1)*GAP = W
+      const size = Math.max(8, Math.floor((W - DAY_COL - GAP * (n - 1)) / n));
+      setCellSize(size);
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    if (wrapperRef.current) ro.observe(wrapperRef.current);
+    return () => ro.disconnect();
+  }, [columns.length]);
 
-      if (weekIndex > 0) {
-        const prevWeek = weeks[weekIndex - 1];
-        const prevDate = prevWeek.find((d) => d.getTime() > 0);
-        if (prevDate && prevDate.getMonth() === firstValidDate.getMonth()) {
-          return null;
-        }
-      }
+  const { totalPnL, profitDays, lossDays } = useMemo(() => {
+    let total = 0, p = 0, l = 0;
+    dataMap.forEach(v => { total += v; if (v > 0) p++; else if (v < 0) l++; });
+    return { totalPnL: total, profitDays: p, lossDays: l };
+  }, [dataMap]);
 
-      return monthStr;
-    }
-
-    return null;
-  }, [weeks]);
-
-  // Optimized hover handler with consistent data flow
-  const handleMouseEnter = useCallback((displayDate: string, pnl: number | undefined, e: React.MouseEvent) => {
+  const handleEnter = useCallback((displayDate: string, pnl: number | undefined, isFuture: boolean, e: React.MouseEvent) => {
+    if (isFuture) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    setHoveredCell({
-      displayDate,
-      pnl,
-      x: rect.left + rect.width / 2,
-      y: rect.top,
-    });
+    setHoveredCell({ displayDate, pnl, x: rect.left + rect.width / 2, y: rect.top });
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
-    setHoveredCell(null);
-  }, []);
+  const emptyBorder = isDark ? "#1e3a52" : "#cbd5e1";
+  const emptyBg     = isDark ? "#0f1e2e" : "#f8fafc";
+  const GAP = 2;
+  const DAY_COL = 20;
 
   return (
-    <div
-      className={`rounded-2xl p-4 md:p-6 border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"
-        } shadow-lg`}
-    >
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div className={`rounded-2xl p-4 md:p-6 border shadow-lg ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}>
+
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Calendar className={`w-5 h-5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`} />
-            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-              Trading Calendar
-            </h3>
+            <h3 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Trading Calendar</h3>
           </div>
-          <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-            Financial Year Activity (12 Months)
-          </p>
+          <p className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>Financial Year Activity (12 Months)</p>
         </div>
-
-        <div className="text-right">
-          <div
-            className={`text-2xl md:text-3xl font-bold ${totalPnL >= 0 ? "text-emerald-500" : "text-red-500"
-              }`}
-          >
-            {totalPnL >= 0 ? "+" : "-"}₹{Math.abs(totalPnL).toLocaleString("en-IN")}
+        <div className="text-right flex-shrink-0">
+          <div className={`text-2xl font-bold ${totalPnL >= 0 ? "text-emerald-500" : "text-red-500"}`}>
+            {totalPnL >= 0 ? "+" : "-"}₹{Math.abs(totalPnL).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
-          <div className={`text-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-            {profitDays} profit days
+          <div className={`text-xs mt-0.5 ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+            <span className="text-emerald-500 font-semibold">{profitDays}P</span>
+            {" / "}
+            <span className="text-red-500 font-semibold">{lossDays}L</span>
+            {" days traded"}
           </div>
         </div>
       </div>
 
-      {/* Desktop Month Labels */}
-      <div className="hidden sm:block">
-        <div className="overflow-x-auto scrollbar-thin">
-          <div className="flex mb-2 min-w-max">
-            <div className="w-15 flex-shrink-0"></div>
-            <div className="flex-1 flex justify-between px-1">
-              {weeks.map((_, weekIndex) => (
-                <div key={weekIndex} className="flex-1 text-center min-w-[12px]">
-                  {getMonthLabel(weekIndex) && (
-                    <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                      {getMonthLabel(weekIndex)}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* ── Heatmap ── */}
+      <div ref={wrapperRef} style={{ width: "100%", overflowX: "auto", overflowY: "visible" }}>
+        <div style={{ width: "100%", minWidth: `${DAY_COL + columns.length * (cellSize + GAP)}px` }}>
 
-      {/* Scrollable Grid Area */}
-      <div className="overflow-x-auto pb-1 mb-4 scrollbar-thin" style={{ overflowY: "visible" }}>
-        <div className="min-w-max">
-          {/* Mobile Month Labels */}
-          <div className="flex items-center mb-3 sm:hidden">
-            <div className="w-10 flex-shrink-0"></div>
-            <div className="flex gap-1">
-              {weeks.map((_, wi) => (
-                <div key={wi} className="min-w-[10px] text-center">
-                  {getMonthLabel(wi) && (
-                    <span className={`text-xs font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                      {getMonthLabel(wi)}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex gap-1 min-w-max">
-            {/* Day Labels - Desktop */}
-            <div className="hidden sm:flex flex-col gap-1 justify-around pr-2 w-8 flex-shrink-0">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div
-                  key={day}
-                  className={`text-[10px] text-right font-medium aspect-square flex items-center justify-end ${isDark ? "text-slate-400" : "text-slate-600"
-                    }`}
+          {/* Month labels — centered over each month's column span */}
+          <div style={{ position: "relative", height: "18px", paddingLeft: `${DAY_COL}px`, marginBottom: "4px" }}>
+            {monthPositions.map((mp, i) => {
+              // left offset = DAY_COL + midCol * (cellSize + GAP) + cellSize/2
+              const leftPx = mp.midCol * (cellSize + GAP) + cellSize / 2;
+              return (
+                <span
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    left: `${DAY_COL + leftPx}px`,
+                    transform: "translateX(-50%)",
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    color: isDark ? "#94a3b8" : "#475569",
+                    whiteSpace: "nowrap",
+                    lineHeight: "18px",
+                  }}
                 >
-                  {day}
+                  {MONTH_NAMES[mp.month]}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Day labels + grid */}
+          <div style={{ display: "flex", width: "100%" }}>
+
+            {/* Day-of-week labels: show all 7 */}
+            <div style={{ width: `${DAY_COL}px`, flexShrink: 0, display: "flex", flexDirection: "column", gap: `${GAP}px` }}>
+              {DAY_LABELS.map((label, i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: `${cellSize}px`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    paddingRight: "4px",
+                    fontSize: "9px",
+                    fontWeight: 600,
+                    color: isDark ? "#475569" : "#94a3b8",
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  {label}
                 </div>
               ))}
             </div>
 
-            {/* Day Labels - Mobile */}
-            <div className="sm:hidden flex flex-col gap-1 justify-between pr-2 w-4 flex-shrink-0 text-[7px]">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div key={day} className={`font-medium ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                  {day[0]}
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop Grid */}
-            <div
-              className="hidden sm:grid gap-1"
-              style={{ gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))`, width: "100%" }}
-            >
-              {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-1">
-                  {week.map((date, dayIndex) => {
-                    const isEmpty = date.getTime() === 0;
-
-                    if (isEmpty) {
+            {/* Week columns — flex:1 so they fill all remaining width */}
+            <div style={{ display: "flex", gap: `${GAP}px`, flex: 1, minWidth: 0 }}>
+              {columns.map((col, ci) => (
+                <div key={ci} style={{ display: "flex", flexDirection: "column", gap: `${GAP}px`, flex: 1, minWidth: 0 }}>
+                  {col.map((date, di) => {
+                    if (!date) {
+                      // padding cell — invisible
                       return (
-                        <div
-                          key={dayIndex}
-                          className={`aspect-square rounded-sm ${isDark ? "bg-slate-900/30" : "bg-slate-50"}`}
-                        />
+                        <div key={di} style={{ height: `${cellSize}px`, flexShrink: 0, borderRadius: "3px" }} />
                       );
                     }
 
-                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-                      date.getDate()
-                    ).padStart(2, "0")}`;
+                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+                    const isFuture = date > today;
                     const pnl = dataMap.get(dateStr);
-                    const colorClass = getColorClass(pnl);
-                    const displayDate = date.toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    });
+                    const color = getColor(pnl, isFuture);
+                    const displayDate = date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
                     return (
                       <div
-                        key={dayIndex}
-                        className={`aspect-square rounded-sm ${colorClass} transition-colors duration-150 cursor-pointer will-change-transform`}
-                        onMouseEnter={(e) => handleMouseEnter(displayDate, pnl, e)}
-                        onMouseLeave={handleMouseLeave}
+                        key={di}
+                        title={isFuture ? "" : undefined}
                         style={{
-                          transform: 'translateZ(0)',
-                          backfaceVisibility: 'hidden'
+                          height: `${cellSize}px`,
+                          borderRadius: "3px",
+                          flexShrink: 0,
+                          cursor: isFuture ? "default" : "pointer",
+                          backgroundColor: color ?? emptyBg,
+                          border: color === null ? `1px solid ${emptyBorder}` : "none",
+                          transition: "opacity 0.1s",
+                          opacity: isFuture ? 0.25 : 1,
                         }}
+                        onMouseEnter={(e) => handleEnter(displayDate, pnl, isFuture, e)}
+                        onMouseLeave={() => setHoveredCell(null)}
                       />
                     );
                   })}
                 </div>
               ))}
             </div>
-
-            {/* Mobile Grid */}
-            <div className="sm:hidden flex gap-1">
-              {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-1 min-w-[13px]">
-                  {week.map((date, dayIndex) => {
-                    const isEmpty = date.getTime() === 0;
-                    if (isEmpty) {
-                      return (
-                        <div
-                          key={dayIndex}
-                          className={`w-2.5 h-2.5 rounded-full ${isDark ? "bg-slate-900/30" : "bg-slate-50"}`}
-                        />
-                      );
-                    }
-
-                    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-                      date.getDate()
-                    ).padStart(2, "0")}`;
-                    const pnl = dataMap.get(dateStr);
-                    const colorClass = getColorClass(pnl);
-
-                    return <div key={dayIndex} className={`w-2.5 h-2.5 rounded-full ${colorClass} transition-all`} />;
-                  })}
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Floating Tooltip - Optimized */}
+      {/* ── Tooltip ── */}
       {hoveredCell && (
-        <div
-          className="fixed pointer-events-none z-[9999]"
-          style={{
-            left: `${hoveredCell.x}px`,
-            top: `${hoveredCell.y - 10}px`,
-            transform: 'translate(-50%, -100%) translateZ(0)',
-            willChange: 'transform',
-          }}
-        >
-          <div
-            className={`px-3 py-2 rounded-lg text-xs whitespace-nowrap shadow-2xl border-2 ${isDark ? "bg-slate-900 text-white border-slate-700" : "bg-white text-slate-900 border-slate-300"
-              }`}
-          >
-            <div className="font-bold text-sm mb-1">
+        <div style={{ position: "fixed", left: `${hoveredCell.x}px`, top: `${hoveredCell.y - 12}px`, transform: "translate(-50%, -100%)", pointerEvents: "none", zIndex: 9999 }}>
+          <div style={{
+            padding: "8px 12px", borderRadius: "8px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
+            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+            whiteSpace: "nowrap",
+          }}>
+            <div style={{ fontSize: "11px", fontWeight: 600, color: isDark ? "#94a3b8" : "#64748b", marginBottom: "4px" }}>
               {hoveredCell.displayDate}
             </div>
-            <div
-              className={`font-bold text-base ${hoveredCell.pnl && hoveredCell.pnl > 0
-                ? "text-emerald-500"
-                : hoveredCell.pnl && hoveredCell.pnl < 0
-                  ? "text-red-500"
-                  : isDark
-                    ? "text-slate-400"
-                    : "text-slate-600"
-                }`}
-            >
+            <div style={{
+              fontSize: "14px", fontWeight: 700,
+              color: hoveredCell.pnl !== undefined && hoveredCell.pnl > 0 ? "#10b981"
+                : hoveredCell.pnl !== undefined && hoveredCell.pnl < 0 ? "#ef4444"
+                : isDark ? "#475569" : "#94a3b8",
+            }}>
               {hoveredCell.pnl !== undefined
-                ? `${hoveredCell.pnl >= 0 ? "+" : "-"}₹${Math.abs(hoveredCell.pnl).toFixed(2)}`
+                ? `${hoveredCell.pnl >= 0 ? "+" : "-"}₹${Math.abs(hoveredCell.pnl).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 : "No trade"}
             </div>
           </div>
-          <div
-            className={`absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 rotate-45 ${isDark
-              ? "bg-slate-900 border-r-2 border-b-2 border-slate-700"
-              : "bg-white border-r-2 border-b-2 border-slate-300"
-              }`}
-          />
+          <div style={{
+            position: "absolute", left: "50%", bottom: "-4px",
+            transform: "translateX(-50%) rotate(45deg)",
+            width: "8px", height: "8px",
+            backgroundColor: isDark ? "#0f172a" : "#ffffff",
+            borderRight: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
+            borderBottom: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
+          }} />
         </div>
       )}
 
-      {/* Legend */}
-      <div className="flex items-center justify-end gap-1.5 mt-4 text-xs flex-wrap">
-        <span className={`text-[11px] font-medium ${isDark ? "text-slate-400" : "text-slate-600"}`}>Less</span>
-        <div
-          className={`w-3 h-3 rounded-sm ${isDark ? "bg-slate-800/40 border border-slate-700/30" : "bg-slate-100 border border-slate-200"
-            }`}
-        />
-        <div className="w-3 h-3 rounded-sm bg-emerald-200" />
-        <div className="w-3 h-3 rounded-sm bg-emerald-400" />
-        <div className="w-3 h-3 rounded-sm bg-emerald-600" />
-        <span className="mx-0.5 text-slate-500">|</span>
-        <div className="w-3 h-3 rounded-sm bg-red-200" />
-        <div className="w-3 h-3 rounded-sm bg-red-400" />
-        <div className="w-3 h-3 rounded-sm bg-red-600" />
-        <span className={`text-[11px] font-medium ${isDark ? "text-slate-400" : "text-slate-600"}`}>More</span>
+      {/* ── Footer: FY range + Legend ── */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "14px", flexWrap: "wrap", gap: "8px" }}>
+        <span style={{ fontSize: "10px", color: isDark ? "#334155" : "#94a3b8" }}>
+          Apr {fyStart.getFullYear()} — Mar {fyEnd.getFullYear()}
+        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span style={{ fontSize: "10px", color: isDark ? "#475569" : "#94a3b8" }}>Less</span>
+          {/* Empty */}
+          <div style={{ width: "10px", height: "10px", borderRadius: "2px", backgroundColor: emptyBg, border: `1px solid ${emptyBorder}` }} />
+          {/* Profit shades */}
+          {["#86efac","#22c55e","#15803d"].map((c,i) => (
+            <div key={i} style={{ width: "10px", height: "10px", borderRadius: "2px", backgroundColor: c }} />
+          ))}
+          <span style={{ fontSize: "10px", color: isDark ? "#334155" : "#cbd5e1", margin: "0 2px" }}>|</span>
+          {/* Loss shades */}
+          {["#fca5a5","#ef4444","#b91c1c"].map((c,i) => (
+            <div key={i} style={{ width: "10px", height: "10px", borderRadius: "2px", backgroundColor: c }} />
+          ))}
+          <span style={{ fontSize: "10px", color: isDark ? "#475569" : "#94a3b8" }}>More</span>
+        </div>
       </div>
     </div>
   );

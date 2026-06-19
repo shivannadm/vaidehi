@@ -1,19 +1,16 @@
-// ============================================
 // FILE: src/app/api/contributions/create-order/route.ts
-// 🎯 Creates Razorpay order for contribution
-// ============================================
 
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
-
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Razorpay instance inside handler (prevents build-time crash)
+    const razorpay = new Razorpay({
+      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+    });
+
     // Parse request body
     const body = await request.json();
     const { amount, currency = "INR", name, email } = body;
@@ -51,8 +48,8 @@ export async function POST(request: NextRequest) {
         contributor_name: name,
         contributor_email: email,
         type: "contribution",
-        platform: "vaidehi"
-      }
+        platform: "vaidehi",
+      },
     };
 
     console.log("Creating Razorpay order with options:", options);
@@ -68,18 +65,16 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
-
   } catch (error: any) {
     console.error("❌ Razorpay order creation failed:", error);
 
-    // Handle specific Razorpay errors
     if (error.statusCode === 401) {
       return NextResponse.json(
-        { 
+        {
           error: "Razorpay authentication failed. Please check your API keys.",
-          message: "Invalid API credentials" 
+          message: "Invalid API credentials",
         },
         { status: 500 }
       );
@@ -87,19 +82,18 @@ export async function POST(request: NextRequest) {
 
     if (error.statusCode === 400) {
       return NextResponse.json(
-        { 
+        {
           error: "Invalid request to Razorpay",
-          message: error.error?.description || error.message 
+          message: error.error?.description || error.message,
         },
         { status: 400 }
       );
     }
 
-    // Generic error
     return NextResponse.json(
-      { 
+      {
         error: "Failed to create payment order",
-        message: error.message || "Unknown error occurred"
+        message: error.message || "Unknown error occurred",
       },
       { status: 500 }
     );

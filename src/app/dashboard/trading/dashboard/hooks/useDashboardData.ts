@@ -134,23 +134,26 @@ export function useDashboardData(userId: string | null) {
         .sort((a, b) => a.month.localeCompare(b.month))
         .slice(-6);
 
-      // Calculate Calendar Data (last 90 days)
+      // Calculate Calendar Data — full current Financial Year (Apr 1 → today)
+      const now = new Date();
+      const fyStartYear = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear();
+      const fyStart = new Date(fyStartYear, 3, 1); // April 1
+
       const calendarMap = new Map<string, number>();
-      const last90Days = closedTrades.filter((trade) => {
+      const fyTrades = closedTrades.filter((trade) => {
         const tradeDate = new Date(trade.entry_date);
-        const now = new Date();
-        const diffDays = Math.floor((now.getTime() - tradeDate.getTime()) / (1000 * 60 * 60 * 24));
-        return diffDays <= 90;
+        return tradeDate >= fyStart && tradeDate <= now;
       });
 
-      last90Days.forEach((trade) => {
-        const dateKey = trade.entry_date;
+      fyTrades.forEach((trade) => {
+        // Normalize to YYYY-MM-DD only (strip time)
+        const dateKey = trade.entry_date.split("T")[0];
         calendarMap.set(dateKey, (calendarMap.get(dateKey) || 0) + (trade.pnl || 0));
       });
 
       const calendarData = Array.from(calendarMap.entries()).map(([date, pnl]) => ({
         date,
-        pnl: Math.round(pnl),
+        pnl: Math.round(pnl * 100) / 100,
       }));
 
       // Strategy Performance
