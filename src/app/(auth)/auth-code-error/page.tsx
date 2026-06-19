@@ -4,6 +4,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 function AuthCodeErrorContent() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
