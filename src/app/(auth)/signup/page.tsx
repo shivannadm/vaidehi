@@ -14,18 +14,18 @@ export default function SignupPage() {
   const [message, setMessage] = useState("");
   
   const router = useRouter();
-  const supabase = createClient();
 
   // Check if user is already logged in
   useEffect(() => {
     const checkUser = async () => {
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         router.push("/dashboard");
       }
     };
     checkUser();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +47,7 @@ export default function SignupPage() {
     }
 
     try {
+      const supabase = createClient();
       // Get the correct redirect URL
       const redirectUrl = typeof window !== 'undefined' 
         ? `${window.location.origin}/auth/callback`
@@ -118,6 +119,7 @@ export default function SignupPage() {
     setMessage("");
 
     try {
+      const supabase = createClient();
       // Get the correct redirect URL
       const redirectUrl = typeof window !== 'undefined' 
         ? `${window.location.origin}/auth/callback`
